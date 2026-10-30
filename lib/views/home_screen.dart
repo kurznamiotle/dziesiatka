@@ -4,7 +4,10 @@ import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/daily_quiz_screen.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
@@ -35,7 +38,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _factsService = FactsService();
-  late final _deckService = DailyDeckService(_factsService, now: widget.now);
+  late final _deckService = DailyDeckService(
+    _factsService,
+    StreakService(now: widget.now),
+    now: widget.now,
+  );
   DailySession? _session;
   bool _loadFailed = false;
 
@@ -79,6 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _undo() => _updateSession(_deckService.undo);
+
+  void _finishQuiz(int correct) {
+    _updateSession(() => _deckService.finishQuiz(correct));
+  }
 
   Future<void> _openFavorites() async {
     await Navigator.of(context).push(
@@ -125,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _ProgressHeader(
           completed: session.completedCount,
           total: session.facts.length,
+          streak: session.streak,
           themeService: widget.themeService,
           onOpenFavorites: _openFavorites,
         ),
@@ -139,13 +151,23 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Center(child: Text('Brak ciekawostek.'));
     }
 
+    if (session.isQuizPending) {
+      return DailyQuizScreen(
+        questions: session.quizQuestions,
+        onFinished: _finishQuiz,
+        onUndo: _undo,
+      );
+    }
+
     final remaining = session.remaining;
     if (remaining.isEmpty) {
       return _CompletionView(
+        quizCorrect: session.deck.quizCorrect,
+        quizTotal: session.quizQuestions.length,
+        streak: session.streak,
         timeUntilNextDeck: () => _deckService.timeUntilNextDeck(session),
         onNextDeckReady: _loadSession,
         onReview: () => _openReview(session),
-        onUndo: _undo,
       );
     }
 
@@ -162,12 +184,14 @@ class _ProgressHeader extends StatelessWidget {
   const _ProgressHeader({
     required this.completed,
     required this.total,
+    required this.streak,
     required this.themeService,
     required this.onOpenFavorites,
   });
 
   final int completed;
   final int total;
+  final int streak;
   final ThemeService themeService;
   final VoidCallback onOpenFavorites;
 
@@ -181,25 +205,11 @@ class _ProgressHeader extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 12,
-                runSpacing: 4,
-                children: [
-                  Text(
-                    'Dziesiątka',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  Text(
-                    '$completed / $total ukończone',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                      color: mutedColor,
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Dziesiątka',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
             IconButton(
@@ -213,13 +223,61 @@ class _ProgressHeader extends StatelessWidget {
             ThemeModeButton(themeService: themeService),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 4),
+        Row(
+          spacing: 12,
+          children: [
+            Expanded(
+              child: Text(
+                '$completed / $total ukończone',
+                style: theme.textTheme.labelLarge?.copyWith(color: mutedColor),
+              ),
+            ),
+            _StreakBadge(streak: streak),
+          ],
+        ),
+        const SizedBox(height: 8),
         LinearProgressIndicator(
           value: total == 0 ? 0 : completed / total,
           minHeight: 6,
           borderRadius: BorderRadius.circular(3),
         ),
       ],
+    );
+  }
+}
+
+String _streakLabel(int streak) {
+  return streak == 1 ? 'Seria: 1 dzień' : 'Seria: $streak dni';
+}
+
+class _StreakBadge extends StatelessWidget {
+  const _StreakBadge({required this.streak});
+
+  final int streak;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = streak > 0
+        ? theme.extension<AppSurfaces>()!.streak
+        : theme.colorScheme.onSurfaceVariant;
+    return Tooltip(
+      message: _streakLabel(streak),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 2,
+        children: [
+          Icon(Icons.local_fire_department_rounded, size: 18, color: color),
+          Text(
+            '$streak',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -484,21 +542,27 @@ class _LikeLabel extends StatelessWidget {
 
 class _CompletionView extends StatelessWidget {
   const _CompletionView({
+    required this.quizCorrect,
+    required this.quizTotal,
+    required this.streak,
     required this.timeUntilNextDeck,
     required this.onNextDeckReady,
     required this.onReview,
-    required this.onUndo,
   });
 
+  final int? quizCorrect;
+  final int quizTotal;
+  final int streak;
   final Duration Function() timeUntilNextDeck;
   final VoidCallback onNextDeckReady;
   final VoidCallback onReview;
-  final VoidCallback onUndo;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final surfaces = theme.extension<AppSurfaces>()!;
+    final correct = quizCorrect;
     return Center(
       child: SingleChildScrollView(
         child: Column(
@@ -533,6 +597,35 @@ class _CompletionView extends StatelessWidget {
                 color: colors.onSurfaceVariant,
               ),
             ),
+            if (correct != null) ...[
+              const SizedBox(height: 20),
+              Text(
+                '$correct/$quizTotal poprawne!',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              children: [
+                Icon(
+                  Icons.local_fire_department_rounded,
+                  size: 22,
+                  color: surfaces.streak,
+                ),
+                Text(
+                  _streakLabel(streak),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: surfaces.streak,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 20),
             _NextDeckCountdown(
               timeRemaining: timeUntilNextDeck,
@@ -543,12 +636,6 @@ class _CompletionView extends StatelessWidget {
               onPressed: onReview,
               icon: const Icon(Icons.replay_rounded),
               label: const Text('Powtórz dzisiejszą talię'),
-            ),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: onUndo,
-              icon: const Icon(Icons.undo_rounded),
-              label: const Text('Cofnij ostatnią kartę'),
             ),
           ],
         ),

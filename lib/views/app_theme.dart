@@ -10,6 +10,7 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
     required this.card,
     required this.border,
     required this.shadow,
+    required this.streak,
   });
 
   final Color backdrop;
@@ -17,6 +18,7 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
   final Color card;
   final Color border;
   final Color shadow;
+  final Color streak;
 
   @override
   AppSurfaces copyWith({
@@ -25,6 +27,7 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
     Color? card,
     Color? border,
     Color? shadow,
+    Color? streak,
   }) {
     return AppSurfaces(
       backdrop: backdrop ?? this.backdrop,
@@ -32,6 +35,7 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
       card: card ?? this.card,
       border: border ?? this.border,
       shadow: shadow ?? this.shadow,
+      streak: streak ?? this.streak,
     );
   }
 
@@ -44,6 +48,7 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
       card: Color.lerp(card, other.card, t)!,
       border: Color.lerp(border, other.border, t)!,
       shadow: Color.lerp(shadow, other.shadow, t)!,
+      streak: Color.lerp(streak, other.streak, t)!,
     );
   }
 }
@@ -57,6 +62,7 @@ abstract final class AppTheme {
     card: Color(0xFFFFFFFF),
     border: Color(0x00000000),
     shadow: Color(0x1A000000),
+    streak: Color(0xFFC2410C),
   );
 
   static const _darkSurfaces = AppSurfaces(
@@ -65,6 +71,7 @@ abstract final class AppTheme {
     card: Color(0xFF1F2029),
     border: Color(0x14FFFFFF),
     shadow: Color(0x73000000),
+    streak: Color(0xFFFB923C),
   );
 
   static final light = _build(Brightness.light, _lightSurfaces);

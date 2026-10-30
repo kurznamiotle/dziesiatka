@@ -50,6 +50,19 @@ void main() {
     }
   }
 
+  Future<void> answerQuiz(WidgetTester tester) async {
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.textContaining(RegExp(r'^A\. ')));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
+    }
+  }
+
+  Future<void> finishDay(WidgetTester tester) async {
+    await finishRemainingCards(tester, 10);
+    await answerQuiz(tester);
+  }
+
   Finder undoButton() => find.byTooltip('Cofnij');
 
   IconButton undoIconButton(WidgetTester tester) {
@@ -65,7 +78,7 @@ void main() {
     expect(find.text(_firstTitle), findsOneWidget);
     expect(find.text('Kosmos'), findsWidgets);
     expect(find.byTooltip('Ulubione'), findsOneWidget);
-    expect(find.byTooltip('Panel twórcy'), findsNothing);
+    expect(find.text('0'), findsOneWidget);
   });
 
   testWidgets('the left button moves on without liking', (tester) async {
@@ -214,8 +227,16 @@ void main() {
 
   testWidgets('sources that are not links stay plain text', (tester) async {
     final facts = await FactsService().getFacts();
-    await FactsService().markAsRead(facts[0].id);
-    await FactsService().markAsRead(facts[1].id);
+    await FactsService().setCardState(
+      facts[0].id,
+      isRead: true,
+      isFavorite: false,
+    );
+    await FactsService().setCardState(
+      facts[1].id,
+      isRead: true,
+      isFavorite: false,
+    );
     await pumpApp(tester);
 
     await tester.tap(find.text('Dowiedz się więcej').last);
@@ -231,23 +252,68 @@ void main() {
   });
 
   group('after finishing the deck', () {
-    testWidgets('shows congratulations and a countdown to midnight', (
+    testWidgets('the quiz appears before the summary', (tester) async {
+      await pumpApp(tester);
+
+      await finishRemainingCards(tester, 10);
+
+      expect(find.text('Pytanie 1 / 2'), findsOneWidget);
+      expect(find.text('Gratulacje!'), findsNothing);
+      expect(find.text('Dalej'), findsNothing);
+    });
+
+    testWidgets('undo from the quiz returns to the last card', (tester) async {
+      await pumpApp(tester);
+      await finishRemainingCards(tester, 10);
+
+      await tester.tap(find.text('Cofnij ostatnią kartę'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('9 / 10 ukończone'), findsOneWidget);
+      expect(find.text('Plecione oprogramowanie Apollo'), findsOneWidget);
+    });
+
+    testWidgets('the summary shows the score, streak and countdown', (
       tester,
     ) async {
       await pumpApp(tester, now: () => DateTime(2026, 11, 2, 21, 30, 15));
 
-      await finishRemainingCards(tester, 10);
+      await finishDay(tester);
 
       expect(find.text('Gratulacje!'), findsOneWidget);
       expect(find.text('10 / 10 ukończone'), findsOneWidget);
-      expect(find.text('Dalej'), findsNothing);
+      expect(find.textContaining(RegExp(r'^\d/2 poprawne!$')), findsOneWidget);
+      expect(find.text('Seria: 1 dzień'), findsOneWidget);
       expect(find.text('Następna dziesiątka za: 02:29:45'), findsOneWidget);
+    });
+
+    testWidgets('the summary is still there after a restart', (tester) async {
+      await pumpApp(tester);
+      await finishDay(tester);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpApp(tester);
+
+      expect(find.text('Gratulacje!'), findsOneWidget);
+      expect(find.textContaining('Pytanie'), findsNothing);
+    });
+
+    testWidgets('an unanswered quiz comes back after a restart', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await finishRemainingCards(tester, 10);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpApp(tester);
+
+      expect(find.text('Pytanie 1 / 2'), findsOneWidget);
     });
 
     testWidgets('the countdown ticks every second', (tester) async {
       var now = DateTime(2026, 11, 2, 21, 30, 15);
       await pumpApp(tester, now: () => now);
-      await finishRemainingCards(tester, 10);
+      await finishDay(tester);
 
       now = now.add(const Duration(seconds: 5));
       await tester.pump(const Duration(seconds: 1));
@@ -255,10 +321,10 @@ void main() {
       expect(find.text('Następna dziesiątka za: 02:29:40'), findsOneWidget);
     });
 
-    testWidgets('a new deck appears at midnight', (tester) async {
+    testWidgets('a new deck with reviews appears at midnight', (tester) async {
       var now = DateTime(2026, 11, 2, 23, 59, 50);
       await pumpApp(tester, now: () => now);
-      await finishRemainingCards(tester, 10);
+      await finishDay(tester);
 
       now = DateTime(2026, 11, 3, 0, 0, 1);
       await tester.pump(const Duration(seconds: 1));
@@ -266,6 +332,20 @@ void main() {
 
       expect(find.text('Gratulacje!'), findsNothing);
       expect(find.text('0 / 10 ukończone'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+    });
+
+    testWidgets('finishing the next day grows the streak', (tester) async {
+      var now = DateTime(2026, 11, 2, 12);
+      await pumpApp(tester, now: () => now);
+      await finishDay(tester);
+
+      await tester.pumpWidget(const SizedBox());
+      now = DateTime(2026, 11, 3, 12);
+      await pumpApp(tester, now: () => now);
+      await finishDay(tester);
+
+      expect(find.text('Seria: 2 dni'), findsOneWidget);
     });
 
     testWidgets('review shows today\'s cards and changes nothing', (
@@ -275,6 +355,7 @@ void main() {
       await tester.tap(find.text('Polub'));
       await tester.pumpAndSettle();
       await finishRemainingCards(tester, 9);
+      await answerQuiz(tester);
       final before = (await FactsService().getFacts())
           .map((fact) => fact.toJson().toString())
           .toList();
@@ -299,17 +380,6 @@ void main() {
           .map((fact) => fact.toJson().toString())
           .toList();
       expect(after, before);
-    });
-
-    testWidgets('undo returns to the last card', (tester) async {
-      await pumpApp(tester);
-      await finishRemainingCards(tester, 10);
-
-      await tester.tap(find.text('Cofnij ostatnią kartę'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('9 / 10 ukończone'), findsOneWidget);
-      expect(find.text('Plecione oprogramowanie Apollo'), findsOneWidget);
     });
   });
 

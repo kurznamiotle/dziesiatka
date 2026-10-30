@@ -3,6 +3,9 @@ import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:flutter/material.dart';
 
+/// Below this height, such as on a phone in landscape, the card tightens up.
+const _compactHeight = 240.0;
+
 class FactCard extends StatelessWidget {
   const FactCard({super.key, required this.fact, required this.onExpand});
 
@@ -11,9 +14,7 @@ class FactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final surfaces = theme.extension<AppSurfaces>()!;
+    final surfaces = Theme.of(context).extension<AppSurfaces>()!;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surfaces.card,
@@ -27,51 +28,62 @@ class FactCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CategoryBadge(category: fact.category),
-            const SizedBox(height: 24),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        fact.title,
-                        style: theme.textTheme.headlineLarge?.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w800,
-                          height: 1.15,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        fact.shortText,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 18,
-                          height: 1.55,
-                        ),
-                      ),
-                    ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isCompact = constraints.maxHeight < _compactHeight;
+          return Padding(
+            padding: EdgeInsets.all(isCompact ? 16 : 28),
+            child: _buildContent(context, isCompact: isCompact),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, {required bool isCompact}) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CategoryBadge(category: fact.category),
+        SizedBox(height: isCompact ? 8 : 24),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    fact.title,
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Text(
+                    fact.shortText,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      fontSize: 18,
+                      height: 1.55,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: onExpand,
-              icon: const Icon(Icons.expand_less_rounded),
-              label: const Text('Dowiedz się więcej'),
-            ),
-          ],
+          ),
         ),
-      ),
+        SizedBox(height: isCompact ? 4 : 12),
+        TextButton.icon(
+          onPressed: onExpand,
+          icon: const Icon(Icons.expand_less_rounded),
+          label: const Text('Dowiedz się więcej'),
+        ),
+      ],
     );
   }
 }

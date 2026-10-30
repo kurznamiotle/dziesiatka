@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:dziesiatka/services/categories_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_style.dart';
 import 'package:flutter/material.dart';
@@ -22,10 +21,13 @@ void main() {
 
     group('$name theme', () {
       test('category badges are readable on cards', () {
-        const customCategory = 'Moja kategoria';
-        final categories = [
-          ...CategoriesService.defaultCategories,
-          customCategory,
+        const categories = [
+          'Kosmos',
+          'Zwierzęta',
+          'Historia',
+          'Psychologia',
+          'Technologia',
+          'Moja kategoria',
         ];
 
         for (final category in categories) {
@@ -38,6 +40,13 @@ void main() {
             reason: category,
           );
         }
+      });
+
+      test('the streak color is readable on the frame', () {
+        expect(
+          contrast(surfaces.streak, surfaces.frame),
+          greaterThanOrEqualTo(minimumTextContrast),
+        );
       });
 
       test('text is readable on the frame and on cards', () {

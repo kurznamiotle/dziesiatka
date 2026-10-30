@@ -1,3 +1,5 @@
+import 'package:dziesiatka/models/quiz_question.dart';
+
 class Fact {
   const Fact({
     required this.id,
@@ -9,12 +11,14 @@ class Fact {
     required this.createdAt,
     this.isRead = false,
     this.isFavorite = false,
+    this.quiz,
   });
 
   /// Facts saved before the split into [shortText] and [longText] have a single
   /// `content` field and no `source`, so both fall back here.
   factory Fact.fromJson(Map<String, dynamic> json) {
     final legacyContent = json['content'] as String?;
+    final quiz = json['quiz'] as Map<String, dynamic>?;
     return Fact(
       id: json['id'] as String,
       title: json['title'] as String,
@@ -24,6 +28,7 @@ class Fact {
       source: json['source'] as String? ?? '',
       isRead: json['isRead'] as bool? ?? false,
       isFavorite: json['isFavorite'] as bool? ?? false,
+      quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -36,6 +41,7 @@ class Fact {
   final String source;
   final bool isRead;
   final bool isFavorite;
+  final QuizQuestion? quiz;
   final DateTime createdAt;
 
   Fact copyWith({
@@ -47,6 +53,7 @@ class Fact {
     String? source,
     bool? isRead,
     bool? isFavorite,
+    QuizQuestion? quiz,
     DateTime? createdAt,
   }) {
     return Fact(
@@ -58,6 +65,7 @@ class Fact {
       source: source ?? this.source,
       isRead: isRead ?? this.isRead,
       isFavorite: isFavorite ?? this.isFavorite,
+      quiz: quiz ?? this.quiz,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -72,6 +80,7 @@ class Fact {
       'source': source,
       'isRead': isRead,
       'isFavorite': isFavorite,
+      'quiz': quiz?.toJson(),
       'createdAt': createdAt.toIso8601String(),
     };
   }

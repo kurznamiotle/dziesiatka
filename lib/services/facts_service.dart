@@ -8,18 +8,20 @@ class FactsService {
   static const _factsKey = 'facts';
   static const _seedAssetPath = 'assets/data/facts.json';
 
-  /// Adds facts from the bundled asset that storage does not have yet, matched
-  /// by id. Stored facts stay untouched, which keeps read and favorite state.
+  /// Merges the bundled asset into storage by id: new facts are added and
+  /// known ones get the asset's content, while read and favorite state stay.
   Future<List<Fact>> syncWithSeed() async {
     final prefs = await SharedPreferences.getInstance();
-    final stored = _readStored(prefs);
+    final stored = _readStored(prefs) ?? const [];
     final seed = _decode(await rootBundle.loadString(_seedAssetPath));
 
-    final storedIds = {...?stored?.map((fact) => fact.id)};
-    final newFacts = seed.where((fact) => !storedIds.contains(fact.id));
-    if (stored != null && newFacts.isEmpty) return stored;
+    final storedById = {for (final fact in stored) fact.id: fact};
+    final seedIds = seed.map((fact) => fact.id).toSet();
+    final merged = [
+      for (final fact in seed) _withStoredState(fact, storedById[fact.id]),
+      ...stored.where((fact) => !seedIds.contains(fact.id)),
+    ];
 
-    final merged = [...?stored, ...newFacts];
     await _save(prefs, merged);
     return merged;
   }
@@ -27,10 +29,6 @@ class FactsService {
   Future<List<Fact>> getFacts() async {
     final prefs = await SharedPreferences.getInstance();
     return _readStored(prefs) ?? syncWithSeed();
-  }
-
-  Future<void> markAsRead(String id) {
-    return _updateFact(id, (fact) => fact.copyWith(isRead: true));
   }
 
   Future<void> toggleFavorite(String id) {
@@ -51,32 +49,12 @@ class FactsService {
     );
   }
 
-  Future<Fact> addFact({
-    required String title,
-    required String category,
-    required String shortText,
-    required String longText,
-    required String source,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    final facts = await getFacts();
-    final now = DateTime.now().toUtc();
-    final fact = Fact(
-      id: 'user-${now.microsecondsSinceEpoch}',
-      title: title,
-      category: category,
-      shortText: shortText,
-      longText: longText,
-      source: source,
-      createdAt: now,
+  Fact _withStoredState(Fact seedFact, Fact? stored) {
+    if (stored == null) return seedFact;
+    return seedFact.copyWith(
+      isRead: stored.isRead,
+      isFavorite: stored.isFavorite,
     );
-    await _save(prefs, [...facts, fact]);
-    return fact;
-  }
-
-  Future<void> replaceFacts(List<Fact> facts) async {
-    final prefs = await SharedPreferences.getInstance();
-    await _save(prefs, facts);
   }
 
   Future<void> _updateFact(String id, Fact Function(Fact fact) change) async {

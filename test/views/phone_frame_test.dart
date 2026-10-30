@@ -156,19 +156,20 @@ void main() {
       tester,
     ) async {
       const short = Size(390, 600);
-      final facts = FactsService();
-      for (final fact in await facts.getFacts()) {
-        await facts.toggleFavorite(fact.id);
+      final service = FactsService();
+      final facts = await service.getFacts();
+      for (final fact in facts) {
+        await service.toggleFavorite(fact.id);
       }
       await pumpApp(tester, size: short, insets: portraitInsets);
 
       await tester.tap(find.byTooltip('Ulubione'));
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -3000));
+      await tester.drag(find.byType(ListView), const Offset(0, -6000));
       await tester.pumpAndSettle();
 
       expect(
-        tester.getBottomLeft(find.text('Plecione oprogramowanie Apollo')).dy,
+        tester.getBottomLeft(find.text(facts.last.title)).dy,
         lessThanOrEqualTo(short.height - _gestureBar),
       );
     });

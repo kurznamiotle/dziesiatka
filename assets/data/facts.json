@@ -6,6 +6,11 @@
     "shortText": "Jeden obrót Wenus wokół własnej osi trwa dłużej niż jej okrążenie wokół Słońca.",
     "longText": "Wenus obraca się wokół własnej osi tak wolno, że jeden obrót zajmuje jej około 243 ziemskich dni, a okrążenie Słońca tylko około 225. Doba gwiazdowa na Wenus jest więc dłuższa niż tamtejszy rok.\n\nPlaneta kręci się też w przeciwną stronę niż większość planet Układu Słonecznego, więc Słońce wschodziłoby tam na zachodzie. Czas od wschodu do wschodu Słońca wynosi około 117 ziemskich dni.",
     "source": "https://science.nasa.gov/venus/",
+    "quiz": {
+      "question": "Co na Wenus trwa dłużej?",
+      "options": ["Okrążenie Słońca", "Jeden obrót wokół własnej osi", "Oba trwają dokładnie tyle samo"],
+      "correctIndex": 1
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -17,6 +22,11 @@
     "shortText": "Na Plutonie wznoszą się góry z lodu wodnego wysokie na około 3,5 km.",
     "longText": "Sonda New Horizons sfotografowała góry Plutona podczas przelotu w lipcu 2015 roku. Przy temperaturze około minus 230 stopni Celsjusza lód wodny jest twardy jak skała, dlatego może tworzyć masywy o wysokości około 3,5 km.\n\nObok nich rozciąga się Sputnik Planitia, rozległa równina pokryta głównie lodem azotowym. Jej gładka powierzchnia wskazuje, że Pluton jest geologicznie aktywniejszy, niż przypuszczano przed misją.",
     "source": "https://science.nasa.gov/dwarf-planets/pluto/",
+    "quiz": {
+      "question": "Z czego zbudowane są góry na Plutonie?",
+      "options": ["Z lodu wodnego", "Z zastygłej lawy", "Z żelaza"],
+      "correctIndex": 0
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -28,6 +38,11 @@
     "shortText": "Ośmiornica ma trzy serca i niebieską krew.",
     "longText": "Dwa serca ośmiornicy pompują krew przez skrzela, a trzecie rozprowadza ją po reszcie ciała. Serce główne zatrzymuje się podczas pływania, dlatego ośmiornice często wolą pełzać, bo pływanie szybko je męczy.\n\nKrew jest niebieska, bo tlen przenosi w niej hemocyjanina zawierająca miedź, a nie hemoglobina zawierająca żelazo. Dobrze sprawdza się ona w zimnej wodzie o niskiej zawartości tlenu.",
     "source": "Smithsonian Ocean, „Cephalopods”",
+    "quiz": {
+      "question": "Dlaczego krew ośmiornicy jest niebieska?",
+      "options": ["Zawiera dużo żelaza", "Zawiera barwnik z pożywienia", "Tlen przenosi w niej białko z miedzią"],
+      "correctIndex": 2
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -39,6 +54,11 @@
     "shortText": "Wombaty wydalają odchody w kształcie niemal sześciennych kostek.",
     "longText": "Kostki pomagają wombatom znaczyć terytorium: układane na skałach i kłodach nie staczają się tak łatwo jak kulki.\n\nBadacze ustalili, że kształt powstaje w jelitach. Ich ściany mają obszary o różnej sztywności, które podczas powolnego przesuwania treści formują płaskie boki i narożniki.",
     "source": "Yang i in., „Intestines of non-uniform stiffness mold the corners of wombat feces”, Soft Matter, 2021",
+    "quiz": {
+      "question": "Gdzie powstaje sześcienny kształt odchodów wombata?",
+      "options": ["W jelitach", "W norze, pod naciskiem ziemi", "Na powierzchni skał"],
+      "correctIndex": 0
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -50,6 +70,11 @@
     "shortText": "Kleopatra żyła bliżej lądowania na Księżycu niż budowy Wielkiej Piramidy.",
     "longText": "Wielka Piramida w Gizie powstała około 2560 roku p.n.e., a Kleopatra żyła w I wieku p.n.e. Dzieli je około 2500 lat, czyli więcej niż około 2000 lat między Kleopatrą a lądowaniem Apollo 11 w 1969 roku.\n\nZa czasów Kleopatry piramidy były już starożytnymi zabytkami, a Egiptem rządziła grecka dynastia Ptolemeuszy.",
     "source": "Encyclopaedia Britannica, hasła „Pyramids of Giza” i „Cleopatra”",
+    "quiz": {
+      "question": "Które wydarzenie było bliżej czasów Kleopatry?",
+      "options": ["Budowa Wielkiej Piramidy", "Lądowanie Apollo 11 na Księżycu", "Oba były tak samo odległe"],
+      "correctIndex": 1
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -61,6 +86,11 @@
     "shortText": "Wojna brytyjsko-zanzibarska z 1896 roku trwała około 40 minut.",
     "longText": "Po śmierci sułtana Zanzibaru w sierpniu 1896 roku władzę przejął Khalid bin Barghash, którego nie zaakceptowali Brytyjczycy. Postawili mu ultimatum, a gdy minęło, rankiem 27 sierpnia rozpoczęli ostrzał pałacu.\n\nWalki zakończyły się po około 40 minutach. Uważa się je za najkrótszą wojnę w zapisanej historii.",
     "source": "Guinness World Records, „Shortest war”",
+    "quiz": {
+      "question": "Ile trwała wojna brytyjsko-zanzibarska?",
+      "options": ["Około 40 dni", "Około 4 godzin", "Około 40 minut"],
+      "correctIndex": 2
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -72,6 +102,11 @@
     "shortText": "Zadania przerwane często pamiętamy lepiej niż ukończone.",
     "longText": "Zjawisko opisała w latach 20. XX wieku psycholożka Bluma Zeigarnik. W jej eksperymencie uczestnicy lepiej przypominali sobie zadania, które im przerwano, niż te, które zdążyli skończyć.\n\nPóźniejsze badania nie zawsze potwierdzały siłę tego efektu, ale wciąż jest on często przywoływany przy omawianiu motywacji i planowania pracy.",
     "source": "Bluma Zeigarnik, „Das Behalten erledigter und unerledigter Handlungen”, Psychologische Forschung, 1927",
+    "quiz": {
+      "question": "Jakie zadania według efektu Zeigarnik pamiętamy lepiej?",
+      "options": ["Przerwane", "Ukończone", "Wykonane w grupie"],
+      "correctIndex": 0
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -83,6 +118,11 @@
     "shortText": "Chętniej zauważamy i zapamiętujemy informacje zgodne z tym, w co już wierzymy.",
     "longText": "Efekt potwierdzenia sprawia, że dwie osoby mogą przeczytać ten sam tekst i uznać, że potwierdza ich przeciwne poglądy.\n\nW klasycznym badaniu z 1979 roku zwolennicy i przeciwnicy kary śmierci oceniali te same materiały. Obie grupy uznały dane zgodne ze swoim stanowiskiem za bardziej wiarygodne, a ich poglądy jeszcze się spolaryzowały.",
     "source": "Raymond S. Nickerson, „Confirmation Bias: A Ubiquitous Phenomenon in Many Guises”, Review of General Psychology, 1998",
+    "quiz": {
+      "question": "Co wynika z efektu potwierdzenia?",
+      "options": ["Lepiej pamiętamy nowe nazwiska", "Bardziej ufamy danym zgodnym z naszymi poglądami", "Zapominamy wydarzenia z dzieciństwa"],
+      "correctIndex": 1
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -94,6 +134,11 @@
     "shortText": "W 1947 roku w komputerze Harvard Mark II znaleziono ćmę uwięzioną w przekaźniku.",
     "longText": "Operatorzy wkleili ćmę do dziennika pracy z dopiskiem o pierwszym prawdziwym przypadku znalezienia „buga”. Historię spopularyzowała Grace Hopper, która pracowała przy tym komputerze.\n\nSamo słowo było jednak używane już wcześniej: inżynierowie, w tym Thomas Edison, nazywali tak usterki już w XIX wieku. Strona dziennika z ćmą trafiła do zbiorów Smithsonian.",
     "source": "Smithsonian National Museum of American History, „Log Book With Computer Bug”",
+    "quiz": {
+      "question": "Co znaleziono w przekaźniku komputera Harvard Mark II?",
+      "options": ["Mysz", "Pająka", "Ćmę"],
+      "correctIndex": 2
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
@@ -105,6 +150,651 @@
     "shortText": "Program komputera Apollo zapisywano fizycznie, przeplatając druty przez magnetyczne rdzenie.",
     "longText": "Komputer pokładowy statków Apollo miał około 2 tysięcy słów pamięci RAM i 36 tysięcy słów pamięci stałej, czyli odpowiednio około 4 KB i 72 KB.\n\nPamięć stała miała postać plecionki: drut przechodzący przez rdzeń oznaczał jedynkę, a omijający go zero. Wplatały go ręcznie pracownice fabryki, a po utkaniu programu nie dało się już zmienić.",
     "source": "Eldon C. Hall, „Journey to the Moon: The History of the Apollo Guidance Computer”, AIAA, 1996",
+    "quiz": {
+      "question": "Jak zapisywano program komputera Apollo?",
+      "options": ["Na taśmie magnetycznej", "Przeplatając druty przez rdzenie", "Na dyskach twardych"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-011",
+    "title": "Ślady na miliony lat",
+    "category": "Kosmos",
+    "shortText": "Odciski butów astronautów mogą przetrwać na Księżycu miliony lat.",
+    "longText": "Księżyc nie ma atmosfery, wiatru ani płynącej wody, więc nic nie zaciera śladów pozostawionych w pyle przez misje Apollo.\n\nPowierzchnię zmieniają tam głównie mikrometeoryty, a ten proces jest niezwykle powolny.",
+    "source": "https://science.nasa.gov/moon/",
+    "quiz": {
+      "question": "Dlaczego ślady astronautów przetrwają tak długo?",
+      "options": ["Księżyc nie ma wiatru ani wody", "Pył księżycowy twardnieje jak beton", "Chroni je pole magnetyczne"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-012",
+    "title": "Siedem kręgów żyrafy",
+    "category": "Zwierzęta",
+    "shortText": "Żyrafa ma w szyi tyle samo kręgów co człowiek: siedem.",
+    "longText": "Niemal wszystkie ssaki mają siedem kręgów szyjnych. Szyja żyrafy nie zawdzięcza długości ich liczbie, lecz rozmiarowi, bo każdy z nich jest bardzo wydłużony.\n\nWyjątkami od tej reguły są między innymi leniwce i manaty.",
+    "source": "Encyclopaedia Britannica, hasło „Giraffe”",
+    "quiz": {
+      "question": "Ile kręgów szyjnych ma żyrafa?",
+      "options": ["Siedem", "Czternaście", "Dwadzieścia jeden"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-013",
+    "title": "Uniwersytet starszy niż Aztekowie",
+    "category": "Historia",
+    "shortText": "W Oksfordzie nauczano już pod koniec XI wieku, ponad 200 lat przed założeniem stolicy Azteków.",
+    "longText": "Uniwersytet Oksfordzki podaje, że nauczanie odbywało się tam już w 1096 roku. Tenochtitlán, stolicę Azteków, założono dopiero około 1325 roku.\n\nOksford działał więc już od ponad dwóch stuleci, gdy na jeziorze Texcoco powstawało miasto, w którego miejscu stoi dziś Meksyk.",
+    "source": "University of Oxford, „Introduction and history”",
+    "quiz": {
+      "question": "Co powstało wcześniej?",
+      "options": ["Tenochtitlán", "Oba w tym samym stuleciu", "Nauczanie w Oksfordzie"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-014",
+    "title": "Efekt Dunninga-Krugera",
+    "category": "Psychologia",
+    "shortText": "Osoby słabe w danej dziedzinie często zawyżają ocenę własnych umiejętności.",
+    "longText": "W badaniu z 1999 roku David Dunning i Justin Kruger pokazali, że uczestnicy z najgorszymi wynikami w testach znacznie przeszacowywali swoje rezultaty.\n\nAutorzy tłumaczyli to tym, że do rozpoznania braków potrzebne są te same umiejętności, których brakuje. Część badaczy spiera się o to, jak duża część efektu wynika ze statystyki.",
+    "source": "Kruger i Dunning, „Unskilled and Unaware of It”, Journal of Personality and Social Psychology, 1999",
+    "quiz": {
+      "question": "Kto według efektu Dunninga-Krugera częściej się przecenia?",
+      "options": ["Eksperci", "Osoby słabe w danej dziedzinie", "Osoby w podeszłym wieku"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-015",
+    "title": "Pierwszy SMS",
+    "category": "Technologia",
+    "shortText": "Pierwszy SMS wysłano w 1992 roku i brzmiał „Merry Christmas”.",
+    "longText": "Wiadomość wysłał 3 grudnia 1992 roku inżynier Neil Papworth. Napisał ją na komputerze, bo ówczesne telefony nie pozwalały jeszcze tworzyć takich wiadomości, a trafiła na telefon Richarda Jarvisa z firmy Vodafone.\n\nOdbiorca nie mógł odpisać, bo jego aparat tego nie obsługiwał.",
+    "source": "BBC News, „Hppy bthdy txt!”, 2002",
+    "quiz": {
+      "question": "Jak brzmiał pierwszy SMS?",
+      "options": ["Hello World", "Merry Christmas", "Happy New Year"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-016",
+    "title": "Światło sprzed ośmiu minut",
+    "category": "Kosmos",
+    "shortText": "Światło Słońca dociera do Ziemi po około 8 minutach i 20 sekundach.",
+    "longText": "Słońce widzimy więc zawsze takim, jakie było ponad osiem minut wcześniej. Gdyby nagle zgasło, przez ten czas nie zauważylibyśmy niczego.\n\nDroga światła z wnętrza gwiazdy na jej powierzchnię trwa natomiast znacznie dłużej, nawet tysiące lat, bo fotony są wciąż pochłaniane i wypromieniowywane na nowo.",
+    "source": "https://science.nasa.gov/sun/",
+    "quiz": {
+      "question": "Ile w przybliżeniu leci światło ze Słońca na Ziemię?",
+      "options": ["8 sekund", "8 minut", "8 godzin"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-017",
+    "title": "Ptak, który lata do tyłu",
+    "category": "Zwierzęta",
+    "shortText": "Kolibry jako jedyne ptaki potrafią utrzymać lot do tyłu.",
+    "longText": "Skrzydła kolibra obracają się w barku, dzięki czemu wytwarzają siłę nośną zarówno przy ruchu w przód, jak i w tył. Pozwala to ptakom zawisać w miejscu przy kwiatach.\n\nNajmniejsze gatunki wykonują kilkadziesiąt uderzeń skrzydeł na sekundę.",
+    "source": "Encyclopaedia Britannica, hasło „Hummingbird”",
+    "quiz": {
+      "question": "Co wyróżnia lot kolibrów?",
+      "options": ["Potrafią lecieć do tyłu", "Latają wyłącznie nocą", "Nie poruszają skrzydłami podczas lotu"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-018",
+    "title": "Konstytucja 3 maja",
+    "category": "Historia",
+    "shortText": "Polska uchwaliła w 1791 roku pierwszą w Europie nowoczesną konstytucję.",
+    "longText": "Ustawa Rządowa przyjęta przez Sejm Czteroletni była pierwszą w Europie i drugą na świecie, po amerykańskiej, nowoczesną konstytucją pisaną.\n\nObowiązywała krótko, bo po wojnie w obronie konstytucji i konfederacji targowickiej została obalona w 1792 roku.",
+    "source": "Encyclopaedia Britannica, hasło „Constitution of May 3, 1791”",
+    "quiz": {
+      "question": "Którą na świecie nowoczesną konstytucją była polska z 1791 roku?",
+      "options": ["Pierwszą", "Drugą", "Piątą"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-019",
+    "title": "Reguła szczytu i końca",
+    "category": "Psychologia",
+    "shortText": "Doświadczenia oceniamy głównie po ich najsilniejszym momencie i zakończeniu.",
+    "longText": "W badaniu Daniela Kahnemana uczestnicy trzymali rękę w bardzo zimnej wodzie. Dłuższą próbę oceniali lepiej od krótszej, jeśli na jej końcu temperatura lekko się podnosiła, choć łączny dyskomfort był większy.\n\nDlatego dobre zakończenie potrafi uratować wspomnienie całego wydarzenia.",
+    "source": "Kahneman i in., „When More Pain Is Preferred to Less”, Psychological Science, 1993",
+    "quiz": {
+      "question": "Co najmocniej wpływa na wspomnienie doświadczenia?",
+      "options": ["Jego łączny czas trwania", "Jego początek i środek", "Jego szczyt i zakończenie"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-020",
+    "title": "Mysz z drewna",
+    "category": "Technologia",
+    "shortText": "Pierwsza mysz komputerowa była drewnianym pudełkiem z dwoma kółkami.",
+    "longText": "Douglas Engelbart i Bill English zbudowali jej prototyp w latach 60. XX wieku. Dwa prostopadłe kółka odczytywały ruch w poziomie i w pionie.\n\nNazwa wzięła się podobno od kabla przypominającego ogon. Engelbart zaprezentował urządzenie publicznie w 1968 roku.",
+    "source": "Computer History Museum, „The Mouse”",
+    "quiz": {
+      "question": "Z czego zrobiono obudowę pierwszej myszy komputerowej?",
+      "options": ["Z aluminium", "Z drewna", "Z gumy"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-021",
+    "title": "Saturn pływałby w wodzie",
+    "category": "Kosmos",
+    "shortText": "Średnia gęstość Saturna jest mniejsza niż gęstość wody.",
+    "longText": "Saturn składa się głównie z wodoru i helu, a jego średnia gęstość wynosi około 0,7 grama na centymetr sześcienny, podczas gdy woda ma około 1.\n\nW wyobrażonym, dostatecznie wielkim oceanie planeta unosiłaby się więc na powierzchni. To jedyna taka planeta w Układzie Słonecznym.",
+    "source": "https://science.nasa.gov/saturn/",
+    "quiz": {
+      "question": "Co jest niezwykłego w gęstości Saturna?",
+      "options": ["Jest większa niż gęstość żelaza", "Jest mniejsza niż gęstość wody", "Jest równa gęstości Ziemi"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-022",
+    "title": "Niezniszczalne niesporczaki",
+    "category": "Zwierzęta",
+    "shortText": "Niesporczaki przeżyły wystawienie na próżnię kosmiczną.",
+    "longText": "Te mikroskopijne zwierzęta potrafią wysychać i przechodzić w stan niemal całkowitego zatrzymania metabolizmu. W 2007 roku wysłano je na orbitę na zewnątrz kapsuły.\n\nCzęść osobników przeżyła próżnię, a niektóre również silne promieniowanie ultrafioletowe Słońca.",
+    "source": "Jönsson i in., „Tardigrades survive exposure to space in low Earth orbit”, Current Biology, 2008",
+    "quiz": {
+      "question": "Co przeżyły niesporczaki w 2007 roku?",
+      "options": ["Wystawienie na próżnię kosmiczną", "Kilka lat w lawie", "Zanurzenie w kwasie azotowym"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-023",
+    "title": "Wojna z emu",
+    "category": "Historia",
+    "shortText": "W 1932 roku australijscy żołnierze z karabinami maszynowymi przegrali z emu.",
+    "longText": "Tysiące emu niszczyły uprawy w Australii Zachodniej, więc rząd wysłał żołnierzy z dwoma karabinami maszynowymi Lewisa.\n\nPtaki rozpraszały się i uciekały poza zasięg ognia. Akcję przerwano po kilku tygodniach, a jej skutki były tak słabe, że wyśmiewała ją prasa.",
+    "source": "National Museum of Australia, „Emu War”",
+    "quiz": {
+      "question": "Jak zakończyła się australijska wojna z emu?",
+      "options": ["Wytępieniem emu", "Przerwaniem akcji bez sukcesu", "Budową muru na całą Australię"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-024",
+    "title": "Niewidzialny goryl",
+    "category": "Psychologia",
+    "shortText": "W słynnym eksperymencie około połowa osób nie zauważyła człowieka w stroju goryla.",
+    "longText": "Uczestnicy oglądali film i liczyli podania koszykarzy. W tym czasie przez scenę przechodziła osoba przebrana za goryla, a wielu widzów w ogóle jej nie dostrzegło.\n\nZjawisko nazywa się ślepotą z nieuwagi. Skupienie na jednym zadaniu może sprawić, że nie widzimy czegoś oczywistego.",
+    "source": "Simons i Chabris, „Gorillas in our midst”, Perception, 1999",
+    "quiz": {
+      "question": "Co liczyli uczestnicy eksperymentu z gorylem?",
+      "options": ["Podania koszykarzy", "Osoby w czerwonych koszulkach", "Sekundy trwania filmu"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-025",
+    "title": "Polacy i Enigma",
+    "category": "Technologia",
+    "shortText": "Enigmę jako pierwsi złamali Polacy, siedem lat przed wybuchem wojny.",
+    "longText": "W 1932 roku Marian Rejewski, korzystając z matematyki, odtworzył działanie niemieckiej maszyny szyfrującej. Z Jerzym Różyckim i Henrykiem Zygalskim opracowali potem metody i urządzenia do odczytywania szyfrów.\n\nW lipcu 1939 roku Polacy przekazali swoje osiągnięcia Francuzom i Brytyjczykom, co pomogło późniejszym pracom w Bletchley Park.",
+    "source": "Encyclopaedia Britannica, hasło „Enigma”",
+    "quiz": {
+      "question": "Kto jako pierwszy złamał szyfr Enigmy?",
+      "options": ["Polscy matematycy", "Amerykańscy inżynierowie", "Francuscy szpiedzy"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-026",
+    "title": "Najwyższa góra planet",
+    "category": "Kosmos",
+    "shortText": "Olympus Mons na Marsie jest niemal dwa i pół raza wyższy od Mount Everestu.",
+    "longText": "Ten wygasły wulkan tarczowy wznosi się na blisko 22 km i należy do najwyższych szczytów w Układzie Słonecznym.\n\nUrósł tak bardzo, bo na Marsie nie ma ruchu płyt tektonicznych, więc lawa przez bardzo długi czas wypływała w tym samym miejscu, a niższa grawitacja pozwalała górze rosnąć.",
+    "source": "https://science.nasa.gov/mars/",
+    "quiz": {
+      "question": "Na jakiej planecie leży Olympus Mons?",
+      "options": ["Na Wenus", "Na Merkurym", "Na Marsie"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-027",
+    "title": "Różowe od jedzenia",
+    "category": "Zwierzęta",
+    "shortText": "Flamingi zawdzięczają kolor swojej diecie, a nie genom.",
+    "longText": "W skorupiakach i glonach, którymi żywią się flamingi, znajdują się karotenoidy. Organizm przekształca je w barwniki odkładane w piórach.\n\nPisklęta wykluwają się szarawe, a ptaki pozbawione takiego pożywienia z czasem blakną.",
+    "source": "Smithsonian's National Zoo, „Greater flamingo”",
+    "quiz": {
+      "question": "Skąd bierze się różowy kolor flamingów?",
+      "options": ["Z diety", "Z promieni słońca", "Ze specjalnego rodzaju krwi"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-028",
+    "title": "Mamuty i piramidy",
+    "category": "Historia",
+    "shortText": "Ostatnie mamuty żyły jeszcze wtedy, gdy Egipcjanie budowali piramidy.",
+    "longText": "Większość mamutów wyginęła kilka tysięcy lat wcześniej, ale izolowana populacja na Wyspie Wrangla w Arktyce przetrwała do około 2000 roku p.n.e.\n\nWielka Piramida stała już wtedy od kilku stuleci.",
+    "source": "Vartanyan i in., „Holocene dwarf mammoths from Wrangel Island in the Siberian Arctic”, Nature, 1993",
+    "quiz": {
+      "question": "Gdzie przetrwały ostatnie mamuty?",
+      "options": ["W Himalajach", "Na Wyspie Wrangla", "Na Islandii"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-029",
+    "title": "Efekt zakotwiczenia",
+    "category": "Psychologia",
+    "shortText": "Przypadkowa liczba potrafi wpłynąć na nasze późniejsze szacunki.",
+    "longText": "Amos Tversky i Daniel Kahneman prosili ludzi o ocenę odsetka krajów afrykańskich w ONZ po zakręceniu kołem z liczbami. Osoby, które wylosowały wyższą liczbę, podawały wyższe szacunki.\n\nDlatego pierwsza cena w negocjacjach często kształtuje całą dalszą rozmowę.",
+    "source": "Tversky i Kahneman, „Judgment under Uncertainty: Heuristics and Biases”, Science, 1974",
+    "quiz": {
+      "question": "Na co wpływała liczba z koła w eksperymencie Tversky'ego i Kahnemana?",
+      "options": ["Na czas reakcji", "Na szacunki uczestników", "Na ich nastrój"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-030",
+    "title": "Skąd wziął się QWERTY",
+    "category": "Technologia",
+    "shortText": "Układ klawiatury QWERTY powstał w latach 70. XIX wieku dla maszyn do pisania.",
+    "longText": "Układ wywodzi się z maszyny opracowanej przez Christophera Sholesa i wprowadzonej na rynek przez firmę Remington.\n\nPopularnie mówi się, że klawisze rozmieszczono tak, by nie zacinały się dźwignie. Część badaczy wskazuje jednak na wpływ telegrafistów, którzy korzystali z wczesnych maszyn.",
+    "source": "Yasuoka i Yasuoka, „On the Prehistory of QWERTY”, ZINBUN, 2011",
+    "quiz": {
+      "question": "Do jakich urządzeń powstał układ QWERTY?",
+      "options": ["Do telefonów", "Do maszyn do pisania", "Do pierwszych komputerów"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-031",
+    "title": "Łyżeczka gwiazdy",
+    "category": "Kosmos",
+    "shortText": "Łyżeczka materii gwiazdy neutronowej ważyłaby na Ziemi około miliarda ton.",
+    "longText": "Gwiazda neutronowa powstaje z jądra masywnej gwiazdy, które zapada się po wybuchu supernowej. Masę większą od Słońca mieści w kuli o średnicy około 20 km.\n\nGęstość jest tam tak ogromna, że atomy nie zachowują swojej zwykłej budowy.",
+    "source": "NASA Goddard Space Flight Center, „Imagine the Universe!: Neutron Stars”",
+    "quiz": {
+      "question": "Jaką średnicę ma typowa gwiazda neutronowa?",
+      "options": ["Około 20 km", "Około 2000 km", "Około miliona km"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-032",
+    "title": "Serce płetwala błękitnego",
+    "category": "Zwierzęta",
+    "shortText": "Podczas nurkowania serce płetwala błękitnego może bić zaledwie dwa razy na minutę.",
+    "longText": "Badacze przymocowali do płetwala czujnik z przyssawkami i po raz pierwszy zmierzyli tętno tego zwierzęcia na wolności. Podczas głębokiego nurkowania spadało ono do 2 uderzeń na minutę.\n\nPo wynurzeniu serce przyspieszało do około 37 uderzeń, by szybko uzupełnić tlen.",
+    "source": "Goldbogen i in., „Extreme bradycardia and tachycardia in the world's largest animal”, PNAS, 2019",
+    "quiz": {
+      "question": "Do ilu uderzeń na minutę może spaść tętno nurkującego płetwala?",
+      "options": ["Do 2", "Do 20", "Do 60"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-033",
+    "title": "Dwa Noble Skłodowskiej",
+    "category": "Historia",
+    "shortText": "Maria Skłodowska-Curie jest jedyną osobą z Noblem w dwóch różnych naukach ścisłych.",
+    "longText": "Otrzymała Nagrodę Nobla z fizyki w 1903 roku oraz z chemii w 1911 roku. Była też pierwszą kobietą nagrodzoną Noblem.\n\nJej notatki są radioaktywne do dziś i przechowuje się je w ołowianych pudłach.",
+    "source": "Nobel Prize, „Marie Curie – Facts”",
+    "quiz": {
+      "question": "W jakich dziedzinach Skłodowska-Curie dostała Nagrody Nobla?",
+      "options": ["W fizyce i chemii", "W chemii i medycynie", "W fizyce i literaturze"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-034",
+    "title": "Efekt IKEA",
+    "category": "Psychologia",
+    "shortText": "Bardziej cenimy rzeczy, które sami złożyliśmy lub stworzyliśmy.",
+    "longText": "Uczestnicy badania składali pudełka IKEA, origami i figurki Lego, a potem wyceniali je wyżej niż podobne przedmioty gotowe.\n\nWłasny wysiłek zwiększa przywiązanie do efektu, nawet gdy nie jest on doskonały. Efekt znika jednak, gdy zadania nie uda się dokończyć.",
+    "source": "Norton, Mochon i Ariely, „The IKEA effect: When labor leads to love”, Journal of Consumer Psychology, 2012",
+    "quiz": {
+      "question": "Co zwiększa wartość przedmiotu w efekcie IKEA?",
+      "options": ["Znana marka", "Niska cena", "Własny wysiłek włożony w jego stworzenie"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-035",
+    "title": "Internet pod oceanem",
+    "category": "Technologia",
+    "shortText": "Około 99% międzykontynentalnego ruchu internetowego płynie kablami na dnie oceanów.",
+    "longText": "Satelity są widoczniejsze w wyobraźni, ale to światłowody na dnie morza przenoszą niemal wszystkie dane między kontynentami.\n\nNa świecie działa kilkaset takich kabli. Choć bywają grube jak wąż ogrodowy, ich łączna długość to setki tysięcy kilometrów.",
+    "source": "TeleGeography, „Submarine Cable FAQs”",
+    "quiz": {
+      "question": "Czym płynie większość danych między kontynentami?",
+      "options": ["Przez satelity", "Kablami na dnie oceanów", "Przez balony stratosferyczne"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-036",
+    "title": "Voyager wciąż nadaje",
+    "category": "Kosmos",
+    "shortText": "Sygnał radiowy z sondy Voyager 1 leci do Ziemi ponad 20 godzin.",
+    "longText": "Voyager 1 wystartował w 1977 roku i jest najdalszym obiektem zbudowanym przez człowieka. W 2012 roku wszedł w przestrzeń międzygwiezdną.\n\nSonda działa dzięki radioizotopowemu źródłu energii, którego moc powoli spada, dlatego kolejne instrumenty są stopniowo wyłączane.",
+    "source": "https://science.nasa.gov/mission/voyager/",
+    "quiz": {
+      "question": "Kiedy wystartował Voyager 1?",
+      "options": ["W 1957 roku", "W 1977 roku", "W 1997 roku"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-037",
+    "title": "Wrony pamiętają twarze",
+    "category": "Zwierzęta",
+    "shortText": "Wrony rozpoznają ludzkie twarze i potrafią długo pamiętać, kto im zagrażał.",
+    "longText": "Badacze z Uniwersytetu Waszyngtońskiego łapali wrony w maskach. Później ptaki krzyczały ostrzegawczo na osoby noszące tę samą maskę i krążyły wokół nich, a innych ignorowały.\n\nReakcję przejmowały nawet wrony, które nie brały udziału w łapaniu, co sugeruje, że uczą się od siebie.",
+    "source": "Marzluff i in., „Lasting recognition of threatening people by wild American crows”, Animal Behaviour, 2010",
+    "quiz": {
+      "question": "Czego użyli badacze, sprawdzając pamięć wron?",
+      "options": ["Masek", "Lusterek", "Kolorowych czapek z daszkiem"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-038",
+    "title": "Epidemia tańca",
+    "category": "Historia",
+    "shortText": "W 1518 roku mieszkańcy Strasburga tańczyli na ulicach bez przerwy przez wiele dni.",
+    "longText": "Latem 1518 roku kobieta nazywana Frau Troffea zaczęła tańczyć na ulicy, a w kolejnych tygodniach dołączyły do niej dziesiątki innych osób.\n\nHistorycy wiążą to zjawisko z masową psychozą w czasach głodu i chorób. Władze początkowo uznały, że trzeba „wytańczyć” chorobę, i przygotowały miejsce do tańca.",
+    "source": "John Waller, „The Dancing Plague”, 2009",
+    "quiz": {
+      "question": "W jakim mieście wybuchła epidemia tańca w 1518 roku?",
+      "options": ["W Krakowie", "W Strasburgu", "W Wenecji"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-039",
+    "title": "Paradoks wyboru",
+    "category": "Psychologia",
+    "shortText": "Zbyt duży wybór może zniechęcać do decyzji.",
+    "longText": "W badaniu Sheeny Iyengar i Marka Leppera klienci sklepu częściej kupowali dżem, gdy widzieli 6 smaków, a nie 24, choć większy wybór przyciągał więcej osób.\n\nPóźniejsze analizy pokazują, że efekt nie występuje zawsze i zależy od sytuacji.",
+    "source": "Iyengar i Lepper, „When choice is demotivating”, Journal of Personality and Social Psychology, 2000",
+    "quiz": {
+      "question": "Przy jakim wyborze klienci częściej kupowali dżem?",
+      "options": ["Przy 24 smakach", "Przy 6 smakach", "Przy jednym smaku"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-040",
+    "title": "Król w Bluetooth",
+    "category": "Technologia",
+    "shortText": "Nazwa Bluetooth pochodzi od duńskiego króla z X wieku.",
+    "longText": "Harald Sinozęby zjednoczył plemiona Danii, a twórcy technologii chcieli w podobny sposób połączyć różne urządzenia.\n\nLogo Bluetooth składa się z dwóch skandynawskich run odpowiadających inicjałom króla.",
+    "source": "Bluetooth SIG, „Origin of the Bluetooth Name”",
+    "quiz": {
+      "question": "Od kogo pochodzi nazwa Bluetooth?",
+      "options": ["Od duńskiego króla", "Od wynalazcy ze Szwecji", "Od niebieskiej diody"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-041",
+    "title": "Doba Jowisza",
+    "category": "Kosmos",
+    "shortText": "Jowisz jest największą planetą, ale jego doba trwa niecałe 10 godzin.",
+    "longText": "Jowisz obraca się najszybciej ze wszystkich planet Układu Słonecznego: jeden obrót zajmuje mu około 9 godzin i 56 minut.\n\nTak szybki ruch spłaszcza planetę na biegunach i pomaga tworzyć jej wyraźne pasy chmur.",
+    "source": "https://science.nasa.gov/jupiter/",
+    "quiz": {
+      "question": "Ile w przybliżeniu trwa doba na Jowiszu?",
+      "options": ["Około 10 godzin", "Około 10 dni", "Około 10 miesięcy"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-042",
+    "title": "Cios krewetki modliszkowej",
+    "category": "Zwierzęta",
+    "shortText": "Krewetka modliszkowa uderza tak szybko, że woda wokół jej odnóża tworzy bąble.",
+    "longText": "Wyspecjalizowane odnóże działa jak sprężyna i rozpędza się do około 23 metrów na sekundę, czyli jeden z najszybszych znanych ruchów zwierząt.\n\nCios wytwarza pęcherzyki kawitacyjne, które zapadając się, uderzają ofiarę po raz drugi.",
+    "source": "Patek, Korff i Caldwell, „Deadly strike mechanism of a mantis shrimp”, Nature, 2004",
+    "quiz": {
+      "question": "Co powstaje w wodzie przy ciosie krewetki modliszkowej?",
+      "options": ["Fala pływowa", "Prąd elektryczny", "Pęcherzyki kawitacyjne"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-043",
+    "title": "Tymczasowa wieża Eiffla",
+    "category": "Historia",
+    "shortText": "Wieża Eiffla miała stać tylko 20 lat, a uratowało ją radio.",
+    "longText": "Wzniesiono ją na Wystawę Światową w 1889 roku, a pozwolenie obejmowało 20 lat. Wielu paryżan i artystów protestowało przeciwko konstrukcji.\n\nWieża okazała się przydatna jako maszt dla anten radiotelegraficznych i dzięki temu pozostała. Latem żelazo rozszerza się pod wpływem ciepła, więc jest wtedy o kilkanaście centymetrów wyższa.",
+    "source": "Oficjalna strona wieży Eiffla, toureiffel.paris",
+    "quiz": {
+      "question": "Co pomogło uratować wieżę Eiffla przed rozbiórką?",
+      "options": ["Wykorzystanie jej jako masztu radiowego", "Protesty artystów", "Decyzja króla Francji"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-044",
+    "title": "Efekt czystej ekspozycji",
+    "category": "Psychologia",
+    "shortText": "Im częściej coś widzimy, tym bardziej zaczynamy to lubić.",
+    "longText": "Robert Zajonc pokazywał ludziom nieznane słowa i znaki. Te oglądane częściej oceniano później lepiej, choć uczestnicy nie mieli o nich żadnej dodatkowej wiedzy.\n\nZ tego mechanizmu korzysta reklama, a także piosenki, które zaczynamy lubić dopiero po kilku odsłuchach.",
+    "source": "Robert Zajonc, „Attitudinal effects of mere exposure”, Journal of Personality and Social Psychology, 1968",
+    "quiz": {
+      "question": "Co według Zajonca zwiększa sympatię do czegoś?",
+      "options": ["Wysoka cena", "Rzadkość", "Częste oglądanie"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-045",
+    "title": "Znak @ w pierwszym e-mailu",
+    "category": "Technologia",
+    "shortText": "To Ray Tomlinson wybrał znak @ do adresów e-mail w 1971 roku.",
+    "longText": "Tomlinson potrzebował znaku, który oddzieli nazwę użytkownika od nazwy komputera i nie występuje w nazwiskach. Wybrał rzadko używaną małpę z klawiatury.\n\nSam twierdził, że treści pierwszego listu nie pamięta, a wiadomość była prawdopodobnie przypadkowym ciągiem znaków.",
+    "source": "Internet Hall of Fame, „Raymond Tomlinson”",
+    "quiz": {
+      "question": "Po co Tomlinson użył znaku @?",
+      "options": ["Do oddzielenia użytkownika od komputera", "Do szyfrowania wiadomości", "Do oznaczenia wiadomości pilnych"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-046",
+    "title": "16 wschodów Słońca na dobę",
+    "category": "Kosmos",
+    "shortText": "Załoga Międzynarodowej Stacji Kosmicznej widzi około 16 wschodów Słońca na dobę.",
+    "longText": "Stacja okrąża Ziemię w około 90 minut z prędkością blisko 28 tysięcy kilometrów na godzinę.\n\nW każdej rundzie załoga przelatuje ze strony dziennej na nocną, dlatego rytm snu ustala zegar, a nie Słońce.",
+    "source": "https://www.nasa.gov/international-space-station/",
+    "quiz": {
+      "question": "W jakim czasie stacja ISS okrąża Ziemię?",
+      "options": ["W około 9 minut", "W około 90 minut", "W około 9 godzin"],
+      "correctIndex": 1
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-047",
+    "title": "Dziesięć miesięcy w powietrzu",
+    "category": "Zwierzęta",
+    "shortText": "Jerzyki potrafią spędzić w locie około 10 miesięcy bez lądowania.",
+    "longText": "Szwedzcy naukowcy wyposażyli jerzyki w miniaturowe rejestratory. Okazało się, że poza sezonem lęgowym niektóre ptaki w ogóle nie lądują.\n\nW powietrzu żerują, a badacze podejrzewają, że również śpią, zwłaszcza podczas wznoszenia się na dużą wysokość. Jerzyki gniazdują także w polskich miastach.",
+    "source": "Hedenström i in., „Annual 10-Month Aerial Life Phase in the Common Swift Apus apus”, Current Biology, 2016",
+    "quiz": {
+      "question": "Ile czasu jerzyki potrafią spędzić bez lądowania?",
+      "options": ["Około 10 godzin", "Około 10 dni", "Około 10 miesięcy"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-048",
+    "title": "Napoleon nie był niski",
+    "category": "Historia",
+    "shortText": "Napoleon miał około 170 cm wzrostu, czyli nieco ponad średnią swoich czasów.",
+    "longText": "Mit o niskim cesarzu zawdzięczamy po części różnicy między stopami francuskimi a brytyjskimi oraz brytyjskim karykaturom.\n\nFrancuski pomiar 5 stóp i 2 cale odpowiadał około 169 cm, co nie było niezwykłym wzrostem jak na Francuza tamtych czasów.",
+    "source": "Encyclopaedia Britannica, „Was Napoleon Short?”",
+    "quiz": {
+      "question": "Skąd częściowo wziął się mit o niskim Napoleonie?",
+      "options": ["Z różnicy w jednostkach i karykatur", "Z jego pamiętników", "Z pomiarów po ekshumacji"],
+      "correctIndex": 0
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-049",
+    "title": "Efekt widza",
+    "category": "Psychologia",
+    "shortText": "Im więcej świadków zdarzenia, tym mniejsza szansa, że ktoś z nich pomoże.",
+    "longText": "John Darley i Bibb Latané badali, jak ludzie reagują na nagły wypadek. Uczestnicy, którzy sądzili, że są jedynymi świadkami, pomagali częściej i szybciej niż ci, którzy myśleli, że słyszą to też inni.\n\nZjawisko nazwano rozproszeniem odpowiedzialności. Dlatego w sytuacji zagrożenia warto wskazać konkretną osobę, która ma pomóc.",
+    "source": "Darley i Latané, „Bystander intervention in emergencies”, Journal of Personality and Social Psychology, 1968",
+    "quiz": {
+      "question": "Jak obecność innych świadków wpływa na chęć pomocy?",
+      "options": ["Zwiększa ją", "Nie ma na nią wpływu", "Zmniejsza ją"],
+      "correctIndex": 2
+    },
+    "isRead": false,
+    "isFavorite": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-050",
+    "title": "Książki z CAPTCHA",
+    "category": "Technologia",
+    "shortText": "Przepisując słowa w reCAPTCHA, ludzie pomagali digitalizować stare książki.",
+    "longText": "Luis von Ahn i współpracownicy wykorzystali fakt, że miliony osób dziennie przepisują krótkie teksty. W reCAPTCHA pokazywano słowa, których nie umiały odczytać programy skanujące książki.\n\nJedno słowo sprawdzało, czy użytkownik jest człowiekiem, a drugie było nieznane i pomagało w digitalizacji.",
+    "source": "von Ahn i in., „reCAPTCHA: Human-Based Character Recognition via Web Security Measures”, Science, 2008",
+    "quiz": {
+      "question": "Co pomagali digitalizować użytkownicy reCAPTCHA?",
+      "options": ["Mapy satelitarne", "Stare książki", "Nagrania radiowe"],
+      "correctIndex": 1
+    },
     "isRead": false,
     "isFavorite": false,
     "createdAt": "2026-01-01T00:00:00.000Z"
