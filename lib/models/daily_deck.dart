@@ -7,16 +7,19 @@ class DailyDeck {
     required this.date,
     required this.factIds,
     this.quizFactIds = const [],
+    this.reviewFactIds = const [],
     this.completed = const [],
     this.quizCorrect,
   });
 
   factory DailyDeck.fromJson(Map<String, dynamic> json) {
     final quizFactIds = json['quizFactIds'] as List<dynamic>?;
+    final reviewFactIds = json['reviewFactIds'] as List<dynamic>?;
     return DailyDeck(
       date: json['date'] as String,
       factIds: (json['factIds'] as List<dynamic>).cast<String>(),
       quizFactIds: quizFactIds?.cast<String>() ?? const [],
+      reviewFactIds: reviewFactIds?.cast<String>() ?? const [],
       completed: (json['completed'] as List<dynamic>)
           .map((item) => CompletedCard.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -30,6 +33,10 @@ class DailyDeck {
 
   /// The facts whose questions make up today's quiz.
   final List<String> quizFactIds;
+
+  /// The facts that had already been read when the deck was chosen. Finishing
+  /// a card marks it read, so this cannot be worked out from the facts later.
+  final List<String> reviewFactIds;
   final List<CompletedCard> completed;
 
   /// Correct answers in today's quiz, or null until it is finished.
@@ -67,6 +74,7 @@ class DailyDeck {
       date: date,
       factIds: factIds,
       quizFactIds: quizFactIds,
+      reviewFactIds: reviewFactIds,
       completed: completed ?? this.completed,
       quizCorrect: quizCorrect ?? this.quizCorrect,
     );
@@ -77,6 +85,7 @@ class DailyDeck {
       'date': date,
       'factIds': factIds,
       'quizFactIds': quizFactIds,
+      'reviewFactIds': reviewFactIds,
       'completed': completed.map((card) => card.toJson()).toList(),
       'quizCorrect': quizCorrect,
     };

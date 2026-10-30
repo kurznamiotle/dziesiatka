@@ -103,7 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openReview(DailySession session) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => DailyReviewScreen(facts: session.facts),
+        builder: (_) => DailyReviewScreen(
+          facts: session.facts,
+          reviewFactIds: session.deck.reviewFactIds,
+        ),
       ),
     );
   }
@@ -173,6 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return _CardDeck(
       facts: remaining,
+      reviewFactIds: session.deck.reviewFactIds,
       canUndo: session.canUndo,
       onCompleted: _completeCard,
       onUndo: _undo,
@@ -285,12 +289,14 @@ class _StreakBadge extends StatelessWidget {
 class _CardDeck extends StatefulWidget {
   const _CardDeck({
     required this.facts,
+    required this.reviewFactIds,
     required this.canUndo,
     required this.onCompleted,
     required this.onUndo,
   });
 
   final List<Fact> facts;
+  final List<String> reviewFactIds;
   final bool canUndo;
   final Future<void> Function(Fact fact, {required bool liked}) onCompleted;
   final Future<void> Function() onUndo;
@@ -485,6 +491,7 @@ class _CardDeckState extends State<_CardDeck>
                   children: [
                     FactCard(
                       fact: fact,
+                      isReview: widget.reviewFactIds.contains(fact.id),
                       onExpand: () => FactDetailsSheet.show(context, fact),
                     ),
                     // On the left, because a right swipe moves the right side

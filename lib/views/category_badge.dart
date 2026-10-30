@@ -1,4 +1,5 @@
 import 'package:dziesiatka/views/category_style.dart';
+import 'package:dziesiatka/views/pill_badge.dart';
 import 'package:flutter/material.dart';
 
 class CategoryBadge extends StatelessWidget {
@@ -9,31 +10,11 @@ class CategoryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = CategoryStyle.of(category, Theme.of(context).brightness);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: style.background,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 6, 14, 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(style.icon, size: 18, color: style.color),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                category,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: style.color,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return PillBadge(
+      icon: style.icon,
+      label: category,
+      color: style.color,
+      background: style.background,
     );
   }
 }

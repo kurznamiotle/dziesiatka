@@ -7,9 +7,14 @@ const _pageChangeDuration = Duration(milliseconds: 240);
 
 /// Today's finished deck to look through. It changes no stored data.
 class DailyReviewScreen extends StatefulWidget {
-  const DailyReviewScreen({super.key, required this.facts});
+  const DailyReviewScreen({
+    super.key,
+    required this.facts,
+    required this.reviewFactIds,
+  });
 
   final List<Fact> facts;
+  final List<String> reviewFactIds;
 
   @override
   State<DailyReviewScreen> createState() => _DailyReviewScreenState();
@@ -59,6 +64,7 @@ class _DailyReviewScreenState extends State<DailyReviewScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: FactCard(
                         fact: fact,
+                        isReview: widget.reviewFactIds.contains(fact.id),
                         onExpand: () => FactDetailsSheet.show(context, fact),
                       ),
                     );

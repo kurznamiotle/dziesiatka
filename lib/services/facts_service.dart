@@ -9,7 +9,7 @@ class FactsService {
   static const _seedAssetPath = 'assets/data/facts.json';
 
   /// Merges the bundled asset into storage by id: new facts are added and
-  /// known ones get the asset's content, while read and favorite state stay.
+  /// known ones get the asset's content, while reading and favorite state stay.
   Future<List<Fact>> syncWithSeed() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = _readStored(prefs) ?? const [];
@@ -42,18 +42,24 @@ class FactsService {
     String id, {
     required bool isRead,
     required bool isFavorite,
+    required DateTime? lastReadAt,
   }) {
     return _updateFact(
       id,
-      (fact) => fact.copyWith(isRead: isRead, isFavorite: isFavorite),
+      (fact) => fact.withCardState(
+        isRead: isRead,
+        isFavorite: isFavorite,
+        lastReadAt: lastReadAt,
+      ),
     );
   }
 
   Fact _withStoredState(Fact seedFact, Fact? stored) {
     if (stored == null) return seedFact;
-    return seedFact.copyWith(
+    return seedFact.withCardState(
       isRead: stored.isRead,
       isFavorite: stored.isFavorite,
+      lastReadAt: stored.lastReadAt,
     );
   }
 

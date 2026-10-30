@@ -1,16 +1,23 @@
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/pill_badge.dart';
 import 'package:flutter/material.dart';
 
 /// Below this height, such as on a phone in landscape, the card tightens up.
 const _compactHeight = 240.0;
 
 class FactCard extends StatelessWidget {
-  const FactCard({super.key, required this.fact, required this.onExpand});
+  const FactCard({
+    super.key,
+    required this.fact,
+    required this.onExpand,
+    this.isReview = false,
+  });
 
   final Fact fact;
   final VoidCallback onExpand;
+  final bool isReview;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +53,20 @@ class FactCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CategoryBadge(category: fact.category),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            CategoryBadge(category: fact.category),
+            if (isReview)
+              PillBadge(
+                icon: Icons.refresh_rounded,
+                label: 'Powtórka',
+                color: colors.onSecondaryContainer,
+                background: colors.secondaryContainer,
+              ),
+          ],
+        ),
         SizedBox(height: isCompact ? 8 : 24),
         Expanded(
           child: Align(

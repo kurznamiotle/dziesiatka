@@ -27,6 +27,7 @@ void main() {
     int number, {
     bool isRead = false,
     bool isFavorite = false,
+    DateTime? lastReadAt,
     bool hasQuiz = true,
   }) {
     return Fact(
@@ -38,6 +39,7 @@ void main() {
       source: 'Źródło',
       isRead: isRead,
       isFavorite: isFavorite,
+      lastReadAt: lastReadAt,
       quiz: hasQuiz
           ? const QuizQuestion(
               question: 'Pytanie',
@@ -47,6 +49,10 @@ void main() {
           : null,
       createdAt: DateTime.utc(2026),
     );
+  }
+
+  DateTime daysAgo(int days, {int hours = 0}) {
+    return now.subtract(Duration(days: days, hours: hours));
   }
 
   void givenPool(List<Fact> pool) {
@@ -76,23 +82,158 @@ void main() {
       expect(session.facts.every((fact) => !fact.isRead), isTrue);
     });
 
-    test('mixes 7 new facts with 3 reviews', () async {
-      givenPool([for (var i = 0; i < 30; i++) fact(i, isRead: i < 10)]);
+    test('mixes 9 new facts with 1 due review', () async {
+      givenPool([
+        for (var i = 0; i < 30; i++)
+          fact(i, isRead: i < 10, lastReadAt: i < 10 ? daysAgo(5) : null),
+      ]);
 
       final session = await service.loadToday();
 
       expect(session.facts, hasLength(10));
-      expect(session.facts.where((fact) => !fact.isRead), hasLength(7));
-      expect(session.facts.where((fact) => fact.isRead), hasLength(3));
+      expect(session.facts.where((fact) => !fact.isRead), hasLength(9));
+      expect(session.facts.where((fact) => fact.isRead), hasLength(1));
     });
 
-    test('uses fewer reviews when fewer facts were read', () async {
-      givenPool([for (var i = 0; i < 30; i++) fact(i, isRead: i == 0)]);
+    test('a fact read 3 days ago is due', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(3)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, ['fact-0']);
+    });
+
+    test('a fact read 2 days ago is not due', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(2)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, isEmpty);
+      expect(session.facts.map((fact) => fact.id), isNot(contains('fact-0')));
+      expect(session.facts, hasLength(10));
+    });
+
+    test('the waiting time counts calendar days', () async {
+      now = DateTime(2026, 11, 5, 0, 30);
+      givenPool([
+        fact(0, isRead: true, lastReadAt: DateTime(2026, 11, 2, 23, 30)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, ['fact-0']);
+    });
+
+    test('a read fact without a date is due', () async {
+      givenPool([fact(0, isRead: true), for (var i = 1; i < 30; i++) fact(i)]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, ['fact-0']);
+    });
+
+    test('takes only one review when many are due', () async {
+      givenPool([
+        for (var i = 0; i < 30; i++)
+          fact(i, isRead: i < 20, lastReadAt: i < 20 ? daysAgo(10) : null),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, hasLength(1));
+    });
+
+    test('draws reviews only from due facts on every day', () async {
+      final drawn = <String>{};
+
+      for (var day = 0; day < 8; day++) {
+        now = DateTime(2026, 11, 2 + day, 12);
+        givenPool([
+          fact(0, isRead: true, lastReadAt: daysAgo(9)),
+          fact(1, isRead: true, lastReadAt: daysAgo(4)),
+          fact(2, isRead: true, lastReadAt: daysAgo(1)),
+          fact(3, isRead: true, lastReadAt: daysAgo(2)),
+          for (var i = 4; i < 40; i++) fact(i),
+        ]);
+
+        final session = await newService().loadToday();
+
+        expect(session.deck.reviewFactIds, hasLength(1));
+        drawn.addAll(session.deck.reviewFactIds);
+      }
+
+      expect(drawn, {'fact-0', 'fact-1'});
+    });
+
+    test('new facts fill the review slot when none is due', () async {
+      givenPool([
+        for (var i = 0; i < 30; i++)
+          fact(i, isRead: i < 10, lastReadAt: i < 10 ? daysAgo(1) : null),
+      ]);
 
       final session = await service.loadToday();
 
       expect(session.facts, hasLength(10));
-      expect(session.facts.where((fact) => fact.isRead), hasLength(1));
+      expect(session.facts.every((fact) => !fact.isRead), isTrue);
+    });
+
+    test('the oldest read facts fill the deck when new ones run out', () async {
+      givenPool([
+        for (var i = 0; i < 4; i++) fact(i),
+        fact(4, isRead: true, lastReadAt: daysAgo(1)),
+        fact(5, isRead: true, lastReadAt: daysAgo(2)),
+        fact(6, isRead: true, lastReadAt: daysAgo(1)),
+        fact(7, isRead: true, lastReadAt: daysAgo(2)),
+        fact(8, isRead: true, lastReadAt: daysAgo(1)),
+        fact(9, isRead: true, lastReadAt: daysAgo(2)),
+        fact(10, isRead: true, lastReadAt: daysAgo(1, hours: 3)),
+        fact(11, isRead: true, lastReadAt: daysAgo(1)),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.facts, hasLength(10));
+      expect(session.deck.reviewFactIds, hasLength(6));
+      expect(
+        session.facts.skip(4).take(3).map((fact) => fact.id),
+        containsAll(['fact-5', 'fact-7', 'fact-9']),
+      );
+      expect(session.facts.skip(7).first.id, 'fact-10');
+    });
+
+    test('marks only already read facts as reviews', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(5)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+
+      final session = await service.loadToday();
+      for (final card in session.remaining) {
+        await service.completeCard(card.id, liked: false);
+      }
+
+      final finished = await service.loadToday();
+      expect(finished.deck.reviewFactIds, ['fact-0']);
+    });
+
+    test('the review stays the same during the day', () async {
+      givenPool([
+        for (var i = 0; i < 30; i++)
+          fact(i, isRead: i < 10, lastReadAt: i < 10 ? daysAgo(5) : null),
+      ]);
+
+      final first = await service.loadToday();
+      now = now.add(const Duration(hours: 6));
+      final second = await newService().loadToday();
+
+      expect(second.deck.reviewFactIds, first.deck.reviewFactIds);
     });
 
     test('fills the deck with read facts when new ones run out', () async {
@@ -156,6 +297,28 @@ void main() {
       expect(saved.isRead, isTrue);
     });
 
+    test('completing a card saves when it was read', () async {
+      givenPool([fact(0)]);
+
+      await service.completeCard('fact-0', liked: false);
+
+      expect((await stored('fact-0')).lastReadAt, now);
+    });
+
+    test('a finished review waits 3 days again', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(5)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+      await service.completeCard('fact-0', liked: false);
+
+      now = now.add(const Duration(days: 2));
+      expect((await service.loadToday()).deck.reviewFactIds, isEmpty);
+
+      now = now.add(const Duration(days: 1));
+      expect((await service.loadToday()).deck.reviewFactIds, ['fact-0']);
+    });
+
     test('moving on keeps an existing favorite', () async {
       givenPool([fact(0, isFavorite: true)]);
 
@@ -186,10 +349,14 @@ void main() {
       final saved = await stored('fact-0');
       expect(saved.isFavorite, isFalse);
       expect(saved.isRead, isFalse);
+      expect(saved.lastReadAt, isNull);
     });
 
-    test('keeps a fact read or favorite from before the swipe', () async {
-      givenPool([fact(0, isRead: true, isFavorite: true)]);
+    test('keeps the state from before the swipe', () async {
+      final readBefore = daysAgo(4);
+      givenPool([
+        fact(0, isRead: true, isFavorite: true, lastReadAt: readBefore),
+      ]);
       await service.completeCard('fact-0', liked: true);
 
       await service.undo();
@@ -197,6 +364,23 @@ void main() {
       final saved = await stored('fact-0');
       expect(saved.isRead, isTrue);
       expect(saved.isFavorite, isTrue);
+      expect(saved.lastReadAt, readBefore);
+    });
+
+    test('still shows the review label after undo', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(5)),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+      final session = await service.loadToday();
+      for (final card in session.remaining) {
+        await service.completeCard(card.id, liked: false);
+      }
+
+      final restored = await service.undo();
+
+      expect(restored.remaining.single.id, 'fact-0');
+      expect(restored.deck.reviewFactIds, ['fact-0']);
     });
 
     test('goes back through several cards in order', () async {
@@ -334,7 +518,7 @@ void main() {
       expect(tomorrow.completedCount, 0);
       expect(tomorrow.canUndo, isFalse);
       expect(tomorrow.facts.first.id, 'fact-10');
-      expect(tomorrow.facts.where((fact) => fact.isRead), hasLength(3));
+      expect(tomorrow.facts.where((fact) => fact.isRead), isEmpty);
     });
 
     test('unfinished unread cards come back', () async {

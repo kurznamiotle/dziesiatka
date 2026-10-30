@@ -103,11 +103,37 @@ void main() {
     final service = FactsService();
     final facts = await service.getFacts();
 
-    await service.setCardState(facts.first.id, isRead: true, isFavorite: false);
+    await service.setCardState(
+      facts.first.id,
+      isRead: true,
+      isFavorite: false,
+      lastReadAt: DateTime(2026, 11, 2),
+    );
 
     final reloaded = await FactsService().getFacts();
     expect(reloaded.first.isRead, isTrue);
+    expect(reloaded.first.lastReadAt, DateTime(2026, 11, 2));
     expect(reloaded.where((fact) => fact.isRead), hasLength(1));
+  });
+
+  test('setCardState can clear the read date', () async {
+    final service = FactsService();
+    final id = (await service.getFacts()).first.id;
+    await service.setCardState(
+      id,
+      isRead: true,
+      isFavorite: false,
+      lastReadAt: DateTime(2026, 11, 2),
+    );
+
+    await service.setCardState(
+      id,
+      isRead: false,
+      isFavorite: false,
+      lastReadAt: null,
+    );
+
+    expect((await service.getFacts()).first.lastReadAt, isNull);
   });
 
   test('toggleFavorite switches the flag and persists it', () async {
@@ -143,12 +169,20 @@ void main() {
 
     test('keeps read and favorite state', () async {
       final seeded = await FactsService().syncWithSeed();
-      givenStored([seeded.first.copyWith(isRead: true, isFavorite: true)]);
+      final readAt = DateTime(2026, 11, 2, 8);
+      givenStored([
+        seeded.first.copyWith(
+          isRead: true,
+          isFavorite: true,
+          lastReadAt: readAt,
+        ),
+      ]);
 
       final synced = await FactsService().syncWithSeed();
 
       expect(synced.first.isRead, isTrue);
       expect(synced.first.isFavorite, isTrue);
+      expect(synced.first.lastReadAt, readAt);
       expect(synced.where((fact) => fact.isRead), hasLength(1));
     });
 

@@ -42,6 +42,13 @@ void main() {
         }
       });
 
+      test('the review badge is readable on cards', () {
+        expect(
+          contrast(colors.onSecondaryContainer, colors.secondaryContainer),
+          greaterThanOrEqualTo(minimumTextContrast),
+        );
+      });
+
       test('the streak color is readable on the frame', () {
         expect(
           contrast(surfaces.streak, surfaces.frame),

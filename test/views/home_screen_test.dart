@@ -231,11 +231,13 @@ void main() {
       facts[0].id,
       isRead: true,
       isFavorite: false,
+      lastReadAt: null,
     );
     await FactsService().setCardState(
       facts[1].id,
       isRead: true,
       isFavorite: false,
+      lastReadAt: null,
     );
     await pumpApp(tester);
 
@@ -249,6 +251,62 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  group('review cards', () {
+    Future<void> givenFactReadDaysAgo(int days, DateTime now) async {
+      final facts = await FactsService().getFacts();
+      await FactsService().setCardState(
+        facts.first.id,
+        isRead: true,
+        isFavorite: false,
+        lastReadAt: now.subtract(Duration(days: days)),
+      );
+    }
+
+    testWidgets('a due fact is the last card and shows the badge', (
+      tester,
+    ) async {
+      final now = DateTime(2026, 11, 5, 12);
+      await givenFactReadDaysAgo(3, now);
+      await pumpApp(tester, now: () => now);
+
+      expect(find.text('Powtórka'), findsNothing);
+      expect(find.text('0 / 10 ukończone'), findsOneWidget);
+
+      await finishRemainingCards(tester, 9);
+
+      expect(find.text(_firstTitle), findsOneWidget);
+      expect(find.text('Powtórka'), findsOneWidget);
+    });
+
+    testWidgets('a fact that is not due stays out of the deck', (tester) async {
+      final now = DateTime(2026, 11, 5, 12);
+      await givenFactReadDaysAgo(2, now);
+      await pumpApp(tester, now: () => now);
+
+      await finishRemainingCards(tester, 9);
+
+      expect(find.text(_firstTitle), findsNothing);
+      expect(find.text('Powtórka'), findsNothing);
+    });
+
+    testWidgets('today\'s review screen marks the review too', (tester) async {
+      final now = DateTime(2026, 11, 5, 12);
+      await givenFactReadDaysAgo(3, now);
+      await pumpApp(tester, now: () => now);
+      await finishRemainingCards(tester, 10);
+      await answerQuiz(tester);
+
+      await tester.tap(find.text('Powtórz dzisiejszą talię'));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 9; i++) {
+        await tester.tap(find.text('Następna'));
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('Powtórka'), findsOneWidget);
+    });
   });
 
   group('after finishing the deck', () {
@@ -321,7 +379,7 @@ void main() {
       expect(find.text('Następna dziesiątka za: 02:29:40'), findsOneWidget);
     });
 
-    testWidgets('a new deck with reviews appears at midnight', (tester) async {
+    testWidgets('a new deck appears at midnight', (tester) async {
       var now = DateTime(2026, 11, 2, 23, 59, 50);
       await pumpApp(tester, now: () => now);
       await finishDay(tester);

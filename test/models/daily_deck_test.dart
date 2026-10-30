@@ -7,8 +7,28 @@ void main() {
   const deck = DailyDeck(
     date: '2026-03-09',
     factIds: ['a', 'b', 'c'],
+    reviewFactIds: ['c'],
     completed: [card],
   );
+
+  test('a completed card keeps its previous read date', () {
+    final completed = CompletedCard(
+      factId: 'a',
+      wasRead: true,
+      wasFavorite: false,
+      previousLastReadAt: DateTime.utc(2026, 3, 9),
+    );
+
+    final restored = CompletedCard.fromJson(completed.toJson());
+
+    expect(restored.previousLastReadAt, completed.previousLastReadAt);
+  });
+
+  test('a deck saved before reviews were marked still loads', () {
+    final json = deck.toJson()..remove('reviewFactIds');
+
+    expect(DailyDeck.fromJson(json).reviewFactIds, isEmpty);
+  });
 
   test('dateKey pads the month and day', () {
     expect(DailyDeck.dateKey(DateTime(2026, 3, 9, 23, 59)), '2026-03-09');
@@ -19,6 +39,7 @@ void main() {
 
     expect(restored.date, deck.date);
     expect(restored.factIds, deck.factIds);
+    expect(restored.reviewFactIds, deck.reviewFactIds);
     expect(restored.completed.single.factId, card.factId);
     expect(restored.completed.single.wasRead, card.wasRead);
     expect(restored.completed.single.wasFavorite, card.wasFavorite);

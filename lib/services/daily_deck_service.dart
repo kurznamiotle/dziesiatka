@@ -17,7 +17,8 @@ class DailyDeckService {
   }) : _now = now ?? DateTime.now;
 
   static const deckSize = 10;
-  static const reviewCount = 3;
+  static const maxReviewCount = 1;
+  static const minDaysBetweenReads = 3;
   static const quizQuestionCount = 2;
   static const _deckKey = 'dailyDeck';
 
@@ -46,6 +47,10 @@ class DailyDeckService {
       date: today,
       factIds: chosen.map((fact) => fact.id).toList(),
       quizFactIds: _chooseQuizFactIds(chosen),
+      reviewFactIds: chosen
+          .where((fact) => fact.isRead)
+          .map((fact) => fact.id)
+          .toList(),
     );
     await _saveDeck(prefs, deck);
     return DailySession(deck: deck, pool: facts, streak: streak);
@@ -66,6 +71,7 @@ class DailyDeckService {
       factId,
       isRead: true,
       isFavorite: liked || fact.isFavorite,
+      lastReadAt: _now(),
     );
     await _saveDeck(
       prefs,
@@ -74,6 +80,7 @@ class DailyDeckService {
           factId: factId,
           wasRead: fact.isRead,
           wasFavorite: fact.isFavorite,
+          previousLastReadAt: fact.lastReadAt,
         ),
       ),
     );
@@ -97,6 +104,7 @@ class DailyDeckService {
       last.factId,
       isRead: last.wasRead,
       isFavorite: last.wasFavorite,
+      lastReadAt: last.previousLastReadAt,
     );
     await _saveDeck(prefs, session.deck.withoutLastCompleted());
     return loadToday();
@@ -118,27 +126,49 @@ class DailyDeckService {
     return session.deck.expiresAt.difference(_now());
   }
 
-  int get _dayNumber {
-    final today = _now();
-    final day = DateTime.utc(today.year, today.month, today.day);
+  int get _dayNumber => _dayNumberOf(_now());
+
+  int _dayNumberOf(DateTime moment) {
+    final local = moment.toLocal();
+    final day = DateTime.utc(local.year, local.month, local.day);
     return day.difference(DateTime.utc(1970)).inDays;
   }
 
-  /// Mixes new facts with a few reviews of read ones. When either kind runs
-  /// out, the other fills the deck. The read facts start from a point that
-  /// moves each day, so reviews change between days.
+  /// Counts calendar days, so a card read late in the evening comes back on
+  /// the same day as one read that morning.
+  bool _isDueForReview(Fact fact) {
+    final lastReadAt = fact.lastReadAt;
+    if (lastReadAt == null) return true;
+    return _dayNumber - _dayNumberOf(lastReadAt) >= minDaysBetweenReads;
+  }
+
+  /// Takes one review, drawn from read facts that are due, and new facts for
+  /// the rest. Facts read longest ago fill any gap, even if not yet due, so
+  /// the deck stays full.
   List<Fact> _chooseFacts(List<Fact> facts) {
     final unread = facts.where((fact) => !fact.isRead).toList();
-    final read = facts.where((fact) => fact.isRead).toList();
+    final read = facts.where((fact) => fact.isRead).toList()
+      ..sort(_compareByLastRead);
 
-    final start = read.isEmpty ? 0 : _dayNumber % read.length;
-    final reviews = [...read.skip(start), ...read.take(start)];
+    final due = read.where(_isDueForReview).toList();
+    final reviews = (due..shuffle(Random(_dayNumber))).take(maxReviewCount);
+    final oldestFirst = read.where((fact) => !reviews.contains(fact));
 
-    final newCount = min<int>(
-      deckSize - min<int>(reviewCount, read.length),
-      unread.length,
-    );
-    return [...unread.take(newCount), ...reviews.take(deckSize - newCount)];
+    return [
+      ...unread.take(deckSize - reviews.length),
+      ...reviews,
+      ...oldestFirst,
+    ].take(deckSize).toList();
+  }
+
+  /// Puts facts read longest ago first. Those read before dates were saved
+  /// have none and count as the oldest.
+  int _compareByLastRead(Fact first, Fact second) {
+    final firstRead = first.lastReadAt;
+    final secondRead = second.lastReadAt;
+    if (firstRead == null) return secondRead == null ? 0 : -1;
+    if (secondRead == null) return 1;
+    return firstRead.compareTo(secondRead);
   }
 
   List<String> _chooseQuizFactIds(List<Fact> deckFacts) {
