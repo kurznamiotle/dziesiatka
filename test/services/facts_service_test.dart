@@ -32,23 +32,70 @@ void main() {
     expect(reloaded.where((fact) => fact.isRead), hasLength(1));
   });
 
-  test('resetReadState clears read state and keeps added facts', () async {
+  test('toggleFavorite switches the flag and persists it', () async {
     final service = FactsService();
     final facts = await service.getFacts();
-    await service.markAsRead(facts.first.id);
-    await service.addFact(
-      title: 'Nowa',
-      category: 'Historia',
-      shortText: 'Zajawka',
-      longText: 'Rozwinięcie',
-      source: 'Źródło',
-    );
 
-    await service.resetReadState();
+    await service.toggleFavorite(facts.first.id);
+    final favorite = await FactsService().getFacts();
+    expect(favorite.first.isFavorite, isTrue);
+    expect(favorite.where((fact) => fact.isFavorite), hasLength(1));
 
-    final reloaded = await FactsService().getFacts();
-    expect(reloaded, hasLength(11));
-    expect(reloaded.every((fact) => !fact.isRead), isTrue);
+    await service.toggleFavorite(facts.first.id);
+    final cleared = await FactsService().getFacts();
+    expect(cleared.first.isFavorite, isFalse);
+  });
+
+  group('syncWithSeed', () {
+    test('fills empty storage from the asset', () async {
+      expect(await FactsService().syncWithSeed(), hasLength(10));
+    });
+
+    test('adds only facts with new ids', () async {
+      final service = FactsService();
+      final seeded = await service.syncWithSeed();
+      await service.replaceFacts(seeded.take(4).toList());
+
+      final synced = await service.syncWithSeed();
+
+      expect(synced, hasLength(10));
+      expect(synced.map((fact) => fact.id).toSet(), hasLength(10));
+      expect(await service.getFacts(), hasLength(10));
+    });
+
+    test('keeps read and favorite state and local edits', () async {
+      final service = FactsService();
+      final seeded = await service.syncWithSeed();
+      await service.setCardState(
+        seeded.first.id,
+        isRead: true,
+        isFavorite: true,
+      );
+      await service.replaceFacts([
+        (await service.getFacts()).first.copyWith(title: 'Zmieniony'),
+      ]);
+
+      final synced = await service.syncWithSeed();
+
+      expect(synced.first.isRead, isTrue);
+      expect(synced.first.isFavorite, isTrue);
+      expect(synced.first.title, 'Zmieniony');
+    });
+
+    test('keeps facts that are not in the asset', () async {
+      final service = FactsService();
+      final added = await service.addFact(
+        title: 'Nowa',
+        category: 'Historia',
+        shortText: 'Zajawka',
+        longText: 'Rozwinięcie',
+        source: 'Źródło',
+      );
+
+      final synced = await service.syncWithSeed();
+
+      expect(synced.map((fact) => fact.id), contains(added.id));
+    });
   });
 
   test('added facts are stored and not replaced by the seed', () async {
@@ -76,17 +123,6 @@ void main() {
       expect(fact.longText, isNotEmpty);
       expect(fact.source, isNotEmpty);
     }
-  });
-
-  test('deleted facts stay deleted after reloading', () async {
-    final service = FactsService();
-    final facts = await service.getFacts();
-
-    await service.deleteFact(facts.first.id);
-
-    final reloaded = await FactsService().getFacts();
-    expect(reloaded, hasLength(9));
-    expect(reloaded.map((fact) => fact.id), isNot(contains(facts.first.id)));
   });
 
   test('old facts in storage still load', () async {

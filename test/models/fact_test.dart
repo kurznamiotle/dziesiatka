@@ -10,6 +10,7 @@ void main() {
     longText: 'Rozwinięcie',
     source: 'https://example.com',
     isRead: true,
+    isFavorite: true,
     createdAt: DateTime.utc(2026, 1, 2, 3, 4, 5),
   );
 
@@ -21,6 +22,7 @@ void main() {
     expect(actual.longText, expected.longText);
     expect(actual.source, expected.source);
     expect(actual.isRead, expected.isRead);
+    expect(actual.isFavorite, expected.isFavorite);
     expect(actual.createdAt, expected.createdAt);
   }
 
@@ -36,10 +38,15 @@ void main() {
     expectSameFields(copy.copyWith(shortText: 'Zajawka', isRead: true), fact);
   });
 
-  test('fromJson defaults isRead to false when missing', () {
-    final json = fact.toJson()..remove('isRead');
+  test('fromJson defaults isRead and isFavorite to false when missing', () {
+    final json = fact.toJson()
+      ..remove('isRead')
+      ..remove('isFavorite');
 
-    expect(Fact.fromJson(json).isRead, isFalse);
+    final restored = Fact.fromJson(json);
+
+    expect(restored.isRead, isFalse);
+    expect(restored.isFavorite, isFalse);
   });
 
   test('fromJson reads facts saved with the old content field', () {

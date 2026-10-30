@@ -1,4 +1,5 @@
 import 'package:dziesiatka/main.dart';
+import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,7 @@ void main() {
 
       expect(headerLeft(tester), _pagePadding);
       expect(
-        tester.getBottomRight(find.text('Następna')).dy,
+        tester.getBottomRight(find.text('Polub')).dy,
         greaterThan(tablet.height - 2 * _pagePadding - 56),
       );
     }, variant: mobilePlatforms);
@@ -108,13 +109,6 @@ void main() {
       bottom: _gestureBar,
     );
 
-    Future<void> openAdminTab(WidgetTester tester, String tab) async {
-      await tester.tap(find.byTooltip('Panel twórcy'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(tab));
-      await tester.pumpAndSettle();
-    }
-
     testWidgets('the home screen stays clear of both bars', (tester) async {
       await pumpApp(tester, insets: portraitInsets);
 
@@ -123,7 +117,7 @@ void main() {
         greaterThanOrEqualTo(_statusBar),
       );
       expect(
-        tester.getBottomLeft(find.text('Następna')).dy,
+        tester.getBottomLeft(find.text('Polub')).dy,
         lessThanOrEqualTo(_phone.height - _gestureBar),
       );
     });
@@ -158,30 +152,23 @@ void main() {
       );
     });
 
-    testWidgets('the admin list ends above the gesture bar', (tester) async {
+    testWidgets('the favorites list ends above the gesture bar', (
+      tester,
+    ) async {
       const short = Size(390, 600);
+      final facts = FactsService();
+      for (final fact in await facts.getFacts()) {
+        await facts.toggleFavorite(fact.id);
+      }
       await pumpApp(tester, size: short, insets: portraitInsets);
-      await openAdminTab(tester, 'Fakty');
 
+      await tester.tap(find.byTooltip('Ulubione'));
+      await tester.pumpAndSettle();
       await tester.drag(find.byType(ListView), const Offset(0, -3000));
       await tester.pumpAndSettle();
 
       expect(
-        tester.getBottomLeft(find.text('Dzień dłuższy niż rok')).dy,
-        lessThanOrEqualTo(short.height - _gestureBar),
-      );
-    });
-
-    testWidgets('admin actions end above the gesture bar', (tester) async {
-      const short = Size(390, 600);
-      await pumpApp(tester, size: short, insets: portraitInsets);
-      await openAdminTab(tester, 'Dane');
-
-      await tester.drag(find.text('Import'), const Offset(0, -3000));
-      await tester.pumpAndSettle();
-
-      expect(
-        tester.getBottomLeft(find.text('Importuj i zastąp bazę')).dy,
+        tester.getBottomLeft(find.text('Plecione oprogramowanie Apollo')).dy,
         lessThanOrEqualTo(short.height - _gestureBar),
       );
     });

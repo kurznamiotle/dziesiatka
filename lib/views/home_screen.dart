@@ -1,10 +1,14 @@
+import 'dart:async';
+
+import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
-import 'package:dziesiatka/views/admin_screen.dart';
-import 'package:dziesiatka/views/app_theme.dart';
-import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/daily_review_screen.dart';
+import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
+import 'package:dziesiatka/views/favorites_screen.dart';
 import 'package:dziesiatka/views/theme_mode_button.dart';
 import 'package:flutter/material.dart';
 
@@ -14,33 +18,38 @@ const _stackScaleStep = 0.05;
 const _maxRotation = 0.2;
 const _dismissThreshold = 0.3;
 const _flingVelocity = 700.0;
+const _flyOutDistance = 1.5;
 const _dismissDuration = Duration(milliseconds: 240);
 const _returnDuration = Duration(milliseconds: 200);
+const _likeColor = Color(0xFF15803D);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.themeService});
+  const HomeScreen({super.key, required this.themeService, this.now});
 
   final ThemeService themeService;
+  final DateTime Function()? now;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _service = FactsService();
-  List<Fact>? _facts;
+  final _factsService = FactsService();
+  late final _deckService = DailyDeckService(_factsService, now: widget.now);
+  DailySession? _session;
   bool _loadFailed = false;
 
   @override
   void initState() {
     super.initState();
-    _loadFacts();
+    _loadSession();
   }
 
-  Future<void> _loadFacts() async {
+  Future<void> _loadSession() async {
     try {
-      final facts = await _service.getFacts();
-      if (mounted) setState(() => _facts = facts);
+      await _factsService.syncWithSeed();
+      final session = await _deckService.loadToday();
+      if (mounted) setState(() => _session = session);
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
     }
@@ -48,14 +57,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _retryLoading() {
     setState(() => _loadFailed = false);
-    _loadFacts();
+    _loadSession();
   }
 
-  Future<void> _updateFacts(Future<void> Function() change) async {
+  Future<void> _updateSession(Future<DailySession> Function() change) async {
     try {
-      await change();
-      final facts = await _service.getFacts();
-      if (mounted) setState(() => _facts = facts);
+      final session = await change();
+      if (mounted) setState(() => _session = session);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,11 +72,29 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _openAdminPanel() async {
-    await Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const AdminScreen()));
-    await _loadFacts();
+  Future<void> _completeCard(Fact fact, {required bool liked}) {
+    return _updateSession(
+      () => _deckService.completeCard(fact.id, liked: liked),
+    );
+  }
+
+  Future<void> _undo() => _updateSession(_deckService.undo);
+
+  Future<void> _openFavorites() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => FavoritesScreen(factsService: _factsService),
+      ),
+    );
+    await _loadSession();
+  }
+
+  void _openReview(DailySession session) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => DailyReviewScreen(facts: session.facts),
+      ),
+    );
   }
 
   @override
@@ -88,46 +114,46 @@ class _HomeScreenState extends State<HomeScreen> {
       return _LoadError(onRetry: _retryLoading);
     }
 
-    final facts = _facts;
-    if (facts == null) {
+    final session = _session;
+    if (session == null) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final unread = facts.where((fact) => !fact.isRead).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ProgressHeader(
-          completed: facts.length - unread.length,
-          total: facts.length,
+          completed: session.completedCount,
+          total: session.facts.length,
           themeService: widget.themeService,
-          onOpenAdminPanel: _openAdminPanel,
+          onOpenFavorites: _openFavorites,
         ),
         const SizedBox(height: 24),
-        Expanded(child: _buildDeck(facts, unread)),
+        Expanded(child: _buildDeck(session)),
       ],
     );
   }
 
-  Widget _buildDeck(List<Fact> facts, List<Fact> unread) {
-    if (facts.isEmpty) {
-      return const Center(
-        child: Text(
-          'Brak ciekawostek. Dodaj pierwszą w panelu twórcy.',
-          textAlign: TextAlign.center,
-        ),
-      );
+  Widget _buildDeck(DailySession session) {
+    if (session.facts.isEmpty) {
+      return const Center(child: Text('Brak ciekawostek.'));
     }
 
-    if (unread.isEmpty) {
+    final remaining = session.remaining;
+    if (remaining.isEmpty) {
       return _CompletionView(
-        onReset: () => _updateFacts(_service.resetReadState),
+        timeUntilNextDeck: () => _deckService.timeUntilNextDeck(session),
+        onNextDeckReady: _loadSession,
+        onReview: () => _openReview(session),
+        onUndo: _undo,
       );
     }
 
     return _CardDeck(
-      facts: unread,
-      onDismissed: (fact) => _updateFacts(() => _service.markAsRead(fact.id)),
+      facts: remaining,
+      canUndo: session.canUndo,
+      onCompleted: _completeCard,
+      onUndo: _undo,
     );
   }
 }
@@ -137,13 +163,13 @@ class _ProgressHeader extends StatelessWidget {
     required this.completed,
     required this.total,
     required this.themeService,
-    required this.onOpenAdminPanel,
+    required this.onOpenFavorites,
   });
 
   final int completed;
   final int total;
   final ThemeService themeService;
-  final VoidCallback onOpenAdminPanel;
+  final VoidCallback onOpenFavorites;
 
   @override
   Widget build(BuildContext context) {
@@ -176,15 +202,15 @@ class _ProgressHeader extends StatelessWidget {
                 ],
               ),
             ),
-            ThemeModeButton(themeService: themeService),
             IconButton(
-              tooltip: 'Panel twórcy',
-              onPressed: onOpenAdminPanel,
+              tooltip: 'Ulubione',
+              onPressed: onOpenFavorites,
               visualDensity: VisualDensity.compact,
               iconSize: 20,
               color: mutedColor,
-              icon: const Icon(Icons.tune_rounded),
+              icon: const Icon(Icons.favorite_border_rounded),
             ),
+            ThemeModeButton(themeService: themeService),
           ],
         ),
         const SizedBox(height: 12),
@@ -199,10 +225,17 @@ class _ProgressHeader extends StatelessWidget {
 }
 
 class _CardDeck extends StatefulWidget {
-  const _CardDeck({required this.facts, required this.onDismissed});
+  const _CardDeck({
+    required this.facts,
+    required this.canUndo,
+    required this.onCompleted,
+    required this.onUndo,
+  });
 
   final List<Fact> facts;
-  final Future<void> Function(Fact fact) onDismissed;
+  final bool canUndo;
+  final Future<void> Function(Fact fact, {required bool liked}) onCompleted;
+  final Future<void> Function() onUndo;
 
   @override
   State<_CardDeck> createState() => _CardDeckState();
@@ -214,7 +247,7 @@ class _CardDeckState extends State<_CardDeck>
     vsync: this,
   );
   double _deckWidth = 0;
-  bool _isDismissing = false;
+  bool _isAnimating = false;
 
   @override
   void dispose() {
@@ -223,15 +256,15 @@ class _CardDeckState extends State<_CardDeck>
   }
 
   void _onDragStart(DragStartDetails details) {
-    if (!_isDismissing) _dragOffset.stop();
+    if (!_isAnimating) _dragOffset.stop();
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
-    if (!_isDismissing) _dragOffset.value += details.primaryDelta!;
+    if (!_isAnimating) _dragOffset.value += details.primaryDelta!;
   }
 
   void _onDragEnd(DragEndDetails details) {
-    if (_isDismissing) return;
+    if (_isAnimating) return;
 
     final velocity = details.primaryVelocity ?? 0;
     final offset = _dragOffset.value;
@@ -245,16 +278,16 @@ class _CardDeckState extends State<_CardDeck>
   }
 
   void _returnToCenter() {
-    if (_isDismissing) return;
+    if (_isAnimating) return;
     _dragOffset.animateTo(0, duration: _returnDuration, curve: Curves.easeOut);
   }
 
   Future<void> _dismiss(double direction) async {
-    if (_isDismissing) return;
-    _isDismissing = true;
+    if (_isAnimating) return;
+    _isAnimating = true;
 
     await _dragOffset.animateTo(
-      direction * _deckWidth * 1.5,
+      direction * _deckWidth * _flyOutDistance,
       duration: _dismissDuration,
       curve: Curves.easeIn,
     );
@@ -262,11 +295,30 @@ class _CardDeckState extends State<_CardDeck>
 
     // The card stays off-screen until the parent drops it from the deck, so
     // resetting the offset never flashes it back in the center.
-    await widget.onDismissed(widget.facts.first);
+    await widget.onCompleted(widget.facts.first, liked: direction > 0);
     if (!mounted) return;
 
     _dragOffset.value = 0;
-    _isDismissing = false;
+    _isAnimating = false;
+  }
+
+  Future<void> _undo() async {
+    if (_isAnimating) return;
+    _isAnimating = true;
+
+    await widget.onUndo();
+    if (!mounted) return;
+
+    // The restored card is on top by the next frame and slides in from here.
+    _dragOffset.value = -_deckWidth * _flyOutDistance;
+    await _dragOffset.animateTo(
+      0,
+      duration: _dismissDuration,
+      curve: Curves.easeOut,
+    );
+    if (!mounted) return;
+
+    _isAnimating = false;
   }
 
   @override
@@ -298,23 +350,29 @@ class _CardDeckState extends State<_CardDeck>
           ),
         ),
         Row(
+          spacing: 8,
           children: [
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () => _dismiss(-1),
                 icon: const Icon(Icons.close_rounded),
-                label: const Text('Odrzuć'),
+                label: const Text('Dalej'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            IconButton.outlined(
+              tooltip: 'Cofnij',
+              onPressed: widget.canUndo ? _undo : null,
+              style: IconButton.styleFrom(minimumSize: const Size.square(56)),
+              icon: const Icon(Icons.undo_rounded),
+            ),
             Expanded(
               child: FilledButton.icon(
                 onPressed: () => _dismiss(1),
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: const Text('Następna'),
+                icon: const Icon(Icons.favorite_rounded),
+                label: const Text('Polub'),
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(56),
                 ),
@@ -364,9 +422,25 @@ class _CardDeckState extends State<_CardDeck>
               ignoring: !isTop,
               child: ExcludeSemantics(
                 excluding: !isTop,
-                child: _FactCard(
-                  fact: fact,
-                  onExpand: () => FactDetailsSheet.show(context, fact),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    FactCard(
+                      fact: fact,
+                      onExpand: () => FactDetailsSheet.show(context, fact),
+                    ),
+                    // On the left, because a right swipe moves the right side
+                    // of the card off the screen.
+                    if (isTop && offset > 0)
+                      Positioned(
+                        top: 72,
+                        left: 28,
+                        child: Opacity(
+                          opacity: progress,
+                          child: const _LikeLabel(),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -377,71 +451,29 @@ class _CardDeckState extends State<_CardDeck>
   }
 }
 
-class _FactCard extends StatelessWidget {
-  const _FactCard({required this.fact, required this.onExpand});
-
-  final Fact fact;
-  final VoidCallback onExpand;
+class _LikeLabel extends StatelessWidget {
+  const _LikeLabel();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final surfaces = theme.extension<AppSurfaces>()!;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: surfaces.card,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: surfaces.border),
-        boxShadow: [
-          BoxShadow(
-            color: surfaces.shadow,
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        color: _likeColor,
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 6,
           children: [
-            CategoryBadge(category: fact.category),
-            const SizedBox(height: 24),
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        fact.title,
-                        style: theme.textTheme.headlineLarge?.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w800,
-                          height: 1.15,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        fact.shortText,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontSize: 18,
-                          height: 1.55,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            const Icon(Icons.favorite_rounded, size: 20, color: Colors.white),
+            Text(
+              'Lubię to',
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
               ),
-            ),
-            const SizedBox(height: 12),
-            TextButton.icon(
-              onPressed: onExpand,
-              icon: const Icon(Icons.expand_less_rounded),
-              label: const Text('Dowiedz się więcej'),
             ),
           ],
         ),
@@ -451,9 +483,17 @@ class _FactCard extends StatelessWidget {
 }
 
 class _CompletionView extends StatelessWidget {
-  const _CompletionView({required this.onReset});
+  const _CompletionView({
+    required this.timeUntilNextDeck,
+    required this.onNextDeckReady,
+    required this.onReview,
+    required this.onUndo,
+  });
 
-  final VoidCallback onReset;
+  final Duration Function() timeUntilNextDeck;
+  final VoidCallback onNextDeckReady;
+  final VoidCallback onReview;
+  final VoidCallback onUndo;
 
   @override
   Widget build(BuildContext context) {
@@ -487,20 +527,91 @@ class _CompletionView extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Wszystkie ciekawostki zostały przejrzane.',
+              'Dzisiejsza talia jest ukończona.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colors.onSurfaceVariant,
               ),
             ),
+            const SizedBox(height: 20),
+            _NextDeckCountdown(
+              timeRemaining: timeUntilNextDeck,
+              onFinished: onNextDeckReady,
+            ),
             const SizedBox(height: 32),
             FilledButton.icon(
-              onPressed: onReset,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Zresetuj postęp'),
+              onPressed: onReview,
+              icon: const Icon(Icons.replay_rounded),
+              label: const Text('Powtórz dzisiejszą talię'),
+            ),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: onUndo,
+              icon: const Icon(Icons.undo_rounded),
+              label: const Text('Cofnij ostatnią kartę'),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _NextDeckCountdown extends StatefulWidget {
+  const _NextDeckCountdown({
+    required this.timeRemaining,
+    required this.onFinished,
+  });
+
+  final Duration Function() timeRemaining;
+  final VoidCallback onFinished;
+
+  @override
+  State<_NextDeckCountdown> createState() => _NextDeckCountdownState();
+}
+
+class _NextDeckCountdownState extends State<_NextDeckCountdown> {
+  late Duration _remaining = widget.timeRemaining();
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _tick() {
+    final remaining = widget.timeRemaining();
+    if (remaining > Duration.zero) {
+      setState(() => _remaining = remaining);
+      return;
+    }
+
+    _timer?.cancel();
+    widget.onFinished();
+  }
+
+  String get _formatted {
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+    final hours = twoDigits(_remaining.inHours);
+    final minutes = twoDigits(_remaining.inMinutes % 60);
+    final seconds = twoDigits(_remaining.inSeconds % 60);
+    return '$hours:$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Następna dziesiątka za: $_formatted',
+      textAlign: TextAlign.center,
+      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+        fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );
   }

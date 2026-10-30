@@ -8,6 +8,7 @@ class Fact {
     required this.source,
     required this.createdAt,
     this.isRead = false,
+    this.isFavorite = false,
   });
 
   /// Facts saved before the split into [shortText] and [longText] have a single
@@ -22,6 +23,7 @@ class Fact {
       longText: json['longText'] as String? ?? legacyContent!,
       source: json['source'] as String? ?? '',
       isRead: json['isRead'] as bool? ?? false,
+      isFavorite: json['isFavorite'] as bool? ?? false,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -33,6 +35,7 @@ class Fact {
   final String longText;
   final String source;
   final bool isRead;
+  final bool isFavorite;
   final DateTime createdAt;
 
   Fact copyWith({
@@ -43,6 +46,7 @@ class Fact {
     String? longText,
     String? source,
     bool? isRead,
+    bool? isFavorite,
     DateTime? createdAt,
   }) {
     return Fact(
@@ -53,6 +57,7 @@ class Fact {
       longText: longText ?? this.longText,
       source: source ?? this.source,
       isRead: isRead ?? this.isRead,
+      isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -66,6 +71,7 @@ class Fact {
       'longText': longText,
       'source': source,
       'isRead': isRead,
+      'isFavorite': isFavorite,
       'createdAt': createdAt.toIso8601String(),
     };
   }

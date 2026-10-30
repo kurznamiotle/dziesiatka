@@ -61,8 +61,12 @@ class DatabaseSnapshot {
         throw FormatException('Fakt nie ma poprawnego pola „$field”.');
       }
     }
-    if (value['source'] is! String? || value['isRead'] is! bool?) {
-      throw const FormatException('Fakt ma błędne pole „source” lub „isRead”.');
+    if (value['source'] is! String? ||
+        value['isRead'] is! bool? ||
+        value['isFavorite'] is! bool?) {
+      throw const FormatException(
+        'Fakt ma błędne pole „source”, „isRead” lub „isFavorite”.',
+      );
     }
     if (DateTime.tryParse(value['createdAt'] as String) == null) {
       throw const FormatException('Fakt ma błędną datę „createdAt”.');

@@ -15,9 +15,10 @@ Future<void> main() async {
 }
 
 class DziesiatkaApp extends StatelessWidget {
-  const DziesiatkaApp({super.key, required this.themeService});
+  const DziesiatkaApp({super.key, required this.themeService, this.now});
 
   final ThemeService themeService;
+  final DateTime Function()? now;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class DziesiatkaApp extends StatelessWidget {
         themeMode: themeService.themeMode,
         // Above the navigator, so routes, dialogs and sheets stay in the frame.
         builder: (context, child) => PhoneFrame(child: child!),
-        home: HomeScreen(themeService: themeService),
+        home: HomeScreen(themeService: themeService, now: now),
       ),
     );
   }
