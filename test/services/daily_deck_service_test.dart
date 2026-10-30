@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:dziesiatka/models/daily_deck.dart';
@@ -11,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/keep_order_random.dart';
+import '../helpers/stored_facts.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +34,7 @@ void main() {
     bool isFavorite = false,
     DateTime? lastReadAt,
     bool hasQuiz = true,
+    bool isWithdrawn = false,
   }) {
     return Fact(
       id: 'fact-$number',
@@ -41,10 +42,11 @@ void main() {
       category: 'Kosmos',
       shortText: 'Zajawka',
       longText: 'Rozwinięcie',
-      source: 'Źródło',
+      sourceLabel: 'Źródło',
       isRead: isRead,
       isFavorite: isFavorite,
       lastReadAt: lastReadAt,
+      isWithdrawn: isWithdrawn,
       quiz: hasQuiz
           ? const QuizQuestion(
               question: 'Pytanie',
@@ -61,8 +63,7 @@ void main() {
   }
 
   void givenPool(List<Fact> pool) {
-    final encoded = jsonEncode(pool.map((fact) => fact.toJson()).toList());
-    SharedPreferences.setMockInitialValues({'facts': encoded});
+    SharedPreferences.setMockInitialValues(storedFacts(pool));
   }
 
   Future<Fact> stored(String id) async {
@@ -74,6 +75,50 @@ void main() {
     facts = FactsService();
     now = DateTime(2026, 11, 2, 12);
     service = newService();
+  });
+
+  group('withdrawn facts', () {
+    test('never enter a new deck', () async {
+      givenPool([for (var i = 0; i < 12; i++) fact(i, isWithdrawn: i < 5)]);
+
+      final session = await service.loadToday();
+
+      expect(session.facts.map((fact) => fact.id), hasLength(7));
+      expect(session.facts.any((fact) => fact.isWithdrawn), isFalse);
+    });
+
+    test('are not used as reviews', () async {
+      givenPool([
+        fact(0, isRead: true, lastReadAt: daysAgo(5), isWithdrawn: true),
+        for (var i = 1; i < 30; i++) fact(i),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.deck.reviewFactIds, isEmpty);
+    });
+
+    test('a withdrawal during the day keeps today\'s progress', () async {
+      givenPool([for (var i = 0; i < 20; i++) fact(i)]);
+      final first = await service.loadToday();
+      await service.completeCard('fact-0', liked: false);
+
+      final prefs = await SharedPreferences.getInstance();
+      final deck = prefs.getString('dailyDeck')!;
+      final pool = await facts.getFacts();
+      SharedPreferences.setMockInitialValues({
+        ...storedFacts([
+          for (final item in pool)
+            item.id == 'fact-1' ? item.copyWith(isWithdrawn: true) : item,
+        ]),
+        'dailyDeck': deck,
+      });
+
+      final session = await newService().loadToday();
+
+      expect(session.deck.factIds, first.deck.factIds);
+      expect(session.completedCount, 1);
+    });
   });
 
   group('random choice', () {

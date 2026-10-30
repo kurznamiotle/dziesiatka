@@ -20,8 +20,8 @@ class FactDetailsSheet extends StatelessWidget {
 
   final Fact fact;
 
-  Future<void> _openSource(BuildContext context) async {
-    final opened = await const LinkService().open(fact.source);
+  Future<void> _openSource(BuildContext context, String url) async {
+    final opened = await const LinkService().open(url);
     if (opened || !context.mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -33,6 +33,7 @@ class FactDetailsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final sourceUrl = fact.sourceUrl;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(28, 0, 28, 32),
       child: Column(
@@ -66,7 +67,7 @@ class FactDetailsSheet extends StatelessWidget {
               height: 1.55,
             ),
           ),
-          if (fact.source.isNotEmpty) ...[
+          if (fact.sourceLabel.isNotEmpty) ...[
             const SizedBox(height: 24),
             Text(
               'Źródło',
@@ -75,11 +76,11 @@ class FactDetailsSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            if (const LinkService().isWebLink(fact.source))
+            if (sourceUrl != null && const LinkService().isWebLink(sourceUrl))
               InkWell(
-                onTap: () => _openSource(context),
+                onTap: () => _openSource(context, sourceUrl),
                 child: Text(
-                  fact.source,
+                  fact.sourceLabel,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colors.primary,
                     decoration: TextDecoration.underline,
@@ -88,7 +89,10 @@ class FactDetailsSheet extends StatelessWidget {
                 ),
               )
             else
-              SelectableText(fact.source, style: theme.textTheme.bodyMedium),
+              SelectableText(
+                fact.sourceLabel,
+                style: theme.textTheme.bodyMedium,
+              ),
           ],
         ],
       ),

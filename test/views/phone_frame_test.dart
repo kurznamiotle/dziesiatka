@@ -150,7 +150,7 @@ void main() {
       await tester.drag(find.byType(FactDetailsSheet), const Offset(0, -3000));
       await tester.pumpAndSettle();
 
-      final source = find.text('https://science.nasa.gov/venus/');
+      final source = find.text('NASA');
       expect(
         tester.getBottomLeft(source).dy,
         lessThanOrEqualTo(_phone.height - _gestureBar),

@@ -229,7 +229,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(fact.longText), findsOneWidget);
-    expect(find.text(fact.source), findsOneWidget);
+    expect(find.text(fact.sourceLabel), findsOneWidget);
     expect(find.text('0 / 10 ukończone'), findsOneWidget);
   });
 
@@ -254,7 +254,7 @@ void main() {
 
     expect(
       find.ancestor(
-        of: find.text(facts[2].source),
+        of: find.text(facts[2].sourceLabel),
         matching: find.byType(SelectableText),
       ),
       findsOneWidget,
@@ -578,9 +578,11 @@ void main() {
       await tester.pumpAndSettle();
       await finishRemainingCards(tester, 9);
       await answerQuiz(tester);
-      final before = (await FactsService().getFacts())
-          .map((fact) => fact.toJson().toString())
-          .toList();
+      String snapshot(Fact fact) {
+        return '${fact.toJson()} ${fact.state.toJson()}';
+      }
+
+      final before = (await FactsService().getFacts()).map(snapshot).toList();
 
       await tester.tap(find.text('Powtórz dzisiejszą talię'));
       await tester.pumpAndSettle();
@@ -598,9 +600,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Gratulacje!'), findsOneWidget);
-      final after = (await FactsService().getFacts())
-          .map((fact) => fact.toJson().toString())
-          .toList();
+      final after = (await FactsService().getFacts()).map(snapshot).toList();
       expect(after, before);
     });
   });

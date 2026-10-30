@@ -1,10 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Saving images to the gallery needs this only up to Android 10. -->
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
     <application
-        android:label="dziesiatka"
+        android:label="Dziesiątka"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <provider

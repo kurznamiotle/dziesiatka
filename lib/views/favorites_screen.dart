@@ -28,7 +28,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     if (!mounted) return;
 
     setState(() {
-      _favorites = facts.where((fact) => fact.isFavorite).toList();
+      _favorites = facts
+          .where((fact) => fact.isFavorite && !fact.isWithdrawn)
+          .toList();
     });
   }
 

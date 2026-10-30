@@ -221,7 +221,7 @@ void main() {
     await tester.tap(find.text('Polityka prywatności'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('nie zbiera danych osobowych'), findsOneWidget);
+    expect(find.textContaining('nie ma kont użytkowników'), findsOneWidget);
   });
 
   testWidgets('opens the license page', (tester) async {

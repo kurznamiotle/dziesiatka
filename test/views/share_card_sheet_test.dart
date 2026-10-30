@@ -48,7 +48,7 @@ void main() {
     category: 'Kosmos',
     shortText: 'Jeden obrót Wenus trwa dłużej niż rok.',
     longText: 'Rozwinięcie',
-    source: 'Źródło',
+    sourceLabel: 'Źródło',
     createdAt: DateTime.utc(2026),
   );
 
@@ -179,7 +179,7 @@ void main() {
       category: 'Kosmos',
       shortText: 'Bardzo długa zajawka ' * 20,
       longText: 'Rozwinięcie',
-      source: 'Źródło',
+      sourceLabel: 'Źródło',
       createdAt: DateTime.utc(2026),
     );
     tester.view.devicePixelRatio = 1;

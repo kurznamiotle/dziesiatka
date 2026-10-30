@@ -45,7 +45,9 @@ class DailyDeckService {
       return DailySession(deck: stored, pool: facts, streak: streak);
     }
 
-    final chosen = _chooseFacts(facts);
+    final chosen = _chooseFacts(
+      facts.where((fact) => !fact.isWithdrawn).toList(),
+    );
     final deck = DailyDeck(
       date: today,
       factIds: chosen.map((fact) => fact.id).toList(),

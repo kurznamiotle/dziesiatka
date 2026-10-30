@@ -49,6 +49,13 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Kod działa na wszystkich trzech platformach. `dart:io` nie jest dostępne na Web, więc kod zależny od platformy należy izolować w `services/`.
 - Testy w `test/` odwzorowują strukturę `lib/` (np. `test/services/` dla `lib/services/`).
 
+## Dane
+
+- Treść ciekawostek i postęp użytkownika są zapisane osobno (`factContent` i `factStates`). `Fact` łączy je tylko w pamięci.
+- Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
+- Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
+- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisuje `supabase/schema.sql`.
+
 ## Polecenia
 
 ```

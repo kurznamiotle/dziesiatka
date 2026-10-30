@@ -9,10 +9,13 @@ const _aboutText =
     'Dziesiątka to codzienna talia dziesięciu ciekawostek z krótkim quizem. '
     'Kilka minut dziennie, bez konta i bez reklam.';
 const _privacyText =
-    'Dziesiątka nie ma kont użytkowników i nie zbiera danych osobowych.\n\n'
+    'Dziesiątka nie ma kont użytkowników.\n\n'
     'Postęp, ulubione, seria dni i wybrany motyw są zapisywane wyłącznie na '
     'tym urządzeniu lub w tej przeglądarce. Usunięcie aplikacji albo danych '
     'strony kasuje je bezpowrotnie.\n\n'
+    'Nowe ciekawostki są pobierane z serwerów usługi Supabase, która przy '
+    'połączeniu widzi adres IP urządzenia. Aplikacja nie wysyła tam Twojego '
+    'postępu.\n\n'
     'Aplikacja nie używa analityki ani reklam. Grafika trafia do innych '
     'aplikacji tylko wtedy, gdy sam ją udostępnisz.\n\n'
     'Linki otwierają się poza aplikacją, na stronach z własnymi zasadami '

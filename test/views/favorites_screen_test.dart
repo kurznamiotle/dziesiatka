@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
@@ -10,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/stored_facts.dart';
+
 void main() {
   final fact = Fact(
     id: 'seed-001',
@@ -17,15 +17,13 @@ void main() {
     category: 'Kosmos',
     shortText: 'Jeden obrót Wenus trwa dłużej niż rok.',
     longText: 'Rozwinięcie',
-    source: 'Źródło',
+    sourceLabel: 'Źródło',
     isFavorite: true,
     createdAt: DateTime.utc(2026),
   );
 
   setUp(() {
-    SharedPreferences.setMockInitialValues({
-      'facts': jsonEncode([fact.toJson()]),
-    });
+    SharedPreferences.setMockInitialValues(storedFacts([fact]));
   });
 
   Future<void> pumpFavorites(WidgetTester tester) async {
@@ -49,6 +47,16 @@ void main() {
 
     expect(find.byType(ShareCardSheet), findsOneWidget);
     expect(find.byType(FactDetailsSheet), findsNothing);
+  });
+
+  testWidgets('a withdrawn fact is not listed', (tester) async {
+    SharedPreferences.setMockInitialValues(
+      storedFacts([fact.copyWith(isWithdrawn: true)]),
+    );
+
+    await pumpFavorites(tester);
+
+    expect(find.text(fact.title), findsNothing);
   });
 
   testWidgets('sharing does not remove the favorite', (tester) async {

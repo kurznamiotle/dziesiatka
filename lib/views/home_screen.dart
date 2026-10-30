@@ -32,11 +32,13 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.themeService,
+    this.factsService,
     this.now,
     this.random,
   });
 
   final ThemeService themeService;
+  final FactsService? factsService;
   final DateTime Function()? now;
   final Random? random;
 
@@ -45,7 +47,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _factsService = FactsService();
+  late final _factsService = widget.factsService ?? FactsService();
   late final _deckService = DailyDeckService(
     _factsService,
     StreakService(now: widget.now),
@@ -66,9 +68,18 @@ class _HomeScreenState extends State<HomeScreen> {
       await _factsService.syncWithSeed();
       final session = await _deckService.loadToday();
       if (mounted) setState(() => _session = session);
+      unawaited(_downloadNewFacts());
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
     }
+  }
+
+  /// Runs behind the scenes, so the deck never waits for the network. New facts
+  /// reach the next deck, and a failed download is retried on the next start.
+  Future<void> _downloadNewFacts() async {
+    try {
+      await _factsService.syncWithRemote();
+    } catch (_) {}
   }
 
   void _retryLoading() {
