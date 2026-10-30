@@ -1,8 +1,10 @@
+import 'package:dziesiatka/views/app_theme.dart';
 import 'package:flutter/material.dart';
 
 const _breakpoint = 480.0;
 const _maxWidth = 440.0;
 const _maxHeight = 860.0;
+const _borderRadius = BorderRadius.all(Radius.circular(36));
 
 /// Shows the app as a centered phone on wide screens and full-screen otherwise.
 class PhoneFrame extends StatelessWidget {
@@ -12,15 +14,15 @@ class PhoneFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final surfaces = Theme.of(context).extension<AppSurfaces>()!;
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < _breakpoint) {
-          return ColoredBox(color: colors.surface, child: child);
+          return ColoredBox(color: surfaces.frame, child: child);
         }
 
         return ColoredBox(
-          color: colors.surfaceContainerHigh,
+          color: surfaces.backdrop,
           child: Center(
             child: Padding(
               padding: const EdgeInsets.all(24),
@@ -31,12 +33,18 @@ class PhoneFrame extends StatelessWidget {
                 ),
                 child: Container(
                   clipBehavior: Clip.antiAlias,
+                  // A foreground border takes no layout space and stays above
+                  // the content, so both themes lay out identically.
+                  foregroundDecoration: BoxDecoration(
+                    borderRadius: _borderRadius,
+                    border: Border.all(color: surfaces.border),
+                  ),
                   decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(36),
+                    color: surfaces.frame,
+                    borderRadius: _borderRadius,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.12),
+                        color: surfaces.shadow,
                         blurRadius: 40,
                         offset: const Offset(0, 16),
                       ),

@@ -286,6 +286,7 @@ class _AddFactTabState extends State<_AddFactTab>
   Widget build(BuildContext context) {
     super.build(context);
 
+    final brightness = Theme.of(context).brightness;
     // An import can remove the selected category from the list.
     final selected = widget.categories.contains(_category) ? _category : null;
     return SingleChildScrollView(
@@ -323,9 +324,9 @@ class _AddFactTabState extends State<_AddFactTab>
                       spacing: 12,
                       children: [
                         Icon(
-                          CategoryStyle.of(category).icon,
+                          CategoryStyle.of(category, brightness).icon,
                           size: 20,
-                          color: CategoryStyle.of(category).color,
+                          color: CategoryStyle.of(category, brightness).color,
                         ),
                         Expanded(
                           child: Text(
@@ -465,7 +466,10 @@ class _FactsTab extends StatelessWidget {
       separatorBuilder: (_, _) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final fact = newestFirst[index];
-        final style = CategoryStyle.of(fact.category);
+        final style = CategoryStyle.of(
+          fact.category,
+          Theme.of(context).brightness,
+        );
         return ListTile(
           leading: CircleAvatar(
             backgroundColor: style.background,

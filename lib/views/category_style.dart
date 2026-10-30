@@ -1,42 +1,70 @@
 import 'package:flutter/material.dart';
 
 class CategoryStyle {
-  const CategoryStyle({required this.icon, required this.color});
+  const CategoryStyle._({
+    required this.icon,
+    required this.color,
+    required this.background,
+  });
 
-  factory CategoryStyle.of(String category) {
-    return _styles[category] ?? _customCategoryStyle;
+  factory CategoryStyle.of(String category, Brightness brightness) {
+    final palette = _palettes[category] ?? _customCategoryPalette;
+    final isDark = brightness == Brightness.dark;
+    final color = isDark ? palette.darkColor : palette.lightColor;
+    return CategoryStyle._(
+      icon: palette.icon,
+      color: color,
+      background: color.withValues(alpha: isDark ? 0.16 : 0.12),
+    );
   }
 
-  static const _customCategoryStyle = CategoryStyle(
+  static const _customCategoryPalette = _CategoryPalette(
     icon: Icons.auto_awesome_rounded,
-    color: Color(0xFF475569),
+    lightColor: Color(0xFF475569),
+    darkColor: Color(0xFFCBD5E1),
   );
 
-  static const _styles = {
-    'Kosmos': CategoryStyle(
+  static const _palettes = {
+    'Kosmos': _CategoryPalette(
       icon: Icons.rocket_launch_rounded,
-      color: Color(0xFF3730A3),
+      lightColor: Color(0xFF3730A3),
+      darkColor: Color(0xFFA5B4FC),
     ),
-    'Zwierzęta': CategoryStyle(
+    'Zwierzęta': _CategoryPalette(
       icon: Icons.pets_rounded,
-      color: Color(0xFF166534),
+      lightColor: Color(0xFF166534),
+      darkColor: Color(0xFF86EFAC),
     ),
-    'Historia': CategoryStyle(
+    'Historia': _CategoryPalette(
       icon: Icons.account_balance_rounded,
-      color: Color(0xFF92400E),
+      lightColor: Color(0xFF92400E),
+      darkColor: Color(0xFFFCD34D),
     ),
-    'Psychologia': CategoryStyle(
+    'Psychologia': _CategoryPalette(
       icon: Icons.psychology_rounded,
-      color: Color(0xFF9D174D),
+      lightColor: Color(0xFF9D174D),
+      darkColor: Color(0xFFF9A8D4),
     ),
-    'Technologia': CategoryStyle(
+    'Technologia': _CategoryPalette(
       icon: Icons.memory_rounded,
-      color: Color(0xFF115E59),
+      lightColor: Color(0xFF115E59),
+      darkColor: Color(0xFF5EEAD4),
     ),
   };
 
   final IconData icon;
   final Color color;
+  final Color background;
+}
 
-  Color get background => color.withValues(alpha: 0.12);
+class _CategoryPalette {
+  const _CategoryPalette({
+    required this.icon,
+    required this.lightColor,
+    required this.darkColor,
+  });
+
+  final IconData icon;
+  final Color lightColor;
+  final Color darkColor;
 }

@@ -8,7 +8,7 @@ class CategoryBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = CategoryStyle.of(category);
+    final style = CategoryStyle.of(category, Theme.of(context).brightness);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: style.background,

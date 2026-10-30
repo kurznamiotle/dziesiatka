@@ -1,5 +1,6 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/theme_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,7 +24,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(const DziesiatkaApp());
+    await tester.pumpWidget(DziesiatkaApp(themeService: ThemeService()));
     await tester.pumpAndSettle();
   }
 

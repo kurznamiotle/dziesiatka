@@ -1,8 +1,11 @@
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/admin_screen.dart';
+import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
+import 'package:dziesiatka/views/theme_mode_button.dart';
 import 'package:flutter/material.dart';
 
 const _visibleCards = 4;
@@ -15,7 +18,9 @@ const _dismissDuration = Duration(milliseconds: 240);
 const _returnDuration = Duration(milliseconds: 200);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.themeService});
+
+  final ThemeService themeService;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -95,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _ProgressHeader(
           completed: facts.length - unread.length,
           total: facts.length,
+          themeService: widget.themeService,
           onOpenAdminPanel: _openAdminPanel,
         ),
         const SizedBox(height: 24),
@@ -130,11 +136,13 @@ class _ProgressHeader extends StatelessWidget {
   const _ProgressHeader({
     required this.completed,
     required this.total,
+    required this.themeService,
     required this.onOpenAdminPanel,
   });
 
   final int completed;
   final int total;
+  final ThemeService themeService;
   final VoidCallback onOpenAdminPanel;
 
   @override
@@ -168,6 +176,7 @@ class _ProgressHeader extends StatelessWidget {
                 ],
               ),
             ),
+            ThemeModeButton(themeService: themeService),
             IconButton(
               tooltip: 'Panel twórcy',
               onPressed: onOpenAdminPanel,
@@ -378,13 +387,15 @@ class _FactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final surfaces = theme.extension<AppSurfaces>()!;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: colors.surfaceContainerLowest,
+        color: surfaces.card,
         borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: surfaces.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
+            color: surfaces.shadow,
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
