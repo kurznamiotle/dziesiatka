@@ -1,12 +1,33 @@
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 const _breakpoint = 480.0;
 const _maxWidth = 440.0;
 const _maxHeight = 860.0;
 const _borderRadius = BorderRadius.all(Radius.circular(36));
 
-/// Shows the app as a centered phone on wide screens and full-screen otherwise.
+const _lightThemeOverlay = SystemUiOverlayStyle(
+  statusBarColor: Colors.transparent,
+  statusBarIconBrightness: Brightness.dark,
+  statusBarBrightness: Brightness.light,
+);
+
+const _darkThemeOverlay = SystemUiOverlayStyle(
+  statusBarColor: Colors.transparent,
+  statusBarIconBrightness: Brightness.light,
+  statusBarBrightness: Brightness.dark,
+);
+
+bool get _isMobileApp {
+  return !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+}
+
+/// Shows the app as a centered phone on the web and desktop. Android and iOS
+/// apps always fill the screen, as does any window too narrow for the frame.
 class PhoneFrame extends StatelessWidget {
   const PhoneFrame({super.key, required this.child});
 
@@ -14,7 +35,18 @@ class PhoneFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surfaces = Theme.of(context).extension<AppSurfaces>()!;
+    final theme = Theme.of(context);
+    final surfaces = theme.extension<AppSurfaces>()!;
+    if (_isMobileApp) {
+      // The home screen has no app bar to set the status bar icon color.
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: theme.brightness == Brightness.dark
+            ? _darkThemeOverlay
+            : _lightThemeOverlay,
+        child: ColoredBox(color: surfaces.frame, child: child),
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth < _breakpoint) {

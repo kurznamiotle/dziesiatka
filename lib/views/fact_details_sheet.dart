@@ -12,7 +12,8 @@ class FactDetailsSheet extends StatelessWidget {
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      builder: (_) => FactDetailsSheet(fact: fact),
+      // useSafeArea leaves the bottom inset to the sheet's content.
+      builder: (_) => SafeArea(top: false, child: FactDetailsSheet(fact: fact)),
     );
   }
 

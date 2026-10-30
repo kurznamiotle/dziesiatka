@@ -96,48 +96,50 @@ class _AdminScreenState extends State<AdminScreen> {
             ],
           ),
         ),
-        body: facts == null
-            ? const Center(child: CircularProgressIndicator())
-            : TabBarView(
-                children: [
-                  _AddFactTab(
-                    categories: _categories,
-                    onAddCategory: _addCategory,
-                    onSave:
-                        ({
-                          required title,
-                          required category,
-                          required shortText,
-                          required longText,
-                          required source,
-                        }) => _save(
-                          () => _factsService.addFact(
-                            title: title,
-                            category: category,
-                            shortText: shortText,
-                            longText: longText,
-                            source: source,
+        body: SafeArea(
+          child: facts == null
+              ? const Center(child: CircularProgressIndicator())
+              : TabBarView(
+                  children: [
+                    _AddFactTab(
+                      categories: _categories,
+                      onAddCategory: _addCategory,
+                      onSave:
+                          ({
+                            required title,
+                            required category,
+                            required shortText,
+                            required longText,
+                            required source,
+                          }) => _save(
+                            () => _factsService.addFact(
+                              title: title,
+                              category: category,
+                              shortText: shortText,
+                              longText: longText,
+                              source: source,
+                            ),
+                            successMessage: 'Dodano ciekawostkę.',
                           ),
-                          successMessage: 'Dodano ciekawostkę.',
-                        ),
-                  ),
-                  _FactsTab(
-                    facts: facts,
-                    onDelete: (fact) => _save(
-                      () => _factsService.deleteFact(fact.id),
-                      successMessage: 'Usunięto ciekawostkę.',
                     ),
-                  ),
-                  _DataTab(
-                    exportJson: _exportJson,
-                    backupService: _backupService,
-                    onRestore: (snapshot) => _save(
-                      () => _backupService.restore(snapshot),
-                      successMessage: 'Zaimportowano bazę.',
+                    _FactsTab(
+                      facts: facts,
+                      onDelete: (fact) => _save(
+                        () => _factsService.deleteFact(fact.id),
+                        successMessage: 'Usunięto ciekawostkę.',
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    _DataTab(
+                      exportJson: _exportJson,
+                      backupService: _backupService,
+                      onRestore: (snapshot) => _save(
+                        () => _backupService.restore(snapshot),
+                        successMessage: 'Zaimportowano bazę.',
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ),
     );
   }

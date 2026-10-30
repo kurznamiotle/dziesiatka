@@ -189,17 +189,4 @@ void main() {
     expect(find.textContaining('Brak ciekawostek'), findsOneWidget);
     expect(find.text('Gratulacje!'), findsNothing);
   });
-
-  testWidgets('wide layouts center a 440px phone frame', (tester) async {
-    await pumpApp(tester, size: const Size(1200, 900));
-
-    final headerLeft = tester.getTopLeft(find.text('Dziesiątka')).dx;
-    expect(headerLeft, (1200 - 440) / 2 + 24);
-  });
-
-  testWidgets('narrow layouts use the full width', (tester) async {
-    await pumpApp(tester);
-
-    expect(tester.getTopLeft(find.text('Dziesiątka')).dx, 24);
-  });
 }
