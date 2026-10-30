@@ -1,0 +1,82 @@
+[
+  {
+    "id": "seed-001",
+    "title": "Dzień dłuższy niż rok",
+    "content": "Wenus obraca się wokół własnej osi tak wolno, że jeden jej obrót trwa około 243 ziemskich dni, a okrążenie Słońca tylko około 225. Doba gwiazdowa na Wenus jest więc dłuższa niż tamtejszy rok.",
+    "category": "Kosmos",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-002",
+    "title": "Lodowe góry Plutona",
+    "content": "Na Plutonie wznoszą się góry zbudowane głównie z lodu wodnego, sięgające około 3,5 km wysokości. Sfotografowała je sonda New Horizons podczas przelotu w 2015 roku.",
+    "category": "Kosmos",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-003",
+    "title": "Trzy serca ośmiornicy",
+    "content": "Ośmiornica ma trzy serca: dwa pompują krew przez skrzela, a trzecie rozprowadza ją po reszcie ciała. Jej krew jest niebieska, bo tlen przenosi w niej hemocyjanina zawierająca miedź.",
+    "category": "Zwierzęta",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-004",
+    "title": "Sześcienne odchody wombata",
+    "content": "Wombaty wydalają odchody w kształcie niemal sześciennych kostek. Pozwala im to układać je na skałach i kłodach jako znaczniki terytorium, bo kostki nie staczają się tak łatwo jak kulki.",
+    "category": "Zwierzęta",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-005",
+    "title": "Kleopatra bliżej Apollo niż piramid",
+    "content": "Wielka Piramida w Gizie powstała około 2560 roku p.n.e., a Kleopatra żyła w I wieku p.n.e. Dzieli ich około 2500 lat, czyli więcej niż Kleopatrę od pierwszego lądowania człowieka na Księżycu.",
+    "category": "Historia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-006",
+    "title": "Najkrótsza wojna w historii",
+    "content": "Wojna brytyjsko-zanzibarska z 27 sierpnia 1896 roku trwała około 40 minut. Uważa się ją za najkrótszą wojnę w zapisanej historii.",
+    "category": "Historia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-007",
+    "title": "Efekt Zeigarnik",
+    "content": "Zadania przerwane często pamiętamy lepiej niż ukończone. Zjawisko opisała w latach 20. XX wieku psycholożka Bluma Zeigarnik, choć późniejsze badania nie zawsze potwierdzały jego siłę.",
+    "category": "Psychologia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-008",
+    "title": "Efekt potwierdzenia",
+    "content": "Efekt potwierdzenia sprawia, że chętniej szukamy i zapamiętujemy informacje zgodne z tym, w co już wierzymy. Dlatego dwie osoby mogą przeczytać ten sam tekst i uznać, że potwierdza ich przeciwne poglądy.",
+    "category": "Psychologia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-009",
+    "title": "Pierwszy błąd komputerowy",
+    "content": "W 1947 roku w komputerze Harvard Mark II znaleziono ćmę uwięzioną w przekaźniku. Operatorzy wkleili ją do dziennika pracy z dopiskiem o pierwszym prawdziwym przypadku znalezienia „buga”, choć samo słowo było używane już wcześniej.",
+    "category": "Technologia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "seed-010",
+    "title": "Komputer Apollo i pamięć",
+    "content": "Komputer pokładowy statków Apollo miał około 2 tysięcy słów pamięci RAM i 36 tysięcy słów pamięci stałej, czyli odpowiednio około 4 KB i 72 KB. Oprogramowanie zapisywano w niej fizycznie, przeplatając druty przez rdzenie magnetyczne.",
+    "category": "Technologia",
+    "isRead": false,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]
