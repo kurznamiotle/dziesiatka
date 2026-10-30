@@ -15,12 +15,11 @@ class SupabaseFactSource implements FactSource {
        _publishableKey = publishableKey,
        _client = client ?? http.Client();
 
-  /// Returns null until the project is set up in [SupabaseConfig].
-  static SupabaseFactSource? fromConfig() {
-    final url = SupabaseConfig.url;
-    final publishableKey = SupabaseConfig.publishableKey;
-    if (url == null || publishableKey == null) return null;
-    return SupabaseFactSource(url: url, publishableKey: publishableKey);
+  factory SupabaseFactSource.fromConfig() {
+    return SupabaseFactSource(
+      url: SupabaseConfig.url,
+      publishableKey: SupabaseConfig.publishableKey,
+    );
   }
 
   static const _pageSize = 500;

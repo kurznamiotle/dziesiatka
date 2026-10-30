@@ -1,4 +1,4 @@
-package com.example.dziesiatka
+package io.github.kurznamiotle.dziesiatka
 
 import android.content.ComponentName
 import android.content.Intent
