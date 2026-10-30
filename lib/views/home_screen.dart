@@ -1,10 +1,9 @@
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/views/admin_screen.dart';
+import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:flutter/material.dart';
-
-const _phoneFrameBreakpoint = 480.0;
-const _phoneFrameMaxWidth = 440.0;
-const _phoneFrameMaxHeight = 860.0;
 
 const _visibleCards = 4;
 const _stackOffset = 14.0;
@@ -60,16 +59,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _openAdminPanel() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const AdminScreen()));
+    await _loadFacts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-      body: _PhoneFrame(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-            child: _buildContent(),
-          ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+          child: _buildContent(),
         ),
       ),
     );
@@ -92,98 +95,86 @@ class _HomeScreenState extends State<HomeScreen> {
         _ProgressHeader(
           completed: facts.length - unread.length,
           total: facts.length,
+          onOpenAdminPanel: _openAdminPanel,
         ),
         const SizedBox(height: 24),
-        Expanded(
-          child: unread.isEmpty
-              ? _CompletionView(
-                  onReset: () => _updateFacts(_service.resetReadState),
-                )
-              : _CardDeck(
-                  facts: unread,
-                  onDismissed: (fact) =>
-                      _updateFacts(() => _service.markAsRead(fact.id)),
-                ),
-        ),
+        Expanded(child: _buildDeck(facts, unread)),
       ],
     );
   }
-}
 
-class _PhoneFrame extends StatelessWidget {
-  const _PhoneFrame({required this.child});
+  Widget _buildDeck(List<Fact> facts, List<Fact> unread) {
+    if (facts.isEmpty) {
+      return const Center(
+        child: Text(
+          'Brak ciekawostek. Dodaj pierwszą w panelu twórcy.',
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
 
-  final Widget child;
+    if (unread.isEmpty) {
+      return _CompletionView(
+        onReset: () => _updateFacts(_service.resetReadState),
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    final surface = Theme.of(context).colorScheme.surface;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < _phoneFrameBreakpoint) {
-          return ColoredBox(color: surface, child: child);
-        }
-
-        return Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: _phoneFrameMaxWidth,
-                maxHeight: _phoneFrameMaxHeight,
-              ),
-              child: Container(
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: surface,
-                  borderRadius: BorderRadius.circular(36),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.12),
-                      blurRadius: 40,
-                      offset: const Offset(0, 16),
-                    ),
-                  ],
-                ),
-                child: SizedBox.expand(child: child),
-              ),
-            ),
-          ),
-        );
-      },
+    return _CardDeck(
+      facts: unread,
+      onDismissed: (fact) => _updateFacts(() => _service.markAsRead(fact.id)),
     );
   }
 }
 
 class _ProgressHeader extends StatelessWidget {
-  const _ProgressHeader({required this.completed, required this.total});
+  const _ProgressHeader({
+    required this.completed,
+    required this.total,
+    required this.onOpenAdminPanel,
+  });
 
   final int completed;
   final int total;
+  final VoidCallback onOpenAdminPanel;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final mutedColor = theme.colorScheme.onSurfaceVariant;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 12,
-          runSpacing: 4,
+        Row(
           children: [
-            Text(
-              'Dziesiątka',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
+            Expanded(
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 4,
+                children: [
+                  Text(
+                    'Dziesiątka',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  Text(
+                    '$completed / $total ukończone',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: mutedColor,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Text(
-              '$completed / $total ukończone',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            IconButton(
+              tooltip: 'Panel twórcy',
+              onPressed: onOpenAdminPanel,
+              visualDensity: VisualDensity.compact,
+              iconSize: 20,
+              color: mutedColor,
+              icon: const Icon(Icons.tune_rounded),
             ),
           ],
         ),
@@ -364,7 +355,10 @@ class _CardDeckState extends State<_CardDeck>
               ignoring: !isTop,
               child: ExcludeSemantics(
                 excluding: !isTop,
-                child: _FactCard(fact: fact),
+                child: _FactCard(
+                  fact: fact,
+                  onExpand: () => FactDetailsSheet.show(context, fact),
+                ),
               ),
             ),
           ),
@@ -375,9 +369,10 @@ class _CardDeckState extends State<_CardDeck>
 }
 
 class _FactCard extends StatelessWidget {
-  const _FactCard({required this.fact});
+  const _FactCard({required this.fact, required this.onExpand});
 
   final Fact fact;
+  final VoidCallback onExpand;
 
   @override
   Widget build(BuildContext context) {
@@ -400,25 +395,7 @@ class _FactCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-                child: Text(
-                  fact.category,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: colors.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
+            CategoryBadge(category: fact.category),
             const SizedBox(height: 24),
             Expanded(
               child: Align(
@@ -437,7 +414,7 @@ class _FactCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        fact.content,
+                        fact.shortText,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colors.onSurfaceVariant,
                           fontSize: 18,
@@ -448,6 +425,12 @@ class _FactCard extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            const SizedBox(height: 12),
+            TextButton.icon(
+              onPressed: onExpand,
+              icon: const Icon(Icons.expand_less_rounded),
+              label: const Text('Dowiedz się więcej'),
             ),
           ],
         ),

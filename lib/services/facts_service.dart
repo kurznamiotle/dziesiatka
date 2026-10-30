@@ -43,8 +43,10 @@ class FactsService {
 
   Future<Fact> addFact({
     required String title,
-    required String content,
     required String category,
+    required String shortText,
+    required String longText,
+    required String source,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final facts = await getFacts();
@@ -52,12 +54,25 @@ class FactsService {
     final fact = Fact(
       id: 'user-${now.microsecondsSinceEpoch}',
       title: title,
-      content: content,
       category: category,
+      shortText: shortText,
+      longText: longText,
+      source: source,
       createdAt: now,
     );
     await _save(prefs, [...facts, fact]);
     return fact;
+  }
+
+  Future<void> deleteFact(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final facts = await getFacts();
+    await _save(prefs, facts.where((fact) => fact.id != id).toList());
+  }
+
+  Future<void> replaceFacts(List<Fact> facts) async {
+    final prefs = await SharedPreferences.getInstance();
+    await _save(prefs, facts);
   }
 
   List<Fact> _decode(String source) {

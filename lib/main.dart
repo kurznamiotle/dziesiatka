@@ -1,4 +1,5 @@
 import 'package:dziesiatka/views/home_screen.dart';
+import 'package:dziesiatka/views/phone_frame.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -19,6 +20,8 @@ class DziesiatkaApp extends StatelessWidget {
           dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
         ),
       ),
+      // Above the navigator, so routes, dialogs and sheets stay in the frame.
+      builder: (context, child) => PhoneFrame(child: child!),
       home: const HomeScreen(),
     );
   }
