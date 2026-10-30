@@ -1,13 +1,14 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/share_service.dart';
 import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+const _shareTitle = 'Dziesiątka - Ciekawostka na dziś';
 const _imageWidth = 1080.0;
 const _previewMaxWidth = 300.0;
 const _imageAspectRatio = 4 / 5;
@@ -41,8 +42,11 @@ class ShareCardSheet extends StatefulWidget {
 class _ShareCardSheetState extends State<ShareCardSheet> {
   final _imageKey = GlobalKey();
   final _buttonKey = GlobalKey();
-  bool _isSharing = false;
-  bool _failed = false;
+  bool _isWorking = false;
+  String? _message;
+  bool _isError = false;
+
+  String get _fileName => 'dziesiatka-${widget.fact.id}.png';
 
   Future<Uint8List> _captureImage() async {
     final boundary =
@@ -63,34 +67,57 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
     return button.localToGlobal(Offset.zero) & button.size;
   }
 
-  Future<void> _share() async {
+  Future<void> _run(
+    Future<void> Function() action, {
+    required String failureMessage,
+    String? successMessage,
+  }) async {
     setState(() {
-      _isSharing = true;
-      _failed = false;
+      _isWorking = true;
+      _message = null;
     });
 
     var failed = false;
     try {
-      await widget.shareService.shareImage(
-        await _captureImage(),
-        fileName: 'dziesiatka-${widget.fact.id}.png',
-        text: '${widget.fact.title} – Dziesiątka',
-        origin: _buttonRect(),
-      );
+      await action();
     } catch (_) {
       failed = true;
     }
 
     if (!mounted) return;
     setState(() {
-      _isSharing = false;
-      _failed = failed;
+      _isWorking = false;
+      _isError = failed;
+      _message = failed ? failureMessage : successMessage;
     });
+  }
+
+  Future<void> _share() {
+    return _run(() async {
+      await widget.shareService.shareImage(
+        await _captureImage(),
+        fileName: _fileName,
+        title: _shareTitle,
+        origin: _buttonRect(),
+      );
+    }, failureMessage: 'Nie udało się udostępnić grafiki.');
+  }
+
+  Future<void> _save() {
+    return _run(
+      () async => widget.shareService.saveImage(
+        await _captureImage(),
+        fileName: _fileName,
+      ),
+      failureMessage: 'Nie udało się zapisać grafiki.',
+      successMessage: kIsWeb ? 'Pobrano grafikę.' : 'Zapisano w galerii.',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final message = _message;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
@@ -107,19 +134,30 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          if (_failed) ...[
+          if (message != null) ...[
             Text(
-              'Nie udało się udostępnić grafiki.',
-              style: TextStyle(color: colors.error),
+              message,
+              style: TextStyle(
+                color: _isError ? colors.error : colors.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 12),
           ],
           FilledButton.icon(
             key: _buttonKey,
-            onPressed: _isSharing ? null : _share,
+            onPressed: _isWorking ? null : _share,
             icon: const Icon(Icons.ios_share_rounded),
             label: const Text('Udostępnij grafikę'),
             style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(52),
+            ),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: _isWorking ? null : _save,
+            icon: const Icon(Icons.download_rounded),
+            label: const Text(kIsWeb ? 'Pobierz obrazek' : 'Zapisz w galerii'),
+            style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
             ),
           ),

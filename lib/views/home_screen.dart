@@ -13,10 +13,10 @@ import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
-import 'package:dziesiatka/views/theme_mode_button.dart';
+import 'package:dziesiatka/views/settings_screen.dart';
 import 'package:flutter/material.dart';
 
-const _visibleCards = 4;
+const _visibleCards = 3;
 const _stackOffset = 14.0;
 const _stackScaleStep = 0.05;
 const _maxRotation = 0.2;
@@ -104,6 +104,14 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadSession();
   }
 
+  void _openSettings() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => SettingsScreen(themeService: widget.themeService),
+      ),
+    );
+  }
+
   void _openReview(DailySession session) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -144,8 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
           completed: session.completedCount,
           total: session.facts.length,
           streak: session.streak,
-          themeService: widget.themeService,
           onOpenFavorites: _openFavorites,
+          onOpenSettings: _openSettings,
         ),
         const SizedBox(height: 24),
         Expanded(child: _buildDeck(session)),
@@ -193,15 +201,15 @@ class _ProgressHeader extends StatelessWidget {
     required this.completed,
     required this.total,
     required this.streak,
-    required this.themeService,
     required this.onOpenFavorites,
+    required this.onOpenSettings,
   });
 
   final int completed;
   final int total;
   final int streak;
-  final ThemeService themeService;
   final VoidCallback onOpenFavorites;
+  final VoidCallback onOpenSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +236,14 @@ class _ProgressHeader extends StatelessWidget {
               color: mutedColor,
               icon: const Icon(Icons.favorite_border_rounded),
             ),
-            ThemeModeButton(themeService: themeService),
+            IconButton(
+              tooltip: 'Ustawienia',
+              onPressed: onOpenSettings,
+              visualDensity: VisualDensity.compact,
+              iconSize: 20,
+              color: mutedColor,
+              icon: const Icon(Icons.settings_outlined),
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -408,9 +423,12 @@ class _CardDeckState extends State<_CardDeck>
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     _deckWidth = constraints.maxWidth;
+                    // Built once and reused on every animation frame, so a
+                    // drag moves the cards without rebuilding them.
+                    final cards = _buildCards();
                     return AnimatedBuilder(
                       animation: _dragOffset,
-                      builder: (context, _) => _buildStack(),
+                      builder: (context, _) => _buildStack(cards),
                     );
                   },
                 ),
@@ -453,65 +471,76 @@ class _CardDeckState extends State<_CardDeck>
     );
   }
 
-  Widget _buildStack() {
+  /// Only the cards that can be seen, front first. Each repaints separately,
+  /// so moving one keeps the others' shadows and text cached.
+  List<Widget> _buildCards() {
+    return [
+      for (final fact in widget.facts.take(_visibleCards))
+        RepaintBoundary(
+          child: FactCard(
+            fact: fact,
+            isReview: widget.reviewFactIds.contains(fact.id),
+            onExpand: () => FactDetailsSheet.show(context, fact),
+          ),
+        ),
+    ];
+  }
+
+  Widget _buildStack(List<Widget> cards) {
     final offset = _dragOffset.value;
     // 0 at rest, 1 once the top card is far enough to dismiss. Cards below move
     // up one slot along this value, so the deck lines up when the top card goes.
     final progress = _deckWidth == 0
         ? 0.0
         : (offset.abs() / (_deckWidth * _dismissThreshold)).clamp(0.0, 1.0);
-    final count = widget.facts.length.clamp(0, _visibleCards);
 
     return Stack(
       fit: StackFit.expand,
       clipBehavior: Clip.none,
       children: [
-        for (var index = count - 1; index >= 0; index--)
-          _buildStackedCard(index, offset, progress),
+        for (var index = cards.length - 1; index >= 0; index--)
+          _buildStackedCard(index, cards[index], offset, progress),
       ],
     );
   }
 
-  Widget _buildStackedCard(int index, double offset, double progress) {
+  Widget _buildStackedCard(
+    int index,
+    Widget card,
+    double offset,
+    double progress,
+  ) {
     final isTop = index == 0;
     final depth = isTop ? 0.0 : index - progress;
-    final fact = widget.facts[index];
 
     return Transform.translate(
-      key: ValueKey(fact.id),
+      key: ValueKey(widget.facts[index].id),
       offset: Offset(isTop ? offset : 0, depth * _stackOffset),
       child: Transform.rotate(
         angle: isTop && _deckWidth > 0 ? offset / _deckWidth * _maxRotation : 0,
         child: Transform.scale(
           alignment: Alignment.bottomCenter,
           scale: 1 - depth * _stackScaleStep,
-          child: Opacity(
-            opacity: (_visibleCards - 1 - depth).clamp(0.0, 1.0),
-            child: IgnorePointer(
-              ignoring: !isTop,
-              child: ExcludeSemantics(
-                excluding: !isTop,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    FactCard(
-                      fact: fact,
-                      isReview: widget.reviewFactIds.contains(fact.id),
-                      onExpand: () => FactDetailsSheet.show(context, fact),
-                    ),
-                    // On the left, because a right swipe moves the right side
-                    // of the card off the screen.
-                    if (isTop && offset > 0)
-                      Positioned(
-                        top: 72,
-                        left: 28,
-                        child: Opacity(
-                          opacity: progress,
-                          child: const _LikeLabel(),
-                        ),
+          child: IgnorePointer(
+            ignoring: !isTop,
+            child: ExcludeSemantics(
+              excluding: !isTop,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  card,
+                  // On the left, because a right swipe moves the right side
+                  // of the card off the screen.
+                  if (isTop && offset > 0)
+                    Positioned(
+                      top: 72,
+                      left: 28,
+                      child: Opacity(
+                        opacity: progress,
+                        child: const _LikeLabel(),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),

@@ -3,7 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeService extends ChangeNotifier {
   static const _themeModeKey = 'themeMode';
-  static const _cycle = [ThemeMode.system, ThemeMode.light, ThemeMode.dark];
 
   ThemeMode _themeMode = ThemeMode.system;
 
@@ -32,11 +31,5 @@ class ThemeService extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_themeModeKey, mode.name);
     } catch (_) {}
-  }
-
-  /// Moves through system, light and dark in a loop.
-  Future<void> cycleThemeMode() {
-    final next = (_cycle.indexOf(_themeMode) + 1) % _cycle.length;
-    return setThemeMode(_cycle[next]);
   }
 }

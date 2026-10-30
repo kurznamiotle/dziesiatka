@@ -13,22 +13,30 @@ class _FakeShareService extends ShareService {
 
   final Object? error;
   Uint8List? image;
+  Uint8List? savedImage;
   String? fileName;
-  String? text;
+  String? title;
   Rect? origin;
 
   @override
   Future<void> shareImage(
     Uint8List png, {
     required String fileName,
-    required String text,
+    required String title,
     Rect? origin,
   }) async {
     if (error != null) throw error!;
     image = png;
     this.fileName = fileName;
-    this.text = text;
+    this.title = title;
     this.origin = origin;
+  }
+
+  @override
+  Future<void> saveImage(Uint8List png, {required String fileName}) async {
+    if (error != null) throw error!;
+    savedImage = png;
+    this.fileName = fileName;
   }
 }
 
@@ -57,8 +65,8 @@ void main() {
     );
   }
 
-  Future<void> tapShare(WidgetTester tester) async {
-    await tester.tap(find.text('Udostępnij grafikę'));
+  Future<void> tapAndCapture(WidgetTester tester, String label) async {
+    await tester.tap(find.text(label));
     await tester.pump();
     // Capturing an image finishes outside the test's fake time.
     await tester.runAsync(
@@ -66,6 +74,50 @@ void main() {
     );
     await tester.pump();
   }
+
+  Future<void> tapShare(WidgetTester tester) =>
+      tapAndCapture(tester, 'Udostępnij grafikę');
+
+  Future<void> tapSave(WidgetTester tester) =>
+      tapAndCapture(tester, 'Zapisz w galerii');
+
+  testWidgets('saves the image and confirms it', (tester) async {
+    final service = _FakeShareService();
+    await pumpSheet(tester, service);
+
+    await tapSave(tester);
+
+    expect(service.savedImage!.sublist(1, 4), 'PNG'.codeUnits);
+    expect(service.fileName, 'dziesiatka-seed-001.png');
+    expect(service.image, isNull);
+    expect(find.text('Zapisano w galerii.'), findsOneWidget);
+  });
+
+  testWidgets('a refused gallery shows a message', (tester) async {
+    await pumpSheet(tester, _FakeShareService(error: StateError('brak')));
+
+    await tapSave(tester);
+
+    expect(find.text('Nie udało się zapisać grafiki.'), findsOneWidget);
+    expect(find.text('Zapisano w galerii.'), findsNothing);
+  });
+
+  testWidgets('sharing again clears an earlier message', (tester) async {
+    final service = _FakeShareService();
+    await pumpSheet(tester, service);
+    await tapSave(tester);
+
+    await tapShare(tester);
+
+    expect(find.text('Zapisano w galerii.'), findsNothing);
+  });
+
+  testWidgets('offers both ways to use the image', (tester) async {
+    await pumpSheet(tester, _FakeShareService());
+
+    expect(find.text('Udostępnij grafikę'), findsOneWidget);
+    expect(find.text('Zapisz w galerii'), findsOneWidget);
+  });
 
   testWidgets('previews the fact with the app name', (tester) async {
     await pumpSheet(tester, _FakeShareService());
@@ -87,7 +139,7 @@ void main() {
     expect(service.image, isNotNull);
     expect(service.image!.sublist(1, 4), 'PNG'.codeUnits);
     expect(service.fileName, 'dziesiatka-seed-001.png');
-    expect(service.text, contains(fact.title));
+    expect(service.title, 'Dziesiątka - Ciekawostka na dziś');
     expect(service.origin, isNotNull);
 
     final size = await tester.runAsync(() async {

@@ -3,6 +3,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
+import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -319,6 +320,83 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(vibrations, isEmpty);
+    });
+  });
+
+  group('deck rendering', () {
+    testWidgets('draws at most 3 cards', (tester) async {
+      await pumpApp(tester);
+
+      expect(find.byType(FactCard), findsNWidgets(3));
+    });
+
+    testWidgets('draws fewer cards when fewer remain', (tester) async {
+      await pumpApp(tester);
+
+      await finishRemainingCards(tester, 9);
+
+      expect(find.byType(FactCard), findsOneWidget);
+    });
+
+    testWidgets('a drag does not rebuild any card', (tester) async {
+      await pumpApp(tester);
+      List<FactCard> cards() {
+        return tester.widgetList<FactCard>(find.byType(FactCard)).toList();
+      }
+
+      final before = cards();
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text(_firstTitle)),
+      );
+      await gesture.moveBy(const Offset(40, 0));
+      await tester.pump();
+      await gesture.moveBy(const Offset(60, 0));
+      await tester.pump();
+      final during = cards();
+      await gesture.moveBy(const Offset(-100, 0));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      for (var i = 0; i < before.length; i++) {
+        expect(identical(before[i], during[i]), isTrue);
+      }
+    });
+
+    testWidgets('every card repaints on its own', (tester) async {
+      await pumpApp(tester);
+
+      expect(
+        find.ancestor(
+          of: find.byType(FactCard),
+          matching: find.byType(RepaintBoundary),
+        ),
+        findsWidgets,
+      );
+      for (final element in find.byType(FactCard).evaluate()) {
+        final parent = element.findAncestorWidgetOfExactType<RepaintBoundary>();
+        expect(parent, isNotNull);
+      }
+    });
+
+    testWidgets('the cards below move up as the top one leaves', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      final second = find.text(_secondTitle);
+      final resting = tester.getCenter(second);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text(_firstTitle)),
+      );
+      await gesture.moveBy(const Offset(40, 0));
+      await tester.pump();
+      await gesture.moveBy(const Offset(80, 0));
+      await tester.pump();
+
+      expect(tester.getCenter(second).dy, lessThan(resting.dy));
+      await gesture.moveBy(const Offset(-120, 0));
+      await gesture.up();
+      await tester.pumpAndSettle();
     });
   });
 

@@ -35,15 +35,13 @@ void main() {
     expect(service.themeMode, ThemeMode.system);
   });
 
-  test('cycling goes through system, light and dark in a loop', () async {
+  test('changing the theme notifies listeners', () async {
     final service = ThemeService();
     final seen = <ThemeMode>[];
     service.addListener(() => seen.add(service.themeMode));
 
-    await service.cycleThemeMode();
-    await service.cycleThemeMode();
-    await service.cycleThemeMode();
+    await service.setThemeMode(ThemeMode.dark);
 
-    expect(seen, [ThemeMode.light, ThemeMode.dark, ThemeMode.system]);
+    expect(seen, [ThemeMode.dark]);
   });
 }

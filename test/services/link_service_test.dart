@@ -16,7 +16,9 @@ void main() {
     expect(service.isWebLink('https://'), isFalse);
   });
 
-  test('open refuses anything that is not a web link', () async {
+  test('open refuses schemes other than web and mail links', () async {
     expect(await service.open('javascript:alert(1)'), isFalse);
+    expect(await service.open('file:///etc/passwd'), isFalse);
+    expect(await service.open('mailto:'), isFalse);
   });
 }
