@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/share_service.dart';
+import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:flutter/foundation.dart';
@@ -9,9 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 const _shareTitle = 'Dziesiątka - Ciekawostka na dziś';
-const _imageWidth = 1080.0;
-const _previewMaxWidth = 300.0;
-const _imageAspectRatio = 4 / 5;
+const _fileName = 'dziesiatka-story.png';
+
+// Laid out at a third of the final 1080 x 1920 px, so the image looks the same
+// however large the preview is on a given screen.
+const _imageSize = Size(360, 640);
+const _imagePixelRatio = 3.0;
+const _previewMaxWidth = 260.0;
+
+// Stories cover about 250 px at the top and 340 px at the bottom of the image
+// with their own controls. The card keeps equal margins to stay centered.
+const _bottomSafeZone = 114.0;
+const _cardVerticalMargin = 136.0;
 
 /// Previews a fact as a branded image and shares that image.
 class ShareCardSheet extends StatefulWidget {
@@ -46,14 +56,10 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
   String? _message;
   bool _isError = false;
 
-  String get _fileName => 'dziesiatka-${widget.fact.id}.png';
-
   Future<Uint8List> _captureImage() async {
     final boundary =
         _imageKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-    final image = await boundary.toImage(
-      pixelRatio: _imageWidth / boundary.size.width,
-    );
+    final image = await boundary.toImage(pixelRatio: _imagePixelRatio);
     try {
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       return data!.buffer.asUint8List();
@@ -125,11 +131,23 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
         children: [
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: _previewMaxWidth),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: RepaintBoundary(
-                key: _imageKey,
-                child: _ShareImage(fact: widget.fact),
+            child: AspectRatio(
+              aspectRatio: _imageSize.aspectRatio,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: FittedBox(
+                  child: RepaintBoundary(
+                    key: _imageKey,
+                    child: SizedBox.fromSize(
+                      size: _imageSize,
+                      // The shared image does not follow the app's theme.
+                      child: Theme(
+                        data: AppTheme.light,
+                        child: _ShareImage(fact: widget.fact),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
@@ -174,52 +192,76 @@ class _ShareImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final surfaces = theme.extension<AppSurfaces>()!;
     // The image keeps its layout whatever text size the device uses.
     return MediaQuery.withNoTextScaling(
-      child: AspectRatio(
-        aspectRatio: _imageAspectRatio,
-        child: CategoryArtwork(
-          category: fact.category,
-          iconSize: 220,
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CategoryBadge(category: fact.category, solid: true),
-                const Spacer(),
-                Text(
-                  fact.title,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.headlineSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    height: 1.15,
+      child: CategoryArtwork(
+        category: fact.category,
+        iconSize: 300,
+        child: Stack(
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: _cardVerticalMargin,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: surfaces.card,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CategoryBadge(category: fact.category),
+                        const SizedBox(height: 16),
+                        Text(
+                          fact.title,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.headlineMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontWeight: FontWeight.w800,
+                            height: 1.15,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          fact.shortText,
+                          maxLines: 6,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.titleMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  fact.shortText,
-                  maxLines: 5,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: Colors.white,
-                    height: 1.45,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  'Dziesiątka',
-                  style: textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            Positioned(
+              // Lines up with the card's text, clear of the category icon.
+              left: 48,
+              bottom: _bottomSafeZone,
+              child: Text(
+                'Dziesiątka',
+                style: textTheme.titleSmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.85),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

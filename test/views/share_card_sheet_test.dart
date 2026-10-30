@@ -4,6 +4,7 @@ import 'dart:ui' as ui;
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/share_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/category_badge.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -88,7 +89,7 @@ void main() {
     await tapSave(tester);
 
     expect(service.savedImage!.sublist(1, 4), 'PNG'.codeUnits);
-    expect(service.fileName, 'dziesiatka-seed-001.png');
+    expect(service.fileName, 'dziesiatka-story.png');
     expect(service.image, isNull);
     expect(find.text('Zapisano w galerii.'), findsOneWidget);
   });
@@ -130,7 +131,7 @@ void main() {
     expect(find.text('Dowiedz się więcej'), findsNothing);
   });
 
-  testWidgets('shares a 1080 px wide 4:5 PNG', (tester) async {
+  testWidgets('shares a 1080 x 1920 px PNG', (tester) async {
     final service = _FakeShareService();
     await pumpSheet(tester, service);
 
@@ -138,7 +139,7 @@ void main() {
 
     expect(service.image, isNotNull);
     expect(service.image!.sublist(1, 4), 'PNG'.codeUnits);
-    expect(service.fileName, 'dziesiatka-seed-001.png');
+    expect(service.fileName, 'dziesiatka-story.png');
     expect(service.title, 'Dziesiątka - Ciekawostka na dziś');
     expect(service.origin, isNotNull);
 
@@ -147,8 +148,56 @@ void main() {
       final image = (await codec.getNextFrame()).image;
       return Size(image.width.toDouble(), image.height.toDouble());
     });
-    expect(size!.width, 1080);
-    expect(size.height, closeTo(1350, 1));
+    expect(size, const Size(1080, 1920));
+  });
+
+  testWidgets('keeps the card centered and out of the safe zones', (
+    tester,
+  ) async {
+    await pumpSheet(tester, _FakeShareService());
+
+    final image = tester.getRect(find.byType(FittedBox));
+    double position(double y) => (y - image.top) / image.height * 1920;
+
+    final top = position(tester.getRect(find.byType(CategoryBadge)).top);
+    final bottom = position(tester.getRect(find.text(fact.shortText)).bottom);
+    final brand = position(tester.getRect(find.text('Dziesiątka')).bottom);
+
+    expect(image.width / image.height, closeTo(9 / 16, 0.001));
+    expect((top + bottom) / 2, closeTo(960, 1));
+    expect(top, greaterThan(250));
+    expect(bottom, lessThan(1920 - 340));
+    expect(brand, closeTo(1920 - 342, 3));
+  });
+
+  testWidgets('the longest text fits and the dark theme changes nothing', (
+    tester,
+  ) async {
+    final longFact = Fact(
+      id: 'seed-002',
+      title: 'Bardzo długi tytuł ' * 6,
+      category: 'Kosmos',
+      shortText: 'Bardzo długa zajawka ' * 20,
+      longText: 'Rozwinięcie',
+      source: 'Źródło',
+      createdAt: DateTime.utc(2026),
+    );
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.dark,
+        home: Scaffold(body: ShareCardSheet(fact: longFact)),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(
+      Theme.of(tester.element(find.byType(CategoryBadge))).brightness,
+      Brightness.light,
+    );
   });
 
   testWidgets('a failure shows a message and allows a retry', (tester) async {

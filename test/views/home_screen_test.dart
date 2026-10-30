@@ -10,6 +10,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/keep_order_random.dart';
+
 const _firstTitle = 'Dzień dłuższy niż rok';
 const _secondTitle = 'Lodowe góry Plutona';
 
@@ -30,7 +32,11 @@ void main() {
     tester.view.physicalSize = size;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      DziesiatkaApp(themeService: ThemeService(), now: now),
+      DziesiatkaApp(
+        themeService: ThemeService(),
+        now: now,
+        random: const KeepOrderRandom(),
+      ),
     );
     await tester.pumpAndSettle();
   }

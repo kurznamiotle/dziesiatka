@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/home_screen.dart';
@@ -15,10 +17,16 @@ Future<void> main() async {
 }
 
 class DziesiatkaApp extends StatelessWidget {
-  const DziesiatkaApp({super.key, required this.themeService, this.now});
+  const DziesiatkaApp({
+    super.key,
+    required this.themeService,
+    this.now,
+    this.random,
+  });
 
   final ThemeService themeService;
   final DateTime Function()? now;
+  final Random? random;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,7 @@ class DziesiatkaApp extends StatelessWidget {
         themeMode: themeService.themeMode,
         // Above the navigator, so routes, dialogs and sheets stay in the frame.
         builder: (context, child) => PhoneFrame(child: child!),
-        home: HomeScreen(themeService: themeService, now: now),
+        home: HomeScreen(themeService: themeService, now: now, random: random),
       ),
     );
   }

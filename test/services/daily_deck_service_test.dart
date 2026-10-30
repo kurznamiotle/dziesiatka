@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:dziesiatka/models/daily_deck.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
@@ -8,6 +10,8 @@ import 'package:dziesiatka/services/streak_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/keep_order_random.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -15,11 +19,12 @@ void main() {
   late DateTime now;
   late DailyDeckService service;
 
-  DailyDeckService newService() {
+  DailyDeckService newService({Random random = const KeepOrderRandom()}) {
     return DailyDeckService(
       facts,
       StreakService(now: () => now),
       now: () => now,
+      random: random,
     );
   }
 
@@ -69,6 +74,87 @@ void main() {
     facts = FactsService();
     now = DateTime(2026, 11, 2, 12);
     service = newService();
+  });
+
+  group('random choice', () {
+    Future<List<DailyDeck>> decksFromSeeds(int count) async {
+      final decks = <DailyDeck>[];
+      for (var seed = 0; seed < count; seed++) {
+        await SharedPreferences.getInstance().then(
+          (prefs) => prefs.remove('dailyDeck'),
+        );
+        final session = await newService(random: Random(seed)).loadToday();
+        decks.add(session.deck);
+      }
+      return decks;
+    }
+
+    test('picks different new facts from the whole pool', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+
+      final decks = await decksFromSeeds(8);
+
+      final firstTen = {for (var i = 0; i < 10; i++) 'fact-$i'};
+      expect(decks.map((deck) => deck.factIds.toSet()).toSet().length, 8);
+      expect(
+        decks.expand((deck) => deck.factIds).toSet().difference(firstTen),
+        isNotEmpty,
+      );
+      for (final deck in decks) {
+        expect(deck.factIds, hasLength(10));
+        expect(deck.factIds.toSet(), hasLength(10));
+      }
+    });
+
+    test('asks about different positions of the deck', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+
+      final decks = await decksFromSeeds(8);
+
+      final positions = {
+        for (final deck in decks)
+          for (final id in deck.quizFactIds) deck.factIds.indexOf(id),
+      };
+      expect(positions.length, greaterThan(2));
+      for (final deck in decks) {
+        expect(deck.quizFactIds, hasLength(2));
+        expect(deck.quizFactIds.toSet(), hasLength(2));
+        expect(deck.factIds, containsAll(deck.quizFactIds));
+      }
+    });
+
+    test('still mixes 9 new facts with 1 due review', () async {
+      givenPool([
+        for (var i = 0; i < 40; i++)
+          fact(i, isRead: i < 10, lastReadAt: i < 10 ? daysAgo(5) : null),
+      ]);
+
+      for (final deck in await decksFromSeeds(8)) {
+        expect(deck.reviewFactIds, hasLength(1));
+        expect(deck.factIds, hasLength(10));
+      }
+    });
+
+    test('a restart during the day keeps the deck and questions', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+
+      final first = await newService(random: Random(1)).loadToday();
+      now = now.add(const Duration(hours: 6));
+      final second = await newService(random: Random(2)).loadToday();
+
+      expect(second.deck.factIds, first.deck.factIds);
+      expect(second.deck.quizFactIds, first.deck.quizFactIds);
+    });
+
+    test('the next day brings a new deck', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+
+      final first = await newService(random: Random(1)).loadToday();
+      now = now.add(const Duration(days: 1));
+      final second = await newService(random: Random(2)).loadToday();
+
+      expect(second.deck.factIds, isNot(first.deck.factIds));
+    });
   });
 
   group('choosing a deck', () {
@@ -152,6 +238,7 @@ void main() {
 
     test('draws reviews only from due facts on every day', () async {
       final drawn = <String>{};
+      final random = Random(1);
 
       for (var day = 0; day < 8; day++) {
         now = DateTime(2026, 11, 2 + day, 12);
@@ -163,7 +250,7 @@ void main() {
           for (var i = 4; i < 40; i++) fact(i),
         ]);
 
-        final session = await newService().loadToday();
+        final session = await newService(random: random).loadToday();
 
         expect(session.deck.reviewFactIds, hasLength(1));
         drawn.addAll(session.deck.reviewFactIds);
@@ -256,9 +343,10 @@ void main() {
     test('reviews change from day to day', () async {
       givenPool([for (var i = 0; i < 20; i++) fact(i, isRead: true)]);
 
-      final first = await service.loadToday();
+      final random = Random(1);
+      final first = await newService(random: random).loadToday();
       now = now.add(const Duration(days: 1));
-      final second = await service.loadToday();
+      final second = await newService(random: random).loadToday();
 
       expect(first.facts.first.id, isNot(second.facts.first.id));
     });

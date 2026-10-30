@@ -1,6 +1,7 @@
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
 class FactDetailsSheet extends StatelessWidget {
@@ -38,8 +39,18 @@ class FactDetailsSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          CategoryBadge(category: fact.category),
-          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(child: CategoryBadge(category: fact.category)),
+              IconButton(
+                tooltip: 'Udostępnij',
+                onPressed: () => ShareCardSheet.show(context, fact),
+                icon: const Icon(Icons.ios_share_rounded),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text(
             fact.title,
             style: theme.textTheme.headlineSmall?.copyWith(

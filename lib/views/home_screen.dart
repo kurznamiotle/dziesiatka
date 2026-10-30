@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
@@ -28,10 +29,16 @@ const _returnDuration = Duration(milliseconds: 200);
 const _likeColor = Color(0xFF15803D);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.themeService, this.now});
+  const HomeScreen({
+    super.key,
+    required this.themeService,
+    this.now,
+    this.random,
+  });
 
   final ThemeService themeService;
   final DateTime Function()? now;
+  final Random? random;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -43,6 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _factsService,
     StreakService(now: widget.now),
     now: widget.now,
+    random: widget.random,
   );
   DailySession? _session;
   bool _loadFailed = false;

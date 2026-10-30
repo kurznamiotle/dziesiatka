@@ -2,6 +2,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/views/category_style.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
+import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
 class FavoritesScreen extends StatefulWidget {
@@ -88,10 +89,20 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           title: Text(fact.title, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text(fact.category),
           onTap: () => FactDetailsSheet.show(context, fact),
-          trailing: IconButton(
-            tooltip: 'Usuń z ulubionych',
-            icon: const Icon(Icons.favorite_rounded),
-            onPressed: () => _removeFavorite(fact),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Udostępnij',
+                icon: const Icon(Icons.ios_share_rounded),
+                onPressed: () => ShareCardSheet.show(context, fact),
+              ),
+              IconButton(
+                tooltip: 'Usuń z ulubionych',
+                icon: const Icon(Icons.favorite_rounded),
+                onPressed: () => _removeFavorite(fact),
+              ),
+            ],
           ),
         );
       },

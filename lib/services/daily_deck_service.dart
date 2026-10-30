@@ -14,7 +14,9 @@ class DailyDeckService {
     this._factsService,
     this._streakService, {
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+    Random? random,
+  }) : _now = now ?? DateTime.now,
+       _random = random ?? Random();
 
   static const deckSize = 10;
   static const maxReviewCount = 1;
@@ -25,6 +27,7 @@ class DailyDeckService {
   final FactsService _factsService;
   final StreakService _streakService;
   final DateTime Function() _now;
+  final Random _random;
 
   /// Returns today's deck, choosing and saving a new one on the first call of
   /// each day, so the cards stay the same across restarts.
@@ -142,16 +145,17 @@ class DailyDeckService {
     return _dayNumber - _dayNumberOf(lastReadAt) >= minDaysBetweenReads;
   }
 
-  /// Takes one review, drawn from read facts that are due, and new facts for
-  /// the rest. Facts read longest ago fill any gap, even if not yet due, so
-  /// the deck stays full.
+  /// Takes one random review from read facts that are due, and random new
+  /// facts for the rest. Facts read longest ago fill any gap, even if not yet
+  /// due, so the deck stays full.
   List<Fact> _chooseFacts(List<Fact> facts) {
-    final unread = facts.where((fact) => !fact.isRead).toList();
+    final unread = facts.where((fact) => !fact.isRead).toList()
+      ..shuffle(_random);
     final read = facts.where((fact) => fact.isRead).toList()
       ..sort(_compareByLastRead);
 
-    final due = read.where(_isDueForReview).toList();
-    final reviews = (due..shuffle(Random(_dayNumber))).take(maxReviewCount);
+    final due = read.where(_isDueForReview).toList()..shuffle(_random);
+    final reviews = due.take(maxReviewCount);
     final oldestFirst = read.where((fact) => !reviews.contains(fact));
 
     return [
@@ -173,7 +177,7 @@ class DailyDeckService {
 
   List<String> _chooseQuizFactIds(List<Fact> deckFacts) {
     final withQuestions = deckFacts.where((fact) => fact.quiz != null).toList()
-      ..shuffle(Random(_dayNumber));
+      ..shuffle(_random);
     return withQuestions
         .take(quizQuestionCount)
         .map((fact) => fact.id)

@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../helpers/keep_order_random.dart';
+
 const _pagePadding = 24.0;
 const _statusBar = 47.0;
 const _gestureBar = 34.0;
@@ -37,7 +39,10 @@ void main() {
     tester.view.viewPadding = insets;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      DziesiatkaApp(themeService: themeService ?? ThemeService()),
+      DziesiatkaApp(
+        themeService: themeService ?? ThemeService(),
+        random: const KeepOrderRandom(),
+      ),
     );
     await tester.pumpAndSettle();
   }
