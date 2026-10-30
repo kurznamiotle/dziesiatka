@@ -9,14 +9,17 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  test('first run seeds 10 unread facts with unique ids from the asset', () async {
-    final facts = await FactsService().getFacts();
+  test(
+    'first run seeds 10 unread facts with unique ids from the asset',
+    () async {
+      final facts = await FactsService().getFacts();
 
-    expect(facts, hasLength(10));
-    expect(facts.every((fact) => !fact.isRead), isTrue);
-    expect(facts.map((fact) => fact.id).toSet(), hasLength(10));
-    expect(facts.map((fact) => fact.category).toSet(), hasLength(5));
-  });
+      expect(facts, hasLength(10));
+      expect(facts.every((fact) => !fact.isRead), isTrue);
+      expect(facts.map((fact) => fact.id).toSet(), hasLength(10));
+      expect(facts.map((fact) => fact.category).toSet(), hasLength(5));
+    },
+  );
 
   test('read state survives a new service instance', () async {
     final service = FactsService();
@@ -27,6 +30,23 @@ void main() {
     final reloaded = await FactsService().getFacts();
     expect(reloaded.first.isRead, isTrue);
     expect(reloaded.where((fact) => fact.isRead), hasLength(1));
+  });
+
+  test('resetReadState clears read state and keeps added facts', () async {
+    final service = FactsService();
+    final facts = await service.getFacts();
+    await service.markAsRead(facts.first.id);
+    await service.addFact(
+      title: 'Nowa',
+      content: 'Treść',
+      category: 'Historia',
+    );
+
+    await service.resetReadState();
+
+    final reloaded = await FactsService().getFacts();
+    expect(reloaded, hasLength(11));
+    expect(reloaded.every((fact) => !fact.isRead), isTrue);
   });
 
   test('added facts are stored and not replaced by the seed', () async {

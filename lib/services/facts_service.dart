@@ -34,6 +34,13 @@ class FactsService {
     await _save(prefs, updated);
   }
 
+  Future<void> resetReadState() async {
+    final prefs = await SharedPreferences.getInstance();
+    final facts = await getFacts();
+    final updated = [for (final fact in facts) fact.copyWith(isRead: false)];
+    await _save(prefs, updated);
+  }
+
   Future<Fact> addFact({
     required String title,
     required String content,
