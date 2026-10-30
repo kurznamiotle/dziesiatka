@@ -3,6 +3,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
+import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -251,6 +252,85 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  group('haptics', () {
+    late List<String> vibrations;
+
+    setUp(() {
+      vibrations = [];
+      TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              vibrations.add(call.arguments as String);
+            }
+            return null;
+          });
+    });
+
+    tearDown(() {
+      TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    const lightImpact = 'HapticFeedbackType.lightImpact';
+
+    testWidgets('moving on, liking and undo give a light impact', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      await tester.tap(find.text('Dalej'));
+      await tester.pumpAndSettle();
+      expect(vibrations, [lightImpact]);
+
+      await tester.tap(find.text('Polub'));
+      await tester.pumpAndSettle();
+      expect(vibrations, [lightImpact, lightImpact]);
+
+      await tester.tap(undoButton());
+      await tester.pumpAndSettle();
+      expect(vibrations, [lightImpact, lightImpact, lightImpact]);
+    });
+
+    testWidgets('swiping in both directions gives a light impact', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      await tester.drag(find.text(_firstTitle), const Offset(-200, 0));
+      await tester.pumpAndSettle();
+      await tester.drag(find.text(_secondTitle), const Offset(200, 0));
+      await tester.pumpAndSettle();
+
+      expect(vibrations, [lightImpact, lightImpact]);
+    });
+
+    testWidgets('a drag that returns gives no impact', (tester) async {
+      await pumpApp(tester);
+      final center = tester.getCenter(find.text(_firstTitle));
+
+      final gesture = await tester.startGesture(center);
+      await gesture.moveBy(const Offset(40, 0));
+      await tester.pump(const Duration(seconds: 1));
+      await gesture.moveBy(const Offset(10, 0));
+      await tester.pump(const Duration(seconds: 1));
+      await gesture.up();
+      await tester.pumpAndSettle();
+
+      expect(vibrations, isEmpty);
+    });
+  });
+
+  testWidgets('the card opens the share preview', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Udostępnij').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ShareCardSheet), findsOneWidget);
+    expect(find.text('Udostępnij grafikę'), findsOneWidget);
+    expect(find.text('0 / 10 ukończone'), findsOneWidget);
   });
 
   group('review cards', () {

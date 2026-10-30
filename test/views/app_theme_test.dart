@@ -42,6 +42,37 @@ void main() {
         }
       });
 
+      test('white text is readable on category gradients', () {
+        const categories = [
+          'Kosmos',
+          'Zwierzęta',
+          'Historia',
+          'Psychologia',
+          'Technologia',
+          'Moja kategoria',
+        ];
+
+        for (final category in categories) {
+          final style = CategoryStyle.of(category, theme.brightness);
+          for (final color in style.gradient) {
+            expect(
+              contrast(Colors.white, color),
+              greaterThanOrEqualTo(minimumTextContrast),
+              reason: category,
+            );
+          }
+        }
+      });
+
+      test('category badges are readable on banners', () {
+        final style = CategoryStyle.of('Historia', theme.brightness);
+
+        expect(
+          contrast(style.color, surfaces.card),
+          greaterThanOrEqualTo(minimumTextContrast),
+        );
+      });
+
       test('the review badge is readable on cards', () {
         expect(
           contrast(colors.onSecondaryContainer, colors.secondaryContainer),

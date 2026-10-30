@@ -1,11 +1,19 @@
+import 'dart:math';
+
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:dziesiatka/views/pill_badge.dart';
+import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
 /// Below this height, such as on a phone in landscape, the card tightens up.
 const _compactHeight = 240.0;
+const _compactBannerHeight = 56.0;
+const _maxBannerHeight = 190.0;
+const _bannerShare = 0.32;
+const _radius = 28.0;
 
 class FactCard extends StatelessWidget {
   const FactCard({
@@ -25,7 +33,7 @@ class FactCard extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surfaces.card,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(_radius),
         border: Border.all(color: surfaces.border),
         boxShadow: [
           BoxShadow(
@@ -35,75 +43,117 @@ class FactCard extends StatelessWidget {
           ),
         ],
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final isCompact = constraints.maxHeight < _compactHeight;
-          return Padding(
-            padding: EdgeInsets.all(isCompact ? 16 : 28),
-            child: _buildContent(context, isCompact: isCompact),
-          );
-        },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(_radius),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isCompact = constraints.maxHeight < _compactHeight;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildBanner(context, constraints.maxHeight, isCompact),
+                Expanded(child: _buildText(context, isCompact)),
+                _buildActions(context),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, {required bool isCompact}) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            CategoryBadge(category: fact.category),
-            if (isReview)
-              PillBadge(
-                icon: Icons.refresh_rounded,
-                label: 'Powtórka',
-                color: colors.onSecondaryContainer,
-                background: colors.secondaryContainer,
-              ),
-          ],
-        ),
-        SizedBox(height: isCompact ? 8 : 24),
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    fact.title,
-                    style: theme.textTheme.headlineLarge?.copyWith(
-                      color: colors.onSurface,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    fact.shortText,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      fontSize: 18,
-                      height: 1.55,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildBanner(BuildContext context, double cardHeight, bool isCompact) {
+    final colors = Theme.of(context).colorScheme;
+    final height = isCompact
+        ? _compactBannerHeight
+        : min(cardHeight * _bannerShare, _maxBannerHeight);
+    return SizedBox(
+      height: height,
+      child: CategoryArtwork(
+        category: fact.category,
+        showDecoration: !isCompact,
+        child: Padding(
+          padding: EdgeInsets.all(isCompact ? 12 : 20),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              CategoryBadge(category: fact.category, solid: true),
+              if (isReview)
+                PillBadge(
+                  icon: Icons.refresh_rounded,
+                  label: 'Powtórka',
+                  color: colors.onSecondaryContainer,
+                  background: colors.secondaryContainer,
+                ),
+            ],
           ),
         ),
-        SizedBox(height: isCompact ? 4 : 12),
-        TextButton.icon(
-          onPressed: onExpand,
-          icon: const Icon(Icons.expand_less_rounded),
-          label: const Text('Dowiedz się więcej'),
+      ),
+    );
+  }
+
+  Widget _buildText(BuildContext context, bool isCompact) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        isCompact ? 16 : 24,
+        isCompact ? 8 : 16,
+        isCompact ? 16 : 24,
+        0,
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                fact.title,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: colors.onSurface,
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  height: 1.2,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                fact.shortText,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontSize: 18,
+                  height: 1.6,
+                ),
+              ),
+            ],
+          ),
         ),
-      ],
+      ),
+    );
+  }
+
+  Widget _buildActions(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: TextButton.icon(
+              onPressed: onExpand,
+              icon: const Icon(Icons.expand_less_rounded),
+              label: const Text('Dowiedz się więcej'),
+            ),
+          ),
+          IconButton(
+            tooltip: 'Udostępnij',
+            onPressed: () => ShareCardSheet.show(context, fact),
+            icon: const Icon(Icons.ios_share_rounded),
+          ),
+        ],
+      ),
     );
   }
 }

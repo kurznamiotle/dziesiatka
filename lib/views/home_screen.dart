@@ -4,6 +4,7 @@ import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
@@ -85,7 +86,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _undo() => _updateSession(_deckService.undo);
+  Future<void> _undo() {
+    const HapticsService().cardAction();
+    return _updateSession(_deckService.undo);
+  }
 
   void _finishQuiz(int correct) {
     _updateSession(() => _deckService.finishQuiz(correct));
@@ -349,6 +353,7 @@ class _CardDeckState extends State<_CardDeck>
   Future<void> _dismiss(double direction) async {
     if (_isAnimating) return;
     _isAnimating = true;
+    const HapticsService().cardAction();
 
     await _dragOffset.animateTo(
       direction * _deckWidth * _flyOutDistance,
@@ -525,6 +530,8 @@ class _LikeLabel extends StatelessWidget {
       decoration: BoxDecoration(
         color: _likeColor,
         borderRadius: BorderRadius.circular(999),
+        // Keeps the label visible on the green banner of the animal category.
+        border: Border.all(color: Colors.white, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 16, 8),

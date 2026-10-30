@@ -2,6 +2,7 @@ import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/daily_quiz_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _feedback = Duration(seconds: 1);
@@ -57,6 +58,55 @@ void main() {
     expect(find.text('A. Dobra'), findsOneWidget);
     expect(find.text('B. Zła'), findsOneWidget);
     expect(find.text('C. Inna'), findsOneWidget);
+  });
+
+  group('haptics', () {
+    late List<String> vibrations;
+
+    setUp(() {
+      vibrations = [];
+      TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+            if (call.method == 'HapticFeedback.vibrate') {
+              vibrations.add(call.arguments as String);
+            }
+            return null;
+          });
+    });
+
+    tearDown(() {
+      TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger
+          .setMockMethodCallHandler(SystemChannels.platform, null);
+    });
+
+    testWidgets('a correct answer gives a medium impact', (tester) async {
+      await pumpQuiz(tester);
+
+      await tester.tap(find.text('A. Dobra'));
+      await tester.pump(_feedback);
+
+      expect(vibrations, ['HapticFeedbackType.mediumImpact']);
+    });
+
+    testWidgets('a wrong answer gives a heavy impact', (tester) async {
+      await pumpQuiz(tester);
+
+      await tester.tap(find.text('B. Zła'));
+      await tester.pump(_feedback);
+
+      expect(vibrations, ['HapticFeedbackType.heavyImpact']);
+    });
+
+    testWidgets('a second tap gives no extra impact', (tester) async {
+      await pumpQuiz(tester);
+
+      await tester.tap(find.text('B. Zła'));
+      await tester.pump();
+      await tester.tap(find.text('A. Dobra'));
+      await tester.pump(_feedback);
+
+      expect(vibrations, hasLength(1));
+    });
   });
 
   testWidgets('a correct answer turns green', (tester) async {

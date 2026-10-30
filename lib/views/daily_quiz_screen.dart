@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dziesiatka/models/quiz_question.dart';
+import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -42,9 +43,13 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
   void _selectOption(int option) {
     if (_selectedOption != null) return;
 
+    final isCorrect = option == _question.correctIndex;
+    const haptics = HapticsService();
+    isCorrect ? haptics.correctAnswer() : haptics.wrongAnswer();
+
     setState(() {
       _selectedOption = option;
-      if (option == _question.correctIndex) _correctCount++;
+      if (isCorrect) _correctCount++;
     });
     _feedbackTimer = Timer(_feedbackDuration, _goToNextQuestion);
   }
