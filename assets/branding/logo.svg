@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dziesiątka">
+  <rect width="512" height="512" rx="112" fill="#4F46E5"/>
+  <path d="M104 190 164 146V366" fill="none" stroke="#FFFFFF" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="250" y="146" width="168" height="220" rx="46" fill="none" stroke="#FFFFFF" stroke-width="56" transform="rotate(7 334 256)"/>
+</svg>

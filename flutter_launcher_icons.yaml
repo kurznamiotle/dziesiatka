@@ -1,0 +1,19 @@
+# Regenerate all app icons with: dart run flutter_launcher_icons
+# The tool also changes ios/Runner.xcodeproj/project.pbxproj in an unrelated
+# setting, so restore that file afterwards.
+flutter_launcher_icons:
+  image_path: "assets/branding/icon.png"
+  android: true
+  min_sdk_android: 24
+  adaptive_icon_background: "#4F46E5"
+  adaptive_icon_foreground: "assets/branding/icon_foreground.png"
+  adaptive_icon_monochrome: "assets/branding/icon_foreground.png"
+  # The foreground image already keeps the mark inside Android's safe area.
+  adaptive_icon_foreground_inset: 0
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/branding/icon.png"
+    background_color: "#4F46E5"
+    theme_color: "#4F46E5"
