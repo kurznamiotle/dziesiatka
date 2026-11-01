@@ -3,7 +3,4 @@
 abstract final class AppLinks {
   /// A support page, such as a buycoffee.to or ko-fi.com profile.
   static const String? buyCoffee = null;
-
-  /// A submission form, or a `mailto:` address for new facts.
-  static const String? becomeEditor = null;
 }

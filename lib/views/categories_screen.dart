@@ -37,9 +37,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     });
   }
 
-  bool _isLastEnabled(String category) {
-    final enabled = _categories!.where((name) => !_disabled.contains(name));
-    return enabled.length == 1 && enabled.first == category;
+  bool _canTurnOff() {
+    final favorites = _categories!.where((name) => !_disabled.contains(name));
+    return favorites.length > CategoryPreferencesService.minFavorites;
   }
 
   Future<void> _toggle(String category, bool isEnabled) async {
@@ -64,8 +64,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     child: Text(
-                      'Wybierz, o czym chcesz czytać. '
-                      'Zmiana zadziała od następnej talii.',
+                      'Wybierz co najmniej '
+                      '${CategoryPreferencesService.minFavorites} ulubione '
+                      'kategorie. Większość kart będzie z nich, a dwie z '
+                      'pozostałych, dla odmiany. Zmiana zadziała od '
+                      'następnej talii.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
@@ -81,12 +84,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget _buildTile(String category) {
     final theme = Theme.of(context);
     final style = CategoryStyle.of(category, theme.brightness);
+    final isFavorite = !_disabled.contains(category);
     return SwitchListTile(
       secondary: Icon(style.icon, color: style.color),
       title: Text(category),
-      value: !_disabled.contains(category),
-      // At least one stays on, or there would be nothing to choose a deck from.
-      onChanged: _isLastEnabled(category)
+      value: isFavorite,
+      onChanged: isFavorite && !_canTurnOff()
           ? null
           : (isEnabled) => _toggle(category, isEnabled),
     );

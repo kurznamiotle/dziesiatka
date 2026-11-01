@@ -1,6 +1,7 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/services/onboarding_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,9 @@ void main() {
   });
 
   Future<void> pumpApp(WidgetTester tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1400);
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       DziesiatkaApp(themeService: ThemeService(), showWelcome: true),
     );
@@ -38,7 +42,20 @@ void main() {
     );
   });
 
-  testWidgets('finishing the last page opens the deck and is remembered', (
+  Future<void> chooseCategoriesAndConfirm(WidgetTester tester) async {
+    await tester.pumpAndSettle();
+    for (final category in ['Kosmos', 'Historia', 'Psychologia']) {
+      await tester.tap(find.text(category));
+      await tester.pump();
+    }
+    await tester.tap(find.text('Gotowe'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Rozumiem'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+  }
+
+  testWidgets('finishing the last page leads through categories to the deck', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -47,23 +64,44 @@ void main() {
     await tapNext(tester);
     await tapNext(tester);
     await tester.tap(find.text('Zaczynamy'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FavoriteCategoriesScreen), findsOneWidget);
+    expect(await const OnboardingService().shouldShowWelcome(), isTrue);
+
+    await chooseCategoriesAndConfirm(tester);
 
     expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.byType(WelcomeScreen), findsNothing);
     expect(await const OnboardingService().shouldShowWelcome(), isFalse);
   });
 
-  testWidgets('skipping also opens the deck and is remembered', (tester) async {
+  testWidgets('skipping the instructions still offers the categories', (
+    tester,
+  ) async {
     await pumpApp(tester);
 
     await tester.tap(find.text('Pomiń'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FavoriteCategoriesScreen), findsOneWidget);
+
+    await chooseCategoriesAndConfirm(tester);
 
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(await const OnboardingService().shouldShowWelcome(), isFalse);
+  });
+
+  testWidgets('a new user can choose from all 12 bundled categories', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.text('Pomiń'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Absurdy Prawa'), findsOneWidget);
+    expect(find.text('Kosmos'), findsOneWidget);
+    expect(find.byType(InkWell), findsAtLeastNWidgets(12));
   });
 
   testWidgets('the app starts on the deck without the welcome flag', (

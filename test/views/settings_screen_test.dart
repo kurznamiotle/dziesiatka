@@ -47,7 +47,6 @@ void main() {
     LinkService linkService = const LinkService(),
     AppInfoService appInfoService = const _FakeAppInfoService(),
     String? buyCoffeeUrl,
-    String? becomeEditorUrl,
     ThemeService? themeService,
   }) async {
     tester.view.devicePixelRatio = 1;
@@ -61,7 +60,6 @@ void main() {
           linkService: linkService,
           appInfoService: appInfoService,
           buyCoffeeUrl: buyCoffeeUrl,
-          becomeEditorUrl: becomeEditorUrl,
         ),
       ),
     );
@@ -154,7 +152,7 @@ void main() {
     final links = _FakeLinkService();
     await pumpSettings(tester, linkService: links);
 
-    expect(find.text('Wkrótce'), findsNWidgets(2));
+    expect(find.text('Wkrótce'), findsOneWidget);
     expect(tile(tester, 'Postaw kawę twórcy ☕').enabled, isFalse);
 
     await tester.tap(find.text('Postaw kawę twórcy ☕'));
@@ -171,18 +169,13 @@ void main() {
       tester,
       linkService: links,
       buyCoffeeUrl: 'https://example.com/kawa',
-      becomeEditorUrl: 'mailto:redakcja@example.com',
     );
 
     await tester.tap(find.text('Postaw kawę twórcy ☕'));
-    await tester.tap(find.text('Zostań redaktorem ✍️'));
     await tester.pumpAndSettle();
 
     expect(find.text('Wkrótce'), findsNothing);
-    expect(links.opened, [
-      'https://example.com/kawa',
-      'mailto:redakcja@example.com',
-    ]);
+    expect(links.opened, ['https://example.com/kawa']);
   });
 
   testWidgets('a link that fails to open shows a message', (tester) async {

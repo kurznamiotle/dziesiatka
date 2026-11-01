@@ -680,6 +680,18 @@ void main() {
       expect(find.text('Gratulacje!'), findsOneWidget);
     });
 
+    testWidgets('a tap closes it early', (tester) async {
+      await pumpApp(tester);
+      await answerUpToLastQuestion(tester);
+      await answerLastQuestion(tester);
+
+      await tester.tap(find.byType(CelebrationOverlay));
+      await tester.pump();
+
+      expect(find.byType(CelebrationOverlay), findsNothing);
+      expect(find.text('Gratulacje!'), findsOneWidget);
+    });
+
     testWidgets('announces an unlocked achievement', (tester) async {
       final now = DateTime(2026, 11, 5, 12);
       SharedPreferences.setMockInitialValues({

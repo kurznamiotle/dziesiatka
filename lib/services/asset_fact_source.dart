@@ -12,7 +12,14 @@ class AssetFactSource implements FactSource {
 
   @override
   Future<List<Fact>> loadFacts({DateTime? changedSince}) async {
-    final items = jsonDecode(await rootBundle.loadString(_assetPath)) as List;
+    // rootBundle.loadString hands larger files to a separate isolate, which this
+    // small a file does not need and which never finishes in widget tests.
+    final data = await rootBundle.load(_assetPath);
+    final bytes = data.buffer.asUint8List(
+      data.offsetInBytes,
+      data.lengthInBytes,
+    );
+    final items = jsonDecode(utf8.decode(bytes)) as List;
     return items
         .map((item) => Fact.fromJson(item as Map<String, dynamic>))
         .toList();

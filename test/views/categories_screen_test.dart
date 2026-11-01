@@ -27,7 +27,9 @@ void main() {
       storedFacts([
         fact('a', 'Kosmos'),
         fact('b', 'Historia'),
-        fact('c', 'Wycofana', isWithdrawn: true),
+        fact('c', 'Psychologia'),
+        fact('d', 'Technologia'),
+        fact('e', 'Wycofana', isWithdrawn: true),
       ]),
     );
   });
@@ -63,13 +65,29 @@ void main() {
     expect(await const CategoryPreferencesService().getDisabled(), {'Kosmos'});
   });
 
-  testWidgets('the last category cannot be turned off', (tester) async {
+  testWidgets('at least 3 categories stay chosen', (tester) async {
     await pumpScreen(tester);
+    expect(tile(tester, 'Historia').onChanged, isNotNull);
 
     await tester.tap(find.text('Kosmos'));
     await tester.pumpAndSettle();
 
     expect(tile(tester, 'Historia').onChanged, isNull);
+    expect(tile(tester, 'Psychologia').onChanged, isNull);
+    expect(tile(tester, 'Technologia').onChanged, isNull);
+    // The way back stays open.
     expect(tile(tester, 'Kosmos').onChanged, isNotNull);
+  });
+
+  testWidgets('a category that is off can be turned back on', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Kosmos'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Kosmos'));
+    await tester.pumpAndSettle();
+
+    expect(tile(tester, 'Kosmos').value, isTrue);
+    expect(await const CategoryPreferencesService().getDisabled(), isEmpty);
   });
 }

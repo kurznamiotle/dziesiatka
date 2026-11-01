@@ -170,7 +170,8 @@ void main() {
 
       await tester.tap(find.byTooltip('Ulubione'));
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -6000));
+      await tester.scrollUntilVisible(find.text(facts.last.title), 500);
+      await tester.drag(find.byType(ListView), const Offset(0, -2000));
       await tester.pumpAndSettle();
 
       expect(

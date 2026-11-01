@@ -43,7 +43,6 @@ class SettingsScreen extends StatefulWidget {
     this.linkService = const LinkService(),
     this.appInfoService = const AppInfoService(),
     this.buyCoffeeUrl = AppLinks.buyCoffee,
-    this.becomeEditorUrl = AppLinks.becomeEditor,
   });
 
   final ThemeService themeService;
@@ -53,7 +52,6 @@ class SettingsScreen extends StatefulWidget {
   final LinkService linkService;
   final AppInfoService appInfoService;
   final String? buyCoffeeUrl;
-  final String? becomeEditorUrl;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -194,12 +192,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icons.local_cafe_outlined,
               title: 'Postaw kawę twórcy ☕',
               url: widget.buyCoffeeUrl,
-              onOpen: _openLink,
-            ),
-            _LinkTile(
-              icon: Icons.edit_note_rounded,
-              title: 'Zostań redaktorem ✍️',
-              url: widget.becomeEditorUrl,
               onOpen: _openLink,
             ),
             const _SectionHeader('O aplikacji'),

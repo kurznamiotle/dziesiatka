@@ -691,7 +691,7 @@ void main() {
       });
     }
 
-    test('a deck leaves out a turned-off category', () async {
+    test('a deck keeps to favorites apart from 2 discoveries', () async {
       givenPoolWithDisabled([
         for (var i = 0; i < 15; i++) inCategory(i, 'Kosmos'),
         for (var i = 15; i < 30; i++) inCategory(i, 'Historia'),
@@ -699,8 +699,9 @@ void main() {
 
       final session = await service.loadToday();
 
+      final categories = session.facts.map((fact) => fact.category);
       expect(session.facts, hasLength(10));
-      expect(session.facts.map((fact) => fact.category).toSet(), {'Kosmos'});
+      expect(categories.where((name) => name == 'Kosmos'), hasLength(8));
     });
 
     test('other categories fill a deck that would stay short', () async {
@@ -711,10 +712,62 @@ void main() {
 
       final session = await service.loadToday();
 
+      final categories = session.facts.map((fact) => fact.category);
       expect(session.facts, hasLength(10));
-      expect(session.facts.take(4).map((fact) => fact.category).toSet(), {
-        'Kosmos',
-      });
+      expect(categories.where((name) => name == 'Kosmos'), hasLength(4));
+    });
+  });
+
+  group('without a fixed random', () {
+    test('a lost deck comes back the same on the same day', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+      final unseeded = DailyDeckService(
+        facts,
+        StreakService(now: () => now),
+        now: () => now,
+      );
+      final first = await unseeded.loadToday();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('dailyDeck');
+      final second = await unseeded.loadToday();
+
+      expect(second.deck.factIds, first.deck.factIds);
+      expect(second.deck.quizFactIds, first.deck.quizFactIds);
+    });
+
+    test('another day brings a different deck', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+      final unseeded = DailyDeckService(
+        facts,
+        StreakService(now: () => now),
+        now: () => now,
+      );
+      final today = await unseeded.loadToday();
+
+      now = now.add(const Duration(days: 1));
+      final tomorrow = await unseeded.loadToday();
+
+      expect(tomorrow.deck.factIds, isNot(today.deck.factIds));
+    });
+
+    test('the id behind the choice stays between days', () async {
+      givenPool([for (var i = 0; i < 40; i++) fact(i)]);
+      final unseeded = DailyDeckService(
+        facts,
+        StreakService(now: () => now),
+        now: () => now,
+      );
+
+      await unseeded.loadToday();
+      final prefs = await SharedPreferences.getInstance();
+      final ownerId = prefs.getString('deckOwnerId');
+
+      now = now.add(const Duration(days: 1));
+      await unseeded.loadToday();
+
+      expect(ownerId, isNotNull);
+      expect(prefs.getString('deckOwnerId'), ownerId);
     });
   });
 
@@ -773,7 +826,8 @@ void main() {
 
       final session = await finishToday();
 
-      expect(session.bonusCount, 2);
+      // 8 of the 12 favorites went into the deck, next to 2 discoveries.
+      expect(session.bonusCount, 4);
     });
 
     test('keeps the finished quiz and the streak', () async {

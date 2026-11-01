@@ -7,6 +7,7 @@ import 'package:dziesiatka/services/supabase_fact_source.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/services/usage_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/phone_frame.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
@@ -66,6 +67,18 @@ class DziesiatkaApp extends StatelessWidget {
     );
   }
 
+  void _openFavoriteCategories(BuildContext context) {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (context) => FavoriteCategoriesScreen(
+          factsService: factsService ?? FactsService(),
+          onFinished: () => _finishWelcome(context),
+        ),
+      ),
+    );
+  }
+
+  /// Marked only now, so leaving halfway shows the first-run screens again.
   void _finishWelcome(BuildContext context) {
     onboardingService.markWelcomeSeen();
     // Asked here, once the user knows the app, and not on the first launch.
@@ -89,8 +102,9 @@ class DziesiatkaApp extends StatelessWidget {
         builder: (context, child) => PhoneFrame(child: child!),
         home: showWelcome
             ? Builder(
-                builder: (context) =>
-                    WelcomeScreen(onFinished: () => _finishWelcome(context)),
+                builder: (context) => WelcomeScreen(
+                  onFinished: () => _openFavoriteCategories(context),
+                ),
               )
             : _buildHome(),
       ),

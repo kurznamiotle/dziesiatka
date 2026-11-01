@@ -23,8 +23,7 @@ const _particleColors = [
   Color(0xFFEF4444),
 ];
 
-/// Bursts over the finished day and removes itself. It never takes a touch, so
-/// nobody has to wait for it to end.
+/// Bursts over the finished day and removes itself, or sooner when tapped.
 class CelebrationOverlay extends StatefulWidget {
   const CelebrationOverlay({
     super.key,
@@ -84,7 +83,9 @@ class _CelebrationOverlayState extends State<CelebrationOverlay>
   @override
   Widget build(BuildContext context) {
     final showParticles = !MediaQuery.of(context).disableAnimations;
-    return IgnorePointer(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onFinished,
       child: FadeTransition(
         opacity: _fadeOut,
         child: Stack(

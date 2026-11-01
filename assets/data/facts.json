@@ -907,5 +907,1335 @@
       "correctIndex": 1
     },
     "createdAt": "2026-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-151",
+    "title": "Klocki z Moskwy",
+    "category": "Popkultura & Gry",
+    "shortText": "Tetris powstał w 1984 roku w radzieckiej akademii nauk.",
+    "longText": "Aleksiej Pażytnow napisał grę w moskiewskim ośrodku komputerowym, testując możliwości maszyny Elektronika 60.\n\nNazwa łączy słowo „tetra”, bo każdy klocek ma cztery pola, z „tenisem”, ulubionym sportem autora.",
+    "sourceLabel": "Wikipedia, „Tetris”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Tetris",
+    "quiz": {
+      "question": "Od czego pochodzi końcówka nazwy Tetris?",
+      "options": [
+        "Od tenisa",
+        "Od terminala",
+        "Od turnieju"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-152",
+    "title": "Puck zamiast Pac",
+    "category": "Popkultura & Gry",
+    "shortText": "Pac-Man miał się nazywać Puck Man. Bano się jednak żartownisiów.",
+    "longText": "Tak nazywała się japońska wersja z 1980 roku. Przed wejściem na rynek amerykański nazwę zmieniono.\n\nWydawca obawiał się, że wandale dorysują na automatach jedną kreskę i zmienią literę P w F.",
+    "sourceLabel": "Wikipedia, „Pac-Man”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Pac-Man",
+    "quiz": {
+      "question": "Czego obawiano się przy nazwie Puck Man?",
+      "options": [
+        "Sporu z ligą hokejową",
+        "Przeróbek na automatach",
+        "Trudnej wymowy"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-153",
+    "title": "Hydraulik, który był cieślą",
+    "category": "Popkultura & Gry",
+    "shortText": "Mario zadebiutował w 1981 roku jako cieśla o imieniu Jumpman.",
+    "longText": "W grze Donkey Kong bohater nie był jeszcze hydraulikiem ani nie nazywał się Mario.\n\nImię dostał później, od Mario Segale, właściciela magazynu wynajmowanego przez amerykański oddział Nintendo.",
+    "sourceLabel": "Wikipedia, „Mario”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mario",
+    "quiz": {
+      "question": "Po kim Mario odziedziczył imię?",
+      "options": [
+        "Po wynalazcy konsoli",
+        "Po synu twórcy",
+        "Po właścicielu magazynu"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-154",
+    "title": "Starsze niż samochód",
+    "category": "Popkultura & Gry",
+    "shortText": "Nintendo powstało w 1889 roku jako producent kart do gry.",
+    "longText": "Firma założona w Kioto robiła ręcznie malowane karty hanafuda.\n\nPrzez dekady próbowała różnych biznesów, zanim w latach 70. XX wieku na dobre weszła w gry elektroniczne.",
+    "sourceLabel": "Wikipedia, „Nintendo”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Nintendo",
+    "quiz": {
+      "question": "Co Nintendo produkowało na początku?",
+      "options": [
+        "Karty do gry",
+        "Zabawki z drewna",
+        "Zegarki"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-155",
+    "title": "Wiedźmin z konkursu",
+    "category": "Popkultura & Gry",
+    "shortText": "Wiedźmin narodził się w 1986 roku jako opowiadanie na konkurs.",
+    "longText": "Andrzej Sapkowski wysłał tekst do konkursu miesięcznika „Fantastyka” i zajął trzecie miejsce.\n\nDwie dekady później, w 2007 roku, CD Projekt wydał pierwszą grę o Geralcie, a seria stała się światowym hitem.",
+    "sourceLabel": "Wikipedia, „Wiedźmin”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Wiedźmin",
+    "quiz": {
+      "question": "Gdzie po raz pierwszy ukazał się Wiedźmin?",
+      "options": [
+        "W radiu",
+        "W miesięczniku „Fantastyka”",
+        "W grze komputerowej"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-156",
+    "title": "Gra wszech czasów",
+    "category": "Popkultura & Gry",
+    "shortText": "Minecraft to najlepiej sprzedająca się gra wideo w historii.",
+    "longText": "Sprzedano ponad 300 milionów kopii. Żadna inna gra nie osiągnęła takiego wyniku.\n\nZaczął ją samodzielnie Szwed Markus Persson. W 2014 roku jego studio Mojang kupił Microsoft za 2,5 miliarda dolarów.",
+    "sourceLabel": "Wikipedia, „Minecraft”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Minecraft",
+    "quiz": {
+      "question": "Kto kupił studio Mojang?",
+      "options": [
+        "Sony",
+        "Nintendo",
+        "Microsoft"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-157",
+    "title": "Gra przeciw monopolom",
+    "category": "Popkultura & Gry",
+    "shortText": "Pierwowzór Monopoly miał ostrzegać przed monopolami.",
+    "longText": "Lizzie Magie opatentowała w 1904 roku The Landlord's Game, by pokazać, jak skupianie ziemi w jednych rękach szkodzi innym.\n\nDopiero po latach gra w zmienionej wersji trafiła do wydawnictwa Parker Brothers jako Monopoly.",
+    "sourceLabel": "Wikipedia, „Monopoly”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Monopoly_(game)",
+    "quiz": {
+      "question": "Co miał pokazywać pierwowzór Monopoly?",
+      "options": [
+        "Szkody z monopoli",
+        "Zasady giełdy",
+        "Historię kolei"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-158",
+    "title": "Słowa, które nie padły",
+    "category": "Popkultura & Gry",
+    "shortText": "Sherlock Holmes nie mówi w książkach „Elementarne, drogi Watsonie”.",
+    "longText": "W opowiadaniach Arthura Conana Doyle'a detektyw używa osobno słowa „elementarne” i zwrotu „mój drogi Watsonie”, ale nigdy razem.\n\nSłynne zdanie rozpowszechniły późniejsze adaptacje.",
+    "sourceLabel": "Wikipedia, „Sherlock Holmes”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Sherlock_Holmes",
+    "quiz": {
+      "question": "Skąd wzięło się słynne zdanie Holmesa?",
+      "options": [
+        "Z listu Doyle'a",
+        "Z późniejszych adaptacji",
+        "Z pierwszej powieści"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-159",
+    "title": "Zdanie, które wszyscy mylą",
+    "category": "Popkultura & Gry",
+    "shortText": "Darth Vader nigdy nie mówi „Luke, jestem twoim ojcem”.",
+    "longText": "W filmie „Imperium kontratakuje” pada: „Nie, to ja jestem twoim ojcem”. Imię Luke'a w tej kwestii się nie pojawia.\n\nTo przykład zbiorowego błędu pamięci. Miliony ludzi pamiętają cytat, którego nie ma.",
+    "sourceLabel": "Wikipedia, „Darth Vader”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Darth_Vader",
+    "quiz": {
+      "question": "Czego brakuje w prawdziwej kwestii Vadera?",
+      "options": [
+        "Słowa „ojcem”",
+        "Imienia Luke",
+        "Słowa „jestem”"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-160",
+    "title": "Pierwszy cały z komputera",
+    "category": "Popkultura & Gry",
+    "shortText": "„Toy Story” z 1995 roku to pierwszy pełnometrażowy film w całości z komputera.",
+    "longText": "Pixar wyprodukował go we współpracy z Disneyem. Przygotowanie obrazu na ekran wymagało ogromnej mocy obliczeniowej.\n\nReżyser John Lasseter otrzymał za ten film specjalnego Oscara.",
+    "sourceLabel": "Wikipedia, „Toy Story”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Toy_Story",
+    "quiz": {
+      "question": "Które studio stworzyło „Toy Story”?",
+      "options": [
+        "DreamWorks",
+        "Warner Bros.",
+        "Pixar"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-161",
+    "title": "Udziały za 800 dolarów",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Trzeci współzałożyciel Apple sprzedał swoje udziały za 800 dolarów.",
+    "longText": "Ronald Wayne miał 10 procent firmy, ale wycofał się po niespełna dwóch tygodniach, w 1976 roku, bojąc się ryzyka.\n\nTyle udziałów byłoby dziś warte setki miliardów dolarów.",
+    "sourceLabel": "Wikipedia, „Ronald Wayne”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Ronald_Wayne",
+    "quiz": {
+      "question": "Ile procent Apple miał Ronald Wayne?",
+      "options": [
+        "10",
+        "50",
+        "1"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-162",
+    "title": "Telefony z papierni",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Nokia zaczynała w 1865 roku jako papiernia w Finlandii.",
+    "longText": "Założył ją inżynier Fredrik Idestam. Nazwa pochodzi od miejscowości, w której działała druga fabryka.\n\nPóźniej firma połączyła się z producentami gumy i kabli. Telefony przyszły dużo później.",
+    "sourceLabel": "Wikipedia, „Nokia”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Nokia",
+    "quiz": {
+      "question": "Od czego zaczynała się Nokia?",
+      "options": [
+        "Od kabli",
+        "Od papierni",
+        "Od radia"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-163",
+    "title": "Pięć dolarów dziennie",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Henry Ford w 1914 roku niemal podwoił pensje robotników.",
+    "longText": "Dniówka wzrosła z około 2,34 do 5 dolarów. Fabryka zmagała się z tym, że ludzie masowo odchodzili od taśmy.\n\nRotacja spadła, a część pracowników mogła odtąd kupić auta, które sama budowała.",
+    "sourceLabel": "Wikipedia, „Henry Ford”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Henry_Ford",
+    "quiz": {
+      "question": "Jaki problem rozwiązywała podwyżka Forda?",
+      "options": [
+        "Brak stali",
+        "Podatki",
+        "Masowe odejścia pracowników"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-164",
+    "title": "Cebulka za dom",
+    "category": "Biznes & Pieniądze",
+    "shortText": "W 1637 roku w Holandii rzadkie cebulki tulipanów kosztowały fortunę.",
+    "longText": "Na szczycie gorączki najdroższe odmiany osiągały ponad dziesięciokrotność rocznej pensji rzemieślnika. Potem ceny runęły.\n\nTulipomania to pierwsza słynna bańka spekulacyjna, choć historycy spierają się o jej realną skalę.",
+    "sourceLabel": "Wikipedia, „Tulipomania”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Tulipomania",
+    "quiz": {
+      "question": "Czym stała się tulipomania w historii ekonomii?",
+      "options": [
+        "Słynną bańką spekulacyjną",
+        "Pierwszym podatkiem",
+        "Początkiem giełdy pracy"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-165",
+    "title": "Aptekarski napój",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Coca-Colę wymyślił w 1886 roku aptekarz z Atlanty.",
+    "longText": "John Pemberton sprzedawał ją w drogerii jako napój z saturatora, po pięć centów za szklankę.\n\nPrawa do receptury przejął później biznesmen Asa Candler i to on zbudował z niej globalną markę.",
+    "sourceLabel": "Wikipedia, „Coca-Cola”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Coca-Cola",
+    "quiz": {
+      "question": "Kim z zawodu był twórca Coca-Coli?",
+      "options": [
+        "Piekarzem",
+        "Aptekarzem",
+        "Nauczycielem"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-166",
+    "title": "Prawie Cadabra",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Amazon miał nazywać się Cadabra.",
+    "longText": "Jeff Bezos zarejestrował tę nazwę w 1994 roku, ale prawnik przez telefon usłyszał „cadaver”, czyli zwłoki.\n\nNową nazwę wybrano po największej rzece świata, a przy okazji zaczynała się na literę A.",
+    "sourceLabel": "Wikipedia, „Amazon”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Amazon_(company)",
+    "quiz": {
+      "question": "Jak prawnik usłyszał nazwę Cadabra?",
+      "options": [
+        "Jako „kadencja”",
+        "Jako „kolumbia”",
+        "Jako „zwłoki”"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-167",
+    "title": "Sto bilionów na chleb",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Zimbabwe wydrukowało w 2009 roku banknot o nominale 100 bilionów dolarów.",
+    "longText": "Hiperinflacja była tak wielka, że ceny potrafiły się podwajać co około dobę.\n\nBanknot nie wystarczał na wiele, a kraj porzucił w końcu własną walutę na rzecz obcych.",
+    "sourceLabel": "Wikipedia, „Hyperinflation in Zimbabwe”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Hyperinflation_in_Zimbabwe",
+    "quiz": {
+      "question": "Co spowodowało druk tak wysokich nominałów?",
+      "options": [
+        "Hiperinflacja",
+        "Odkrycie złota",
+        "Reforma podatkowa"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-168",
+    "title": "Zapomniany portfel",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Karta Diners Club z 1950 roku miała powstać przez zapomniany portfel.",
+    "longText": "Według firmowej legendy Frank McNamara nie mógł zapłacić w restauracji i wpadł na pomysł karty.\n\nByła z tektury, działała w kilkunastu nowojorskich lokalach i otworzyła drogę dzisiejszym kartom płatniczym.",
+    "sourceLabel": "Wikipedia, „Diners Club International”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Diners_Club_International",
+    "quiz": {
+      "question": "Z czego była pierwsza karta Diners Club?",
+      "options": [
+        "Z metalu",
+        "Z tektury",
+        "Z plastiku"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-169",
+    "title": "Oficer z wielorybniczego statku",
+    "category": "Biznes & Pieniądze",
+    "shortText": "Nazwa Starbucks pochodzi z powieści „Moby Dick”.",
+    "longText": "Założyciele szukali morskiego skojarzenia. Odrzucili Pequod, czyli nazwę statku, i wybrali pierwszego oficera, Starbucka.\n\nMorski motyw został też w logo, na którym widnieje dwuogoniasta syrena.",
+    "sourceLabel": "Wikipedia, „Starbucks”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Starbucks",
+    "quiz": {
+      "question": "Kim jest Starbuck w „Moby Dicku”?",
+      "options": [
+        "Kapitanem",
+        "Kucharzem",
+        "Pierwszym oficerem"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-170",
+    "title": "Złoty za 1,8 miliona",
+    "category": "Biznes & Pieniądze",
+    "shortText": "W 1924 roku jeden złoty zastąpił 1,8 miliona marek polskich.",
+    "longText": "Reforma premiera Władysława Grabskiego zakończyła hiperinflację po pierwszej wojnie światowej.\n\nPowstał też Bank Polski, który przejął emisję pieniądza.",
+    "sourceLabel": "Wikipedia, „Reforma walutowa Władysława Grabskiego”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Reforma_walutowa_Władysława_Grabskiego",
+    "quiz": {
+      "question": "Co zastąpił złoty w 1924 roku?",
+      "options": [
+        "Markę polską",
+        "Rubla",
+        "Koronę"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-171",
+    "title": "Dlaczego cebula szczypie",
+    "category": "Zagadki Codzienności",
+    "shortText": "Krojona cebula wysyła w stronę oczu drażniący gaz.",
+    "longText": "Nóż uszkadza komórki i uwalnia enzymy, które tworzą lotny związek o nazwie syn-propanotial-S-tlenek.\n\nGdy dociera do oka, nerwy reagują jak na podrażnienie, a łzy próbują go spłukać.",
+    "sourceLabel": "Wikipedia, „Syn-Propanethial-S-oxide”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Syn-Propanethial-S-oxide",
+    "quiz": {
+      "question": "Co wywołuje łzy przy krojeniu cebuli?",
+      "options": [
+        "Lotny związek z komórek",
+        "Sok cebuli na palcach",
+        "Ostrość noża"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-172",
+    "title": "Dlaczego niebo jest niebieskie",
+    "category": "Zagadki Codzienności",
+    "shortText": "Powietrze rozprasza niebieskie światło znacznie silniej niż czerwone.",
+    "longText": "To rozpraszanie Rayleigha: im krótsza fala, tym mocniej odbijają ją cząsteczki powietrza.\n\nO zachodzie światło przechodzi przez grubszą warstwę atmosfery, niebieski ginie po drodze i zostają czerwienie.",
+    "sourceLabel": "Wikipedia, „Rozpraszanie Rayleigha”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Rozpraszanie_Rayleigha",
+    "quiz": {
+      "question": "Które światło powietrze rozprasza mocniej?",
+      "options": [
+        "Czerwone",
+        "Niebieskie",
+        "Żółte"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-173",
+    "title": "Morze w muszli",
+    "category": "Zagadki Codzienności",
+    "shortText": "Szum w muszli to nie morze, tylko dźwięki z otoczenia.",
+    "longText": "Wnętrze muszli działa jak pudło rezonansowe: wzmacnia wybrane częstotliwości cichego hałasu wokół nas.\n\nPodobny szum usłyszysz, przykładając do ucha kubek lub złożoną dłoń.",
+    "sourceLabel": "Wikipedia, „Seashell resonance”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Seashell_resonance",
+    "quiz": {
+      "question": "Co naprawdę słychać w muszli?",
+      "options": [
+        "Ciśnienie w krwi",
+        "Zapis fal",
+        "Wzmocnione dźwięki otoczenia"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-174",
+    "title": "Palce po kąpieli",
+    "category": "Zagadki Codzienności",
+    "shortText": "Marszczenie palców w wodzie jest sterowane przez układ nerwowy.",
+    "longText": "Skóra nie nasiąka po prostu wodą: naczynia krwionośne się obkurczają. Przy uszkodzonych nerwach palce się nie marszczą.\n\nJedna z hipotez mówi, że pomarszczone palce pewniej chwytają mokre przedmioty.",
+    "sourceLabel": "Wikipedia, „Wrinkle”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Wrinkle",
+    "quiz": {
+      "question": "Co odpowiada za marszczenie palców w wodzie?",
+      "options": [
+        "Układ nerwowy",
+        "Sama woda w skórze",
+        "Temperatura mydła"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-175",
+    "title": "Trzask kostek",
+    "category": "Zagadki Codzienności",
+    "shortText": "Strzelanie kostkami nie jest łamaniem, tylko efektem gazu w stawie.",
+    "longText": "Rozciąganie stawu obniża ciśnienie w mazi stawowej i powstaje w niej pęcherz gazu. Badanie MRI z 2015 roku pokazało to na żywo.\n\nBadania nie potwierdzają, że ten nawyk powoduje zapalenie stawów.",
+    "sourceLabel": "Wikipedia, „Joint cracking”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Joint_cracking",
+    "quiz": {
+      "question": "Co powstaje w stawie przy strzelaniu kostkami?",
+      "options": [
+        "Pęknięcie chrząstki",
+        "Pęcherz gazu",
+        "Ciepło"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-176",
+    "title": "Prawo spadającego tosta",
+    "category": "Zagadki Codzienności",
+    "shortText": "Tost spada zwykle masłem w dół przez wysokość stołu.",
+    "longText": "Fizyk Robert Matthews wykazał, że ze stołu tost zdąży wykonać tylko pół obrotu, więc ląduje na posmarowanej stronie.\n\nZa tę pracę otrzymał w 1996 roku żartobliwą Nagrodę Ig Nobla.",
+    "sourceLabel": "Wikipedia, „List of Ig Nobel Prize winners”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/List_of_Ig_Nobel_Prize_winners",
+    "quiz": {
+      "question": "Co głównie decyduje o lądowaniu tosta?",
+      "options": [
+        "Grubość masła",
+        "Pole magnetyczne",
+        "Wysokość stołu"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-177",
+    "title": "Księżyc przy horyzoncie",
+    "category": "Zagadki Codzienności",
+    "shortText": "Księżyc nisko nad horyzontem tylko wydaje się większy.",
+    "longText": "Na zdjęciach ma praktycznie tę samą wielkość, co wysoko na niebie. To złudzenie powstaje w mózgu.\n\nWyjaśnienia wciąż są przedmiotem sporów. Znane jest od starożytności.",
+    "sourceLabel": "Wikipedia, „Moon illusion”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Moon_illusion",
+    "quiz": {
+      "question": "Gdzie powstaje iluzja większego Księżyca?",
+      "options": [
+        "W mózgu",
+        "W atmosferze",
+        "W obiektywie"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-178",
+    "title": "Ziewanie się przenosi",
+    "category": "Zagadki Codzienności",
+    "shortText": "Ziewanie bywa zaraźliwe, nawet z człowieka na psa.",
+    "longText": "Wiele osób ziewa, gdy widzi ziewającego, a nawet gdy o tym czyta. Podobną reakcję opisano u szympansów i psów.\n\nNie ma jednej pewnej odpowiedzi, po co ziewamy. Hipotezy łączą to m.in. z chłodzeniem mózgu i empatią.",
+    "sourceLabel": "Wikipedia, „Yawn”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Yawn",
+    "quiz": {
+      "question": "Na które zwierzę może przejść ziewanie od człowieka?",
+      "options": [
+        "Na rybę",
+        "Na psa",
+        "Na żółwia"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-179",
+    "title": "Jak powstaje popcorn",
+    "category": "Zagadki Codzienności",
+    "shortText": "Ziarno kukurydzy eksploduje przez parę uwięzioną w środku.",
+    "longText": "Woda w ziarnie paruje, a twarda łupina trzyma ciśnienie. Pęka przy około 180 stopniach Celsjusza.\n\nSkrobia błyskawicznie wypływa, stygnie i tworzy puszysty kształt.",
+    "sourceLabel": "Wikipedia, „Popcorn”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Popcorn",
+    "quiz": {
+      "question": "Co rozsadza ziarno popcornu?",
+      "options": [
+        "Tłuszcz",
+        "Sól",
+        "Para wodna"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-180",
+    "title": "Lustro nie zamienia stron",
+    "category": "Zagadki Codzienności",
+    "shortText": "Lustro nie odwraca lewej i prawej, tylko przód z tyłem.",
+    "longText": "Podnieś prawą rękę: odbicie podniesie rękę po tej samej stronie. Odwrócona jest oś prostopadła do lustra.\n\nMamy wrażenie zamiany, bo wyobrażamy sobie, że stoimy za szybą i patrzymy w drugą stronę.",
+    "sourceLabel": "Wikipedia, „Mirror image”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mirror_image",
+    "quiz": {
+      "question": "Którą oś naprawdę odwraca lustro?",
+      "options": [
+        "Przód i tył",
+        "Górę i dół",
+        "Lewą i prawą"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-181",
+    "title": "Miód bez daty ważności",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Dobrze przechowywany miód praktycznie się nie psuje.",
+    "longText": "Ma mało wody, jest kwaśny i zawiera dużo cukru, więc bakterie nie mogą się w nim rozwijać.\n\nArcheolodzy znajdowali w starożytnych egipskich grobowcach miód sprzed tysięcy lat.",
+    "sourceLabel": "Wikipedia, „Honey”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Honey",
+    "quiz": {
+      "question": "Gdzie znajdowano bardzo stary miód?",
+      "options": [
+        "W egipskich grobowcach",
+        "W rzymskich okrętach",
+        "W lodowcach"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-182",
+    "title": "Kości znikają",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Noworodek ma więcej kości niż dorosły.",
+    "longText": "Niemowlę ma ich około 270, a dorosły 206. Nie giną: z wiekiem wiele się ze sobą zrasta.\n\nDotyczy to m.in. kości czaszki i kręgosłupa.",
+    "sourceLabel": "Wikipedia, „Human skeleton”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Human_skeleton",
+    "quiz": {
+      "question": "Ile kości ma dorosły człowiek?",
+      "options": [
+        "106",
+        "206",
+        "306"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-183",
+    "title": "Banan to jagoda",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Banan jest jagodą w sensie botanicznym, a truskawka nie.",
+    "longText": "Jagoda powstaje z jednego słupka kwiatu i ma nasiona w miękkim miąższu. Tak jest w bananie, pomidorze i winogronie.\n\nTruskawka to owoc rzekomy: mięsista część powstaje z dna kwiatowego, a owocami są żółte pestki.",
+    "sourceLabel": "Wikipedia, „Berry (botany)”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Berry_(botany)",
+    "quiz": {
+      "question": "Co jest prawdziwymi owocami truskawki?",
+      "options": [
+        "Listki",
+        "Czerwony miąższ",
+        "Żółte pestki"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-184",
+    "title": "Ptaki nie czują chili",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Dla ptaków papryczki chili wcale nie są ostre.",
+    "longText": "Kapsaicyna działa na receptory ssaków. U ptaków ich odpowiednik na nią nie reaguje.\n\nTaki układ pomaga roślinie, bo ptaki rozsiewają jej nasiona, a ssaki trzyma z daleka.",
+    "sourceLabel": "Wikipedia, „Capsaicin”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Capsaicin",
+    "quiz": {
+      "question": "Który związek odpowiada za ostrość chili?",
+      "options": [
+        "Kapsaicyna",
+        "Kofeina",
+        "Glukoza"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-185",
+    "title": "Marchew nie zawsze pomarańczowa",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Dawne uprawne marchwie były często fioletowe lub żółte.",
+    "longText": "Trwałą pomarańczową odmianę wyhodowali Holendrzy, a stała się ona popularna na przełomie XVII i XVIII wieku.\n\nPopularna historia, że wyhodowano je na cześć dynastii Orańskiej, nie ma mocnych dowodów.",
+    "sourceLabel": "Wikipedia, „Carrot”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Carrot",
+    "quiz": {
+      "question": "Gdzie upowszechniła się pomarańczowa marchew?",
+      "options": [
+        "W Polsce",
+        "W Holandii",
+        "W Japonii"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-186",
+    "title": "Mózg łasuch",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Mózg to około 2 procent masy ciała, a zużywa 20 procent energii.",
+    "longText": "Spoczynkowy mózg dorosłego człowieka pobiera mniej więcej jedną piątą energii organizmu.\n\nWiększość idzie na utrzymanie sygnałów między komórkami nerwowymi. Pracuje nawet we śnie.",
+    "sourceLabel": "Wikipedia, „Human brain”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Human_brain",
+    "quiz": {
+      "question": "Jaką część energii organizmu zużywa mózg?",
+      "options": [
+        "Około 5 procent",
+        "Około 50 procent",
+        "Około 20 procent"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-187",
+    "title": "Smak mieszka w nosie",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Większość tego, co nazywamy smakiem, to w istocie zapach.",
+    "longText": "Język rozróżnia tylko kilka smaków podstawowych. Bogactwo aromatów dociera do nosa od strony gardła.\n\nDlatego przy katarze jedzenie wydaje się mdłe. Zatkaj nos, a trudniej rozpoznasz jogurt po smaku.",
+    "sourceLabel": "Wikipedia, „Flavor”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Flavor",
+    "quiz": {
+      "question": "Dlaczego jedzenie przy katarze jest mdłe?",
+      "options": [
+        "Nie czujemy zapachów",
+        "Język drętwieje",
+        "Spada cukier"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-188",
+    "title": "Ketchup z apteki",
+    "category": "Ciało & Jedzenie",
+    "shortText": "W latach 30. XIX wieku ketchup sprzedawano jako lekarstwo.",
+    "longText": "Amerykański lekarz John Cook Bennett przekonywał, że pomidory pomagają przy kłopotach z trawieniem.\n\nEkstrakt sprzedawano potem jako pigułki pomidorowe, a moda szybko zgasła.",
+    "sourceLabel": "Wikipedia, „John C. Bennett”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/John_C._Bennett",
+    "quiz": {
+      "question": "Jak sprzedawano ketchup w XIX-wiecznej modzie?",
+      "options": [
+        "Jako paliwo",
+        "Jako lekarstwo",
+        "Jako farbę"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-189",
+    "title": "Długa droga",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Jelito cienkie człowieka ma około sześciu metrów długości.",
+    "longText": "Mieści się w brzuchu, bo jest wielokrotnie pofałdowane.\n\nTo tu wchłania się większość składników pokarmu. Fałdy i kosmki bardzo zwiększają jego powierzchnię.",
+    "sourceLabel": "Wikipedia, „Small intestine”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Small_intestine",
+    "quiz": {
+      "question": "Co zwiększa powierzchnię jelita cienkiego?",
+      "options": [
+        "Tłuszcz",
+        "Włókna mięśni",
+        "Fałdy i kosmki"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-190",
+    "title": "Sto tysięcy uderzeń",
+    "category": "Ciało & Jedzenie",
+    "shortText": "Serce uderza około 100 tysięcy razy na dobę.",
+    "longText": "Przy spoczynkowym tętnie około 70 uderzeń na minutę daje to ponad 2,5 miliarda skurczów w ciągu długiego życia.\n\nMa własny rozrusznik: węzeł zatokowy, który wysyła impulsy bez polecenia z mózgu.",
+    "sourceLabel": "Wikipedia, „Heart”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Heart",
+    "quiz": {
+      "question": "Co wysyła impulsy pobudzające serce?",
+      "options": [
+        "Węzeł zatokowy",
+        "Płuca",
+        "Rdzeń kręgowy"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-191",
+    "title": "Najwięcej stref czasowych",
+    "category": "Geografia & Miejsca",
+    "shortText": "Rekordzistką stref czasowych jest Francja, nie Rosja.",
+    "longText": "Rosja ma ich 11, ale Francja dzięki terytoriom zamorskim, od Polinezji po Nową Kaledonię, aż 12.\n\nLicząc roszczenia na Antarktydzie, nawet 13.",
+    "sourceLabel": "Wikipedia, „Time in France”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Time_in_France",
+    "quiz": {
+      "question": "Dlaczego Francja ma tyle stref czasowych?",
+      "options": [
+        "Przez terytoria zamorskie",
+        "Przez ustawę o czasie",
+        "Przez kształt Alp"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-192",
+    "title": "Kraj mniejszy niż park",
+    "category": "Geografia & Miejsca",
+    "shortText": "Watykan ma tylko około 0,44 kilometra kwadratowego.",
+    "longText": "To najmniejsze państwo świata. Mieści się w całości w Rzymie.\n\nMa własne znaczki, radio i Gwardię Szwajcarską, a jego mieszkańców jest kilkuset.",
+    "sourceLabel": "Wikipedia, „Watykan”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Watykan",
+    "quiz": {
+      "question": "W jakim mieście leży Watykan?",
+      "options": [
+        "W Mediolanie",
+        "W Rzymie",
+        "W Wenecji"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-193",
+    "title": "Jedna piąta słodkiej wody",
+    "category": "Geografia & Miejsca",
+    "shortText": "Bajkał to najgłębsze jezioro świata, głębokie na ponad 1600 metrów.",
+    "longText": "Syberyjskie jezioro mieści około jednej piątej niezamarzniętej słodkiej wody na powierzchni Ziemi.\n\nŻyje w nim nerpa bajkalska, jedyny gatunek foki spędzający całe życie w słodkiej wodzie.",
+    "sourceLabel": "Wikipedia, „Bajkał”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Bajkał",
+    "quiz": {
+      "question": "Jakie zwierzę słynie z życia w Bajkale?",
+      "options": [
+        "Delfin",
+        "Mors",
+        "Foka"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-194",
+    "title": "Wyżej niż Everest",
+    "category": "Geografia & Miejsca",
+    "shortText": "Punkt najdalszy od środka Ziemi to szczyt Chimborazo, a nie Mount Everest.",
+    "longText": "Ziemia jest spłaszczona i wybrzuszona na równiku. Dlatego ekwadorski wulkan sięga dalej w kosmos, choć mierzy tylko około 6263 metrów.\n\nEverest pozostaje najwyższy licząc od poziomu morza.",
+    "sourceLabel": "Wikipedia, „Chimborazo”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Chimborazo",
+    "quiz": {
+      "question": "W jakim kraju leży Chimborazo?",
+      "options": [
+        "W Ekwadorze",
+        "W Peru",
+        "W Chile"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-195",
+    "title": "Góra w oceanie",
+    "category": "Geografia & Miejsca",
+    "shortText": "Mauna Kea liczona od podstawy ma ponad 10 kilometrów.",
+    "longText": "Hawajski wulkan zaczyna się na dnie Pacyfiku, więc większa jego część jest pod wodą.\n\nNad poziomem morza mierzy około 4207 metrów, ale od podstawy do szczytu wyprzedza Everest.",
+    "sourceLabel": "Wikipedia, „Mauna Kea”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Mauna_Kea",
+    "quiz": {
+      "question": "Gdzie jest większa część Mauna Kea?",
+      "options": [
+        "W chmurach",
+        "Pod wodą",
+        "Pod lodowcem"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-196",
+    "title": "Najniżej na lądzie",
+    "category": "Geografia & Miejsca",
+    "shortText": "Brzeg Morza Martwego leży ponad 400 metrów poniżej poziomu morza.",
+    "longText": "To najniższy punkt na lądzie. Woda jest tam prawie dziesięć razy bardziej słona niż w oceanie.\n\nDuże stężenie soli sprawia, że człowiek unosi się na niej bez wysiłku.",
+    "sourceLabel": "Wikipedia, „Morze Martwe”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Morze_Martwe",
+    "quiz": {
+      "question": "Dlaczego łatwo unosić się w Morzu Martwym?",
+      "options": [
+        "Woda jest ciepła",
+        "Nie ma fal",
+        "Woda jest bardzo słona"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-197",
+    "title": "Ziemia niczyja",
+    "category": "Geografia & Miejsca",
+    "shortText": "Bir Tawil to pustynny obszar, którego nie chce żaden kraj.",
+    "longText": "Leży między Egiptem a Sudanem i ma około 2000 kilometrów kwadratowych. Dwa rozbieżne wytyczenia granic stworzyły paradoks.\n\nOba państwa roszczą sobie prawo do sąsiedniego, cenniejszego trójkąta Halaib, a przyjęcie Bir Tawil oznaczałoby jego utratę.",
+    "sourceLabel": "Wikipedia, „Bir Tawil”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bir_Tawil",
+    "quiz": {
+      "question": "Między jakimi krajami leży Bir Tawil?",
+      "options": [
+        "Egiptem i Sudanem",
+        "Libią i Czadem",
+        "Syrią i Irakiem"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-198",
+    "title": "Kraj w kraju",
+    "category": "Geografia & Miejsca",
+    "shortText": "Lesotho jest w całości otoczone przez Republikę Południowej Afryki.",
+    "longText": "To jedno z zaledwie trzech państw całkowicie otoczonych przez inne. Pozostałe to Watykan i San Marino.\n\nJest wysoko położone: cały jego teren leży ponad 1000 metrów nad poziomem morza.",
+    "sourceLabel": "Wikipedia, „Lesotho”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Lesotho",
+    "quiz": {
+      "question": "Które państwo otacza Lesotho?",
+      "options": [
+        "Namibia",
+        "RPA",
+        "Botswana"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-199",
+    "title": "Miasto na dwóch kontynentach",
+    "category": "Geografia & Miejsca",
+    "shortText": "Stambuł leży jednocześnie w Europie i Azji.",
+    "longText": "Dzieli go cieśnina Bosfor. Mosty łączą obie części, a pod wodą biegnie też tunel kolejowy.\n\nMiasto nazywało się kolejno Bizancjum i Konstantynopol.",
+    "sourceLabel": "Wikipedia, „Stambuł”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Stambuł",
+    "quiz": {
+      "question": "Jak nazywa się cieśnina dzieląca Stambuł?",
+      "options": [
+        "Gibraltar",
+        "Skagerrak",
+        "Bosfor"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-200",
+    "title": "Najdłuższy szyld",
+    "category": "Geografia & Miejsca",
+    "shortText": "Walijska wioska ma w nazwie 58 liter.",
+    "longText": "Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch to w dużej mierze wymysł z XIX wieku, który miał przyciągać turystów.\n\nMieszkańcy zwykle skracają ją do Llanfairpwll, a stacja kolejowa to atrakcja dla fotografów.",
+    "sourceLabel": "Wikipedia, „Llanfairpwllgwyngyll”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Llanfairpwllgwyngyll",
+    "quiz": {
+      "question": "Po co wydłużono tę nazwę w XIX wieku?",
+      "options": [
+        "By przyciągać turystów",
+        "By wygrać zakład",
+        "Z powodu ustawy"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-201",
+    "title": "Podejrzany łosoś",
+    "category": "Absurdy Prawa",
+    "shortText": "W Wielkiej Brytanii zabronione jest obchodzenie się z łososiem w podejrzanych okolicznościach.",
+    "longText": "Tak brzmi nagłówek artykułu 32 ustawy Salmon Act z 1986 roku.\n\nChoć brzmi jak żart, chodzi o coś poważnego: walkę z handlem rybami z kłusownictwa.",
+    "sourceLabel": "Wikipedia, „Salmon Act 1986”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Salmon_Act_1986",
+    "quiz": {
+      "question": "Czemu naprawdę służy przepis o łososiu?",
+      "options": [
+        "Walce z kłusownictwem",
+        "Ochronie kucharzy",
+        "Regulacji restauracji"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-202",
+    "title": "Świnka nie może być sama",
+    "category": "Absurdy Prawa",
+    "shortText": "W Szwajcarii nie wolno trzymać pojedynczej świnki morskiej.",
+    "longText": "Przepisy o ochronie zwierząt uznają świnki za zwierzęta stadne, dlatego muszą mieć towarzystwo.\n\nPrawo idzie w tym dalej niż w większości krajów i obejmuje też inne zwierzęta towarzyskie.",
+    "sourceLabel": "Wikipedia, „Guinea pig”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Guinea_pig",
+    "quiz": {
+      "question": "Dlaczego świnka musi mieć towarzystwo?",
+      "options": [
+        "Bo inaczej ucieka",
+        "Bo to zwierzę stadne",
+        "Bo jest za mała"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-203",
+    "title": "Mandat od dochodu",
+    "category": "Absurdy Prawa",
+    "shortText": "W Finlandii mandat za prędkość zależy od zarobków.",
+    "longText": "To tzw. dniówki: kara rośnie wraz z dochodem. Menedżer Nokii zapłacił w 2002 roku około 116 tysięcy euro.\n\nSystem ma sprawić, by kara była równie dotkliwa dla każdego.",
+    "sourceLabel": "BBC News, „Nokia boss gets record speeding fine”",
+    "sourceUrl": "https://news.bbc.co.uk/2/hi/business/1759791.stm",
+    "quiz": {
+      "question": "Jak obliczany jest mandat w Finlandii?",
+      "options": [
+        "Od mocy auta",
+        "Od wieku",
+        "Od dochodu"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-204",
+    "title": "Dywan przed ósmą",
+    "category": "Absurdy Prawa",
+    "shortText": "W Londynie trzepanie dywanu na ulicy jest zakazane, ale wycieraczki można trzepać przed ósmą.",
+    "longText": "Przepis pochodzi z ustawy Metropolitan Police Act z 1839 roku, która wylicza dziesiątki uciążliwych zachowań.\n\nWiele z nich brzmi dziś jak ciekawostka z innej epoki.",
+    "sourceLabel": "Metropolitan Police Act 1839, art. 60",
+    "sourceUrl": "https://www.legislation.gov.uk/ukpga/Vict/2-3/47/section/60",
+    "quiz": {
+      "question": "Co wolno trzepać w Londynie przed ósmą?",
+      "options": [
+        "Wycieraczkę",
+        "Dywan",
+        "Kołdrę"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-205",
+    "title": "Nietrzeźwy z krową",
+    "category": "Absurdy Prawa",
+    "shortText": "Brytyjska ustawa zabrania bycia pijanym, gdy prowadzi się bydło.",
+    "longText": "Licensing Act z 1872 roku karze nietrzeźwość w miejscu publicznym, także w czasie opieki nad koniem, bydłem czy powozem.\n\nPrzepis wciąż obowiązuje, choć dziś rzadko kto prowadzi bydło ulicą.",
+    "sourceLabel": "Wikipedia, „Licensing Act 1872”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Licensing_Act_1872",
+    "quiz": {
+      "question": "Z którego roku jest ta ustawa?",
+      "options": [
+        "1972",
+        "1872",
+        "1772"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-206",
+    "title": "Zakaz umierania",
+    "category": "Absurdy Prawa",
+    "shortText": "Burmistrz francuskiego Le Lavandou zakazał w 2000 roku umierania na terenie miasta.",
+    "longText": "Gil Bernardi protestował tak przeciw decyzji sądu, która zablokowała budowę nowego cmentarza.\n\nZakaz nie był egzekwowany, a miał zwrócić uwagę na brak miejsc pochówku.",
+    "sourceLabel": "Wikipedia, „Le Lavandou”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Le_Lavandou",
+    "quiz": {
+      "question": "Czego zabrakło w Le Lavandou?",
+      "options": [
+        "Burmistrza",
+        "Lekarzy",
+        "Miejsc na cmentarzu"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-207",
+    "title": "Obwód pod kontrolą",
+    "category": "Absurdy Prawa",
+    "shortText": "W Japonii firmy i samorządy mierzą obwód pasa dorosłych.",
+    "longText": "Prawo z 2008 roku, zwane ustawą metabo, obejmuje osoby od 40 do 74 lat podczas corocznych badań.\n\nKto przekroczy limit, dostaje porady zdrowotne, a kary finansowe dotykają firm i samorządów, nie pacjentów.",
+    "sourceLabel": "Wikipedia, „Fat tax”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Fat_tax",
+    "quiz": {
+      "question": "Kto ponosi kary w ustawie metabo?",
+      "options": [
+        "Firmy i samorządy",
+        "Pacjenci",
+        "Lekarze"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-208",
+    "title": "Imię do zatwierdzenia",
+    "category": "Absurdy Prawa",
+    "shortText": "Na Islandii specjalny komitet decyduje, czy imię jest dozwolone.",
+    "longText": "Komitet nazewniczy sprawdza, czy imię pasuje do języka islandzkiego i jego gramatyki.\n\nBywają spory: w 2013 roku dziewczynka o imieniu Blær wygrała sprawę w sądzie po latach zapisywania jej jako „dziewczynka”.",
+    "sourceLabel": "Wikipedia, „Icelandic Naming Committee”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Icelandic_Naming_Committee",
+    "quiz": {
+      "question": "Kto decyduje o imionach na Islandii?",
+      "options": [
+        "Prezydent",
+        "Specjalny komitet",
+        "Kościół"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-209",
+    "title": "Liczba pi z ustawy",
+    "category": "Absurdy Prawa",
+    "shortText": "W 1897 roku stan Indiana prawie ustawowo zmienił wartość liczby pi.",
+    "longText": "Lekarz i matematyk amator Edward Goodwin twierdził, że rozwiązał kwadraturę koła. Izba niższa przyjęła projekt jednogłośnie.\n\nW senacie zatrzymał go przypadkiem przebywający tam matematyk, profesor C. A. Waldo.",
+    "sourceLabel": "Wikipedia, „Indiana pi bill”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Indiana_pi_bill",
+    "quiz": {
+      "question": "Kto powstrzymał ustawę o pi?",
+      "options": [
+        "Gubernator",
+        "Papież",
+        "Matematyk"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-210",
+    "title": "Bez zbroi w parlamencie",
+    "category": "Absurdy Prawa",
+    "shortText": "W brytyjskim parlamencie obowiązuje zakaz noszenia zbroi z 1313 roku.",
+    "longText": "Statut wydany za Edwarda II miał zapobiec zbrojnym zamieszkom podczas obrad.\n\nFormalnie nadal obowiązuje, choć raczej nikt go dziś nie narusza.",
+    "sourceLabel": "Wikipedia, „Statute forbidding Bearing of Armour”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Statute_forbidding_Bearing_of_Armour",
+    "quiz": {
+      "question": "Za którego króla wydano ten zakaz?",
+      "options": [
+        "Za Edwarda II",
+        "Za Henryka VIII",
+        "Za Jerzego III"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-211",
+    "title": "Małpa czy ślimak",
+    "category": "Język & Symbole",
+    "shortText": "Znak @ w wielu krajach ma zupełnie inną nazwę.",
+    "longText": "W Polsce to małpa, we Włoszech ślimak, a w Holandii małpi ogon.\n\nDo adresów e-mail wybrał go w 1971 roku Ray Tomlinson, bo prawie nie pojawiał się w imionach.",
+    "sourceLabel": "Wikipedia, „Małpa (znak pisarski)”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Małpa_(znak_pisarski)",
+    "quiz": {
+      "question": "Jak Włosi nazywają znak @?",
+      "options": [
+        "Ślimak",
+        "Kot",
+        "Łabędź"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-212",
+    "title": "Zanim był hashtag",
+    "category": "Język & Symbole",
+    "shortText": "Hashtagi wymyślił użytkownik Twittera, nie firma.",
+    "longText": "W 2007 roku Chris Messina zaproponował znak # do grupowania wpisów. Twitter początkowo nie był zachwycony.\n\nFachowa nazwa znaku to oktotorp.",
+    "sourceLabel": "Wikipedia, „Hashtag”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Hashtag",
+    "quiz": {
+      "question": "Kto zaproponował hashtagi?",
+      "options": [
+        "Założyciel Twittera",
+        "Użytkownik Chris Messina",
+        "Mark Zuckerberg"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-213",
+    "title": "Ukryte litery",
+    "category": "Język & Symbole",
+    "shortText": "Znak & to w rzeczywistości łacińskie słowo „et”.",
+    "longText": "Ampersand powstał jako połączenie liter e i t, czyli „i” po łacinie. W wielu krojach pisma nadal to widać.\n\nNazwa pochodzi od angielskiej recytacji alfabetu: „and per se and”.",
+    "sourceLabel": "Wikipedia, „Ampersand”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Ampersand",
+    "quiz": {
+      "question": "Jakie słowo kryje się w znaku &?",
+      "options": [
+        "Sed",
+        "Ad",
+        "Et"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-214",
+    "title": "Skrót z żartu",
+    "category": "Język & Symbole",
+    "shortText": "OK zaczęło się od celowej literówki w gazecie z 1839 roku.",
+    "longText": "W Bostonie modne były zabawne skróty. „O.K.” oznaczało „oll korrect”, czyli błędnie zapisane „all correct”.\n\nHistorię tę odtworzył językoznawca Allen Walker Read.",
+    "sourceLabel": "Wikipedia, „OK”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/OK",
+    "quiz": {
+      "question": "Co oznaczał skrót O.K. w gazecie?",
+      "options": [
+        "Oll korrect",
+        "Old king",
+        "Only kindness"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-215",
+    "title": "Emotikony z Japonii",
+    "category": "Język & Symbole",
+    "shortText": "Za ojca emoji uchodzi Japończyk, który narysował 176 ikonek.",
+    "longText": "Shigetaka Kurita przygotował je około 1999 roku dla mobilnego serwisu firmy NTT DoCoMo. Każda mieściła się w siatce 12 na 12 pikseli.\n\nDziś zestaw jest w kolekcji nowojorskiego Museum of Modern Art.",
+    "sourceLabel": "Wikipedia, „Emoji”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Emoji",
+    "quiz": {
+      "question": "Ile ikonek miał zestaw Kurity?",
+      "options": [
+        "17",
+        "176",
+        "1760"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-216",
+    "title": "Król w słuchawkach",
+    "category": "Język & Symbole",
+    "shortText": "Bluetooth nosi przydomek duńskiego króla z X wieku.",
+    "longText": "Harald Sinozęby zjednoczył plemiona Danii, tak jak technologia miała łączyć urządzenia.\n\nLogo to połączenie run oznaczających jego inicjały: H i B.",
+    "sourceLabel": "Wikipedia, „Bluetooth”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Bluetooth",
+    "quiz": {
+      "question": "Co przedstawia logo Bluetooth?",
+      "options": [
+        "Fale radiowe",
+        "Literę B i błyskawicę",
+        "Połączone runy"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-217",
+    "title": "Jedynka i zero",
+    "category": "Język & Symbole",
+    "shortText": "Symbol zasilania to połączone znaki 1 i 0.",
+    "longText": "Kreska oznacza włączenie, a okrąg wyłączenie. To skrót z zapisu dwójkowego, standaryzowany przez międzynarodową komisję elektrotechniczną.\n\nKółko z kreską w środku oznacza stan czuwania.",
+    "sourceLabel": "Wikipedia, „Power symbol”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Power_symbol",
+    "quiz": {
+      "question": "Co oznacza kreska w symbolu zasilania?",
+      "options": [
+        "Włączenie",
+        "Baterię",
+        "Wyłączenie"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-218",
+    "title": "Zdanie ze wszystkich liter",
+    "category": "Język & Symbole",
+    "shortText": "Pangram to zdanie, w którym są wszystkie litery alfabetu.",
+    "longText": "Polskim klasykiem jest: „Pchnąć w tę łódź jeża lub ośm skrzyń fig”.\n\nTakie zdania służą do pokazywania krojów pisma i sprawdzania klawiatur.",
+    "sourceLabel": "Wikipedia, „Pangram”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Pangram",
+    "quiz": {
+      "question": "Do czego używa się pangramów?",
+      "options": [
+        "Do szyfrowania",
+        "Do pokazywania krojów pisma",
+        "Do nauki tabliczki mnożenia"
+      ],
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-219",
+    "title": "Robot pochodzi ze słowiańskiego",
+    "category": "Język & Symbole",
+    "shortText": "Słowo „robot” pochodzi z czeskiej sztuki z 1920 roku.",
+    "longText": "Karel Čapek użył go w dramacie „R.U.R.”. Podsunął je podobno jego brat Josef.\n\nSłowo wywodzi się od „roboty”, czyli przymusowej pracy.",
+    "sourceLabel": "Wikipedia, „Robot”",
+    "sourceUrl": "https://pl.wikipedia.org/wiki/Robot",
+    "quiz": {
+      "question": "Kto użył słowa „robot” w sztuce?",
+      "options": [
+        "Stanisław Lem",
+        "Isaac Asimov",
+        "Karel Čapek"
+      ],
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-220",
+    "title": "Znak pokoju z semafora",
+    "category": "Język & Symbole",
+    "shortText": "Znak pokoju to litery N i D zapisane alfabetem chorągiewkowym.",
+    "longText": "Gerald Holtom zaprojektował go w 1958 roku dla brytyjskiego ruchu przeciw broni atomowej.\n\nLitery to skrót od „nuclear disarmament”, czyli rozbrojenie nuklearne. Znak nigdy nie został opatentowany.",
+    "sourceLabel": "Wikipedia, „Peace symbols”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Peace_symbols",
+    "quiz": {
+      "question": "Skrótem czego są litery N i D?",
+      "options": [
+        "Rozbrojenia nuklearnego",
+        "Nowego porządku",
+        "Pokojowego marszu"
+      ],
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-01T00:00:00.000Z"
   }
 ]

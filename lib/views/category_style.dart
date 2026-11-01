@@ -58,6 +58,48 @@ class CategoryStyle {
       darkColor: Color(0xFF5EEAD4),
       gradient: [Color(0xFF134E4A), Color(0xFF0F766E)],
     ),
+    'Popkultura & Gry': _CategoryPalette(
+      icon: Icons.sports_esports_rounded,
+      lightColor: Color(0xFF86198F),
+      darkColor: Color(0xFFF0ABFC),
+      gradient: [Color(0xFF701A75), Color(0xFFA21CAF)],
+    ),
+    'Biznes & Pieniądze': _CategoryPalette(
+      icon: Icons.payments_rounded,
+      lightColor: Color(0xFF3F6212),
+      darkColor: Color(0xFFBEF264),
+      gradient: [Color(0xFF365314), Color(0xFF4D7C0F)],
+    ),
+    'Zagadki Codzienności': _CategoryPalette(
+      icon: Icons.lightbulb_rounded,
+      lightColor: Color(0xFF854D0E),
+      darkColor: Color(0xFFFDE047),
+      gradient: [Color(0xFF713F12), Color(0xFFA16207)],
+    ),
+    'Ciało & Jedzenie': _CategoryPalette(
+      icon: Icons.restaurant_rounded,
+      lightColor: Color(0xFFB91C1C),
+      darkColor: Color(0xFFFCA5A5),
+      gradient: [Color(0xFF7F1D1D), Color(0xFFB91C1C)],
+    ),
+    'Geografia & Miejsca': _CategoryPalette(
+      icon: Icons.public_rounded,
+      lightColor: Color(0xFF075985),
+      darkColor: Color(0xFF7DD3FC),
+      gradient: [Color(0xFF0C4A6E), Color(0xFF0369A1)],
+    ),
+    'Absurdy Prawa': _CategoryPalette(
+      icon: Icons.gavel_rounded,
+      lightColor: Color(0xFF7C2D12),
+      darkColor: Color(0xFFFDBA74),
+      gradient: [Color(0xFF7C2D12), Color(0xFFC2410C)],
+    ),
+    'Język & Symbole': _CategoryPalette(
+      icon: Icons.translate_rounded,
+      lightColor: Color(0xFF5B21B6),
+      darkColor: Color(0xFFC4B5FD),
+      gradient: [Color(0xFF4C1D95), Color(0xFF7C3AED)],
+    ),
   };
 
   final IconData icon;

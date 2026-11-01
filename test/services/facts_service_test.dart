@@ -27,7 +27,7 @@ class _FakeSource implements FactSource {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const seedSize = 50;
+  const seedSize = 120;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -45,7 +45,7 @@ void main() {
       seed = (jsonDecode(source) as List<dynamic>).cast<Map<String, dynamic>>();
     });
 
-    test('has 50 facts with unique ids and titles', () {
+    test('has 120 facts with unique ids and titles', () {
       expect(seed, hasLength(seedSize));
       expect(seed.map((fact) => fact['id']).toSet(), hasLength(seedSize));
       expect(seed.map((fact) => fact['title']).toSet(), hasLength(seedSize));
@@ -73,7 +73,7 @@ void main() {
     test('source links are web addresses', () {
       final links = seed.map((fact) => fact['sourceUrl']).nonNulls;
 
-      expect(links, hasLength(9));
+      expect(links, hasLength(79));
       expect(links.every((url) => '$url'.startsWith('https://')), isTrue);
     });
 
@@ -91,7 +91,7 @@ void main() {
         counts[category] = (counts[category] ?? 0) + 1;
       }
 
-      expect(counts, hasLength(5));
+      expect(counts, hasLength(12));
       expect(counts.values.every((count) => count == 10), isTrue);
     });
 

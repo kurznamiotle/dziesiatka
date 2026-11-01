@@ -6,6 +6,7 @@ import 'package:dziesiatka/models/daily_deck.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/category_preferences_service.dart';
+import 'package:dziesiatka/services/deck_generator_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,21 +20,25 @@ class DailyDeckService {
     CategoryPreferencesService categoryPreferences =
         const CategoryPreferencesService(),
   }) : _now = now ?? DateTime.now,
-       _random = random ?? Random(),
-       _categoryPreferences = categoryPreferences;
+       _random = random,
+       _categoryPreferences = categoryPreferences,
+       _generator = DeckGeneratorService(now: now ?? DateTime.now);
 
-  static const deckSize = 10;
+  static const deckSize = DeckGeneratorService.deckSize;
   static const bonusSize = 5;
-  static const maxReviewCount = 1;
-  static const minDaysBetweenReads = 3;
   static const quizQuestionCount = 4;
   static const _deckKey = 'dailyDeck';
+  static const _ownerIdKey = 'deckOwnerId';
+
+  /// Keeps the hash within what both the VM and the web can multiply exactly.
+  static const _hashModulus = 1000000007;
 
   final FactsService _factsService;
   final StreakService _streakService;
   final DateTime Function() _now;
-  final Random _random;
+  final Random? _random;
   final CategoryPreferencesService _categoryPreferences;
+  final DeckGeneratorService _generator;
 
   /// Returns today's deck, choosing and saving a new one on the first call of
   /// each day, so the cards stay the same across restarts.
@@ -62,14 +67,16 @@ class DailyDeckService {
       return sessionOf(stored);
     }
 
-    final chosen = _chooseDeck(
+    final random = await _randomFor(prefs, today);
+    final chosen = _generator.generate(
       facts.where((fact) => !fact.isWithdrawn).toList(),
-      disabled,
+      disabledCategories: disabled,
+      random: random,
     );
     final deck = DailyDeck(
       date: today,
       factIds: chosen.map((fact) => fact.id).toList(),
-      quizFactIds: _chooseQuizFactIds(chosen),
+      quizFactIds: _chooseQuizFactIds(chosen, random),
       reviewFactIds: chosen
           .where((fact) => fact.isRead)
           .map((fact) => fact.id)
@@ -90,7 +97,13 @@ class DailyDeckService {
       await _factsService.getFacts(),
       session.deck,
       await _categoryPreferences.getDisabled(),
-    )..shuffle(_random);
+    );
+    bonus.shuffle(
+      await _randomFor(
+        prefs,
+        '${session.deck.date}:bonus:${session.deck.factIds.length}',
+      ),
+    );
     await _saveDeck(
       prefs,
       session.deck.withBonus(
@@ -182,66 +195,32 @@ class DailyDeckService {
     return session.deck.expiresAt.difference(_now());
   }
 
-  int get _dayNumber => _dayNumberOf(_now());
+  /// Depends only on [salt] and this user's id, so a lost deck comes back the
+  /// same on the same day. The id never leaves the device.
+  Future<Random> _randomFor(SharedPreferences prefs, String salt) async {
+    final fixed = _random;
+    if (fixed != null) return fixed;
 
-  int _dayNumberOf(DateTime moment) {
-    final local = moment.toLocal();
-    final day = DateTime.utc(local.year, local.month, local.day);
-    return day.difference(DateTime.utc(1970)).inDays;
+    var ownerId = prefs.getString(_ownerIdKey);
+    if (ownerId == null) {
+      ownerId = Random.secure().nextInt(1 << 32).toRadixString(16);
+      await prefs.setString(_ownerIdKey, ownerId);
+    }
+    return Random(_stableHash('$salt:$ownerId'));
   }
 
-  /// Counts calendar days, so a card read late in the evening comes back on
-  /// the same day as one read that morning.
-  bool _isDueForReview(Fact fact) {
-    final lastReadAt = fact.lastReadAt;
-    if (lastReadAt == null) return true;
-    return _dayNumber - _dayNumberOf(lastReadAt) >= minDaysBetweenReads;
-  }
-
-  /// Keeps to the user's categories, and reaches for the others only when
-  /// those categories together cannot fill a deck.
-  List<Fact> _chooseDeck(List<Fact> facts, Set<String> disabledCategories) {
-    bool isWanted(Fact fact) => !disabledCategories.contains(fact.category);
-    final wanted = _chooseFacts(facts.where(isWanted).toList());
-    final others = _chooseFacts(
-      facts.where((fact) => !isWanted(fact)).toList(),
+  /// [String.hashCode] may change between runs, so it cannot seed a repeatable
+  /// choice.
+  int _stableHash(String text) {
+    return text.codeUnits.fold(
+      0,
+      (hash, unit) => (hash * 31 + unit) % _hashModulus,
     );
-    return [...wanted, ...others].take(deckSize).toList();
   }
 
-  /// Takes one random review from read facts that are due, and random new
-  /// facts for the rest. Facts read longest ago fill any gap, even if not yet
-  /// due, so the deck stays full.
-  List<Fact> _chooseFacts(List<Fact> facts) {
-    final unread = facts.where((fact) => !fact.isRead).toList()
-      ..shuffle(_random);
-    final read = facts.where((fact) => fact.isRead).toList()
-      ..sort(_compareByLastRead);
-
-    final due = read.where(_isDueForReview).toList()..shuffle(_random);
-    final reviews = due.take(maxReviewCount);
-    final oldestFirst = read.where((fact) => !reviews.contains(fact));
-
-    return [
-      ...unread.take(deckSize - reviews.length),
-      ...reviews,
-      ...oldestFirst,
-    ].take(deckSize).toList();
-  }
-
-  /// Puts facts read longest ago first. Those read before dates were saved
-  /// have none and count as the oldest.
-  int _compareByLastRead(Fact first, Fact second) {
-    final firstRead = first.lastReadAt;
-    final secondRead = second.lastReadAt;
-    if (firstRead == null) return secondRead == null ? 0 : -1;
-    if (secondRead == null) return 1;
-    return firstRead.compareTo(secondRead);
-  }
-
-  List<String> _chooseQuizFactIds(List<Fact> deckFacts) {
+  List<String> _chooseQuizFactIds(List<Fact> deckFacts, Random random) {
     final withQuestions = deckFacts.where((fact) => fact.quiz != null).toList()
-      ..shuffle(_random);
+      ..shuffle(random);
     return withQuestions
         .take(quizQuestionCount)
         .map((fact) => fact.id)
