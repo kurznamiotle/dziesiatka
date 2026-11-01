@@ -1,6 +1,5 @@
-/// External addresses shown in the settings. While one is null, its tile stays
-/// disabled and marked as coming soon.
+/// External addresses shown in the settings.
 abstract final class AppLinks {
-  /// A support page, such as a buycoffee.to or ko-fi.com profile.
-  static const String? buyCoffee = null;
+  /// The creator's support page.
+  static const buyCoffee = 'https://buycoffee.to/bunu';
 }
