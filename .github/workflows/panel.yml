@@ -1,4 +1,4 @@
-name: Panel
+name: Strona i panel
 
 on:
   push:
@@ -28,9 +28,15 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build web -t lib/admin_main.dart --base-href /dziesiatka/ --pwa-strategy=none
+      - run: flutter build web -t lib/admin_main.dart --base-href /dziesiatka/panel/ --pwa-strategy=none
+      # The panel stays out of search results, and only the login protects it.
+      - run: sed -i 's#<head>#<head><meta name="robots" content="noindex">#' build/web/index.html
+      - run: |
+          mkdir public
+          cp -r website/. public/
+          cp -r build/web public/panel
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build/web
+          path: public
       - id: deployment
         uses: actions/deploy-pages@v4

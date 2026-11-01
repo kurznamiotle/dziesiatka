@@ -62,6 +62,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Osobna aplikacja Web z tego samego pakietu: punkt wejścia `lib/admin_main.dart`, ekrany w `lib/views/admin/`.
 - Logowanie przez Supabase Auth. Prawa nadaje `supabase/admin.sql` (tabela `admins`). W panelu nie ma klucza sekretnego.
 - Kod zależny od przeglądarki jest w `lib/services/browser_files_web.dart`.
+- GitHub Pages publikuje stronę o aplikacji z `website/`, a panel pod `/panel/`. Tekst polityki prywatności jest w `website/privacy.html` i `lib/views/settings_screen.dart`, więc zmieniaj oba.
 - Nowe ciekawostki powstają w czacie według `supabase/prompt_ciekawostki.md` i trafiają do bazy przez Import w panelu.
 
 ## Polecenia
