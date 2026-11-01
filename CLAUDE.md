@@ -55,7 +55,14 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
 - Dobór talii (`DeckGeneratorService`): zasada 7-2-1, czyli 7 kart z ulubionych kategorii, 2 z pozostałych i 1 powtórka (bez powtórki 8-2), najwyżej 2 karty z tej samej kategorii pod rząd. Losowanie zależy od daty i lokalnego identyfikatora, który nie opuszcza urządzenia.
 - Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
-- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` i `supabase/usage_02.sql` (anonimowe statystyki).
+- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` , `supabase/usage_02.sql` (anonimowe statystyki) i `supabase/admin.sql` (panel).
+
+## Panel administratora
+
+- Osobna aplikacja Web z tego samego pakietu: punkt wejścia `lib/admin_main.dart`, ekrany w `lib/views/admin/`.
+- Logowanie przez Supabase Auth. Prawa nadaje `supabase/admin.sql` (tabela `admins`). W panelu nie ma klucza sekretnego.
+- Kod zależny od przeglądarki jest w `lib/services/browser_files_web.dart`.
+- Nowe ciekawostki powstają w czacie według `supabase/prompt_ciekawostki.md` i trafiają do bazy przez Import w panelu.
 
 ## Polecenia
 
@@ -65,4 +72,5 @@ flutter analyze             # analiza statyczna
 flutter test                # testy
 flutter run -d chrome       # uruchomienie na Web
 flutter build web           # build produkcyjny Web
+flutter run -d chrome -t lib/admin_main.dart   # panel administratora
 ```

@@ -2,14 +2,8 @@
 
 ## Krok 1: pobierz listę istniejących ciekawostek
 
-W SQL Editor w Supabase uruchom poniższe zapytanie, a wynik pobierz przyciskiem
-eksportu do CSV. Docelowo zrobi to przycisk w panelu administratora.
-
-```sql
-select id, status, category, title, short_text
-from public.facts
-order by created_at, id;
-```
+W panelu administratora otwórz Ciekawostki i kliknij „Pobierz CSV dla czatu”.
+Plik obejmuje także szkice i odrzucone pozycje, więc czat ich nie powtórzy.
 
 ## Krok 2: przekaż prompt do czatu
 
@@ -71,38 +65,34 @@ STYL
 Poprawna polszczyzna, prosty i żywy język, polskie cudzysłowy „ ”. Bez clickbaitu, bez zwrotów typu „czy wiesz, że”, bez wulgaryzmów, polityki bieżącej i treści niestosownych.
 
 WĄTPLIWOŚCI
-Jeśli fakt potwierdza tylko jedno słabe źródło, źródła się różnią albo nie masz pewności, ustaw status 'draft' i dodaj przed tym wierszem komentarz SQL zaczynający się od -- WĄTPLIWE: z konkretnym powodem. Pozostałe mają status 'published'. Nie zgaduj.
-
-IDENTYFIKATORY
-Znajdź w pliku CSV najwyższy numer w identyfikatorach typu fact-NNN i kontynuuj od następnego.
+Jeśli fakt potwierdza tylko jedno słabe źródło, źródła się różnią albo nie masz pewności, ustaw status "draft" i wpisz w review_note konkretny powód. Pozostałe mają status "published" i review_note równe null. Nie zgaduj.
 
 WYNIK
-Zwróć jeden plik .sql w dokładnie tym układzie:
+Zwróć jeden plik .json: listę obiektów, bez żadnego tekstu przed nią ani po niej w pliku. Nie nadawaj identyfikatorów, zrobi to panel. Układ jednego obiektu:
 
--- 120 nowych ciekawostek.
-insert into public.facts
-  (id, title, category, short_text, long_text, source_label, source_url, quiz, status)
-values
-  ('fact-301', 'Tytuł', 'Kosmos', 'Krótki tekst.', 'Pierwszy akapit.
+[
+  {
+    "title": "Tytuł",
+    "category": "Kosmos",
+    "short_text": "Krótki tekst.",
+    "long_text": "Pierwszy akapit.\n\nDrugi akapit.",
+    "source_label": "NASA, „Tytuł artykułu”",
+    "source_url": "https://science.nasa.gov/adres-artykulu/",
+    "quiz": {"question": "Pytanie?", "options": ["A", "B", "C"], "correctIndex": 1},
+    "status": "published",
+    "review_note": null
+  }
+]
 
-Drugi akapit.', 'NASA, „Tytuł artykułu”', 'https://science.nasa.gov/adres-artykulu/', '{"question": "Pytanie?", "options": ["A", "B", "C"], "correctIndex": 1}'::jsonb, 'published'),
-  ('fact-302', ...),
-  ('fact-303', ...)
-on conflict (id) do nothing;
-
-Każdy apostrof wewnątrz tekstu zapisz podwójnie (''), także w polu quiz. Ostatni wiersz nie ma przecinka na końcu.
-
-Przed oddaniem pliku sprawdź: 120 wierszy, po 10 w kategorii, limity 60 i 120 znaków, 3 różne odpowiedzi, brak powtórek z CSV, limity źródeł. Pod plikiem podaj liczbę wierszy 'published' i 'draft', liczbę źródeł z Wikipedii i najczęściej użyte domeny.
+Przed oddaniem pliku sprawdź: poprawny JSON, 120 pozycji, po 10 w kategorii, limity 60 i 120 znaków, 3 różne odpowiedzi, brak powtórek z CSV, limity źródeł. Pod plikiem podaj liczbę pozycji "published" i "draft", liczbę źródeł z Wikipedii i najczęściej użyte domeny.
 
 Jeśli limit odpowiedzi nie pozwala oddać całości naraz, pracuj kategoria po kategorii i na końcu złącz wszystko w jeden plik.
 ```
 
-## Krok 3: wklej wynik do Supabase
+## Krok 3: zaimportuj wynik w panelu
 
-Skopiuj całą zawartość pliku `.sql` do SQL Editor i kliknij Run. Ponowne
-uruchomienie nie tworzy duplikatów, ale identyfikatory nie mogą się powtarzać
-między paczkami.
+W panelu otwórz Import, wybierz plik i kliknij „Sprawdź”. Panel pokaże błędy,
+możliwe duplikaty oraz uwagi czatu, a dopiero potem zapisze wybrane pozycje.
 
-Pozycje `draft` nie trafią do aplikacji. Znajdziesz je w Table Editor, w tabeli
-`facts`, po filtrze `status = draft`. Po poprawieniu ustaw `published`. Komentarze
-`-- WĄTPLIWE:` są tylko w pliku `.sql`.
+Domyślnie wszystko trafia do szkiców, czyli aplikacja jeszcze tego nie widzi.
+Szkice przejrzysz, poprawisz i opublikujesz w zakładce Ciekawostki.
