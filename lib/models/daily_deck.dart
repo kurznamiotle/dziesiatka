@@ -10,6 +10,7 @@ class DailyDeck {
     this.reviewFactIds = const [],
     this.completed = const [],
     this.quizCorrect,
+    this.lockedCount = 0,
   });
 
   factory DailyDeck.fromJson(Map<String, dynamic> json) {
@@ -24,6 +25,7 @@ class DailyDeck {
           .map((item) => CompletedCard.fromJson(item as Map<String, dynamic>))
           .toList(),
       quizCorrect: json['quizCorrect'] as int?,
+      lockedCount: json['lockedCount'] as int? ?? 0,
     );
   }
 
@@ -41,6 +43,10 @@ class DailyDeck {
 
   /// Correct answers in today's quiz, or null until it is finished.
   final int? quizCorrect;
+
+  /// How many cards of [completed] can no longer be undone. Bonus cards start
+  /// after a finished day, which undo must not reopen.
+  final int lockedCount;
 
   static String dateKey(DateTime day) {
     final month = day.month.toString().padLeft(2, '0');
@@ -69,14 +75,27 @@ class DailyDeck {
 
   DailyDeck withQuizResult(int correct) => _copyWith(quizCorrect: correct);
 
-  DailyDeck _copyWith({List<CompletedCard>? completed, int? quizCorrect}) {
+  DailyDeck withBonus(List<String> bonusFactIds) {
+    return _copyWith(
+      factIds: [...factIds, ...bonusFactIds],
+      lockedCount: completed.length,
+    );
+  }
+
+  DailyDeck _copyWith({
+    List<String>? factIds,
+    List<CompletedCard>? completed,
+    int? quizCorrect,
+    int? lockedCount,
+  }) {
     return DailyDeck(
       date: date,
-      factIds: factIds,
+      factIds: factIds ?? this.factIds,
       quizFactIds: quizFactIds,
       reviewFactIds: reviewFactIds,
       completed: completed ?? this.completed,
       quizCorrect: quizCorrect ?? this.quizCorrect,
+      lockedCount: lockedCount ?? this.lockedCount,
     );
   }
 
@@ -88,6 +107,7 @@ class DailyDeck {
       'reviewFactIds': reviewFactIds,
       'completed': completed.map((card) => card.toJson()).toList(),
       'quizCorrect': quizCorrect,
+      'lockedCount': lockedCount,
     };
   }
 }

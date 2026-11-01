@@ -1,7 +1,9 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
@@ -59,7 +61,7 @@ void main() {
   }
 
   Future<void> answerQuiz(WidgetTester tester) async {
-    for (var i = 0; i < 2; i++) {
+    for (var i = 0; i < DailyDeckService.quizQuestionCount; i++) {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
@@ -479,7 +481,7 @@ void main() {
 
       await finishRemainingCards(tester, 10);
 
-      expect(find.text('Pytanie 1 / 2'), findsOneWidget);
+      expect(find.text('Pytanie 1 / 4'), findsOneWidget);
       expect(find.text('Gratulacje!'), findsNothing);
       expect(find.text('Dalej'), findsNothing);
     });
@@ -504,7 +506,7 @@ void main() {
 
       expect(find.text('Gratulacje!'), findsOneWidget);
       expect(find.text('10 / 10 ukończone'), findsOneWidget);
-      expect(find.textContaining(RegExp(r'^\d/2 poprawne!$')), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^\d/4 poprawne!$')), findsOneWidget);
       expect(find.text('Seria: 1 dzień'), findsOneWidget);
       expect(find.text('Następna dziesiątka za: 02:29:45'), findsOneWidget);
     });
@@ -529,7 +531,7 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await pumpApp(tester);
 
-      expect(find.text('Pytanie 1 / 2'), findsOneWidget);
+      expect(find.text('Pytanie 1 / 4'), findsOneWidget);
     });
 
     testWidgets('the countdown ticks every second', (tester) async {
@@ -645,5 +647,94 @@ void main() {
       expect(find.text('1 / 10 ukończone'), findsOneWidget);
       expect(find.text(_secondTitle), findsOneWidget);
     });
+  });
+
+  group('celebrating a finished day', () {
+    Future<void> answerUpToLastQuestion(WidgetTester tester) async {
+      await finishRemainingCards(tester, 10);
+      for (var i = 0; i < DailyDeckService.quizQuestionCount - 1; i++) {
+        await tester.tap(find.textContaining(RegExp(r'^A\. ')));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+      }
+    }
+
+    Future<void> answerLastQuestion(WidgetTester tester) async {
+      await tester.tap(find.textContaining(RegExp(r'^A\. ')));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await tester.pump();
+    }
+
+    testWidgets('bursts after the quiz and clears by itself', (tester) async {
+      await pumpApp(tester);
+      await answerUpToLastQuestion(tester);
+
+      await answerLastQuestion(tester);
+
+      expect(find.byType(CelebrationOverlay), findsOneWidget);
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CelebrationOverlay), findsNothing);
+      expect(find.text('Gratulacje!'), findsOneWidget);
+    });
+
+    testWidgets('announces an unlocked achievement', (tester) async {
+      final now = DateTime(2026, 11, 5, 12);
+      SharedPreferences.setMockInitialValues({
+        'streakCount': 4,
+        'streakLastCompleted': '2026-11-04',
+      });
+      await pumpApp(tester, now: () => now);
+      await answerUpToLastQuestion(tester);
+
+      await answerLastQuestion(tester);
+
+      expect(find.text('Nowe osiągnięcie: Dobry początek'), findsOneWidget);
+      expect(find.text('Seria 5 dni! Tak trzymać!'), findsOneWidget);
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('does not come back after a restart', (tester) async {
+      await pumpApp(tester);
+      await finishDay(tester);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpApp(tester);
+
+      expect(find.byType(CelebrationOverlay), findsNothing);
+    });
+  });
+
+  group('bonus cards', () {
+    testWidgets('continue a finished day and return to the summary', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await finishDay(tester);
+
+      await tester.tap(find.text('Jeszcze 5'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('10 / 15 ukończone'), findsOneWidget);
+      expect(undoIconButton(tester).onPressed, isNull);
+
+      await finishRemainingCards(tester, 5);
+
+      expect(find.text('15 / 15 ukończone'), findsOneWidget);
+      expect(find.text('Gratulacje!'), findsOneWidget);
+      expect(find.textContaining('Pytanie'), findsNothing);
+    });
+  });
+
+  testWidgets('the achievements screen shows locked goals', (tester) async {
+    await pumpApp(tester);
+
+    await tester.tap(find.byTooltip('Osiągnięcia'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dobry początek'), findsOneWidget);
+    expect(find.byIcon(Icons.lock_outline_rounded), findsWidgets);
   });
 }

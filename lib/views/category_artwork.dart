@@ -8,12 +8,14 @@ class CategoryArtwork extends StatelessWidget {
     required this.category,
     required this.child,
     this.iconSize = 150,
+    this.iconOpacity = 0.24,
     this.showDecoration = true,
   });
 
   final String category;
   final Widget child;
   final double iconSize;
+  final double iconOpacity;
   final bool showDecoration;
 
   @override
@@ -49,7 +51,7 @@ class CategoryArtwork extends StatelessWidget {
                 child: Icon(
                   style.icon,
                   size: iconSize,
-                  color: Colors.white.withValues(alpha: 0.24),
+                  color: Colors.white.withValues(alpha: iconOpacity),
                 ),
               ),
             ),

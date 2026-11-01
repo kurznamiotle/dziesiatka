@@ -70,6 +70,16 @@ class FactsService {
     return _withStates(content, _readStates(prefs));
   }
 
+  /// The categories of facts still in circulation, in alphabetical order.
+  Future<List<String>> getCategories() async {
+    final facts = await getFacts();
+    final categories = facts
+        .where((fact) => !fact.isWithdrawn)
+        .map((fact) => fact.category)
+        .toSet();
+    return categories.toList()..sort();
+  }
+
   Future<void> toggleFavorite(String id) async {
     final prefs = await SharedPreferences.getInstance();
     final states = _readStates(prefs);

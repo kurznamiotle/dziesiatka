@@ -5,6 +5,7 @@ import 'package:dziesiatka/models/completed_card.dart';
 import 'package:dziesiatka/models/daily_deck.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/category_preferences_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,19 +16,24 @@ class DailyDeckService {
     this._streakService, {
     DateTime Function()? now,
     Random? random,
+    CategoryPreferencesService categoryPreferences =
+        const CategoryPreferencesService(),
   }) : _now = now ?? DateTime.now,
-       _random = random ?? Random();
+       _random = random ?? Random(),
+       _categoryPreferences = categoryPreferences;
 
   static const deckSize = 10;
+  static const bonusSize = 5;
   static const maxReviewCount = 1;
   static const minDaysBetweenReads = 3;
-  static const quizQuestionCount = 2;
+  static const quizQuestionCount = 4;
   static const _deckKey = 'dailyDeck';
 
   final FactsService _factsService;
   final StreakService _streakService;
   final DateTime Function() _now;
   final Random _random;
+  final CategoryPreferencesService _categoryPreferences;
 
   /// Returns today's deck, choosing and saving a new one on the first call of
   /// each day, so the cards stay the same across restarts.
@@ -38,15 +44,27 @@ class DailyDeckService {
     final today = DailyDeck.dateKey(_now());
     final factIds = facts.map((fact) => fact.id).toSet();
 
+    final disabled = await _categoryPreferences.getDisabled();
+
+    DailySession sessionOf(DailyDeck deck) {
+      return DailySession(
+        deck: deck,
+        pool: facts,
+        streak: streak,
+        bonusCount: min(_bonusFacts(facts, deck, disabled).length, bonusSize),
+      );
+    }
+
     final stored = _readDeck(prefs);
     if (stored != null &&
         stored.date == today &&
         stored.factIds.every(factIds.contains)) {
-      return DailySession(deck: stored, pool: facts, streak: streak);
+      return sessionOf(stored);
     }
 
-    final chosen = _chooseFacts(
+    final chosen = _chooseDeck(
       facts.where((fact) => !fact.isWithdrawn).toList(),
+      disabled,
     );
     final deck = DailyDeck(
       date: today,
@@ -58,7 +76,40 @@ class DailyDeckService {
           .toList(),
     );
     await _saveDeck(prefs, deck);
-    return DailySession(deck: deck, pool: facts, streak: streak);
+    return sessionOf(deck);
+  }
+
+  /// Adds a round of unread cards after the day is finished. They are optional,
+  /// so they count toward neither the quiz nor the streak.
+  Future<DailySession> addBonusCards() async {
+    final prefs = await SharedPreferences.getInstance();
+    final session = await loadToday();
+    if (!session.isDayFinished || session.remaining.isNotEmpty) return session;
+
+    final bonus = _bonusFacts(
+      await _factsService.getFacts(),
+      session.deck,
+      await _categoryPreferences.getDisabled(),
+    )..shuffle(_random);
+    await _saveDeck(
+      prefs,
+      session.deck.withBonus(
+        bonus.take(bonusSize).map((fact) => fact.id).toList(),
+      ),
+    );
+    return loadToday();
+  }
+
+  List<Fact> _bonusFacts(
+    List<Fact> facts,
+    DailyDeck deck,
+    Set<String> disabledCategories,
+  ) {
+    return facts
+        .where((fact) => !fact.isRead && !fact.isWithdrawn)
+        .where((fact) => !disabledCategories.contains(fact.category))
+        .where((fact) => !deck.factIds.contains(fact.id))
+        .toList();
   }
 
   /// Finishes a card. It does nothing for a card outside today's remaining
@@ -145,6 +196,17 @@ class DailyDeckService {
     final lastReadAt = fact.lastReadAt;
     if (lastReadAt == null) return true;
     return _dayNumber - _dayNumberOf(lastReadAt) >= minDaysBetweenReads;
+  }
+
+  /// Keeps to the user's categories, and reaches for the others only when
+  /// those categories together cannot fill a deck.
+  List<Fact> _chooseDeck(List<Fact> facts, Set<String> disabledCategories) {
+    bool isWanted(Fact fact) => !disabledCategories.contains(fact.category);
+    final wanted = _chooseFacts(facts.where(isWanted).toList());
+    final others = _chooseFacts(
+      facts.where((fact) => !isWanted(fact)).toList(),
+    );
+    return [...wanted, ...others].take(deckSize).toList();
   }
 
   /// Takes one random review from read facts that are due, and random new

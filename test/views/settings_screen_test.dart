@@ -227,6 +227,8 @@ void main() {
   testWidgets('opens the license page', (tester) async {
     await pumpSettings(tester);
 
+    await tester.scrollUntilVisible(find.text('Licencje'), 200);
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Licencje'));
     await tester.pumpAndSettle();
 

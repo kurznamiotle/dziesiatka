@@ -1,14 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dziesiatka/models/achievement.dart';
+import 'package:dziesiatka/models/celebration.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/achievements_service.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
+import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/services/usage_service.dart';
+import 'package:dziesiatka/views/achievements_screen.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/daily_quiz_screen.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
@@ -33,12 +40,18 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.themeService,
     this.factsService,
+    this.reminderService,
+    this.usageService,
+    this.achievementsService = const AchievementsService(),
     this.now,
     this.random,
   });
 
   final ThemeService themeService;
   final FactsService? factsService;
+  final ReminderService? reminderService;
+  final UsageService? usageService;
+  final AchievementsService achievementsService;
   final DateTime Function()? now;
   final Random? random;
 
@@ -56,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
   DailySession? _session;
   bool _loadFailed = false;
+  _ShownCelebration? _celebration;
 
   @override
   void initState() {
@@ -69,6 +83,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final session = await _deckService.loadToday();
       if (mounted) setState(() => _session = session);
       unawaited(_downloadNewFacts());
+      unawaited(_updateReminders(session));
+      unawaited(widget.usageService?.recordToday());
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
     }
@@ -82,6 +98,10 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {}
   }
 
+  Future<void> _updateReminders(DailySession session) async {
+    await widget.reminderService?.update(isDayFinished: session.isDayFinished);
+  }
+
   void _retryLoading() {
     setState(() => _loadFailed = false);
     _loadSession();
@@ -89,14 +109,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _updateSession(Future<DailySession> Function() change) async {
     try {
+      final wasDayFinished = _session?.isDayFinished ?? false;
       final session = await change();
       if (mounted) setState(() => _session = session);
+      if (!wasDayFinished && session.isDayFinished) {
+        unawaited(_updateReminders(session));
+        unawaited(_celebrate(session));
+      }
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nie udało się zapisać postępu.')),
       );
     }
+  }
+
+  /// Runs once per finished day, as the day stays finished after that.
+  Future<void> _celebrate(DailySession session) async {
+    final quizCorrect = session.deck.quizCorrect;
+    final quizTotal = session.quizQuestions.length;
+    var unlocked = const <Achievement>[];
+    try {
+      unlocked = await widget.achievementsService.recordDay(
+        streak: session.streak,
+        factsRead: session.factsRead,
+        wasQuizPerfect: quizTotal > 0 && quizCorrect == quizTotal,
+      );
+    } catch (_) {
+      // A lost achievement comes back with the next finished day.
+    }
+    if (!mounted) return;
+
+    final celebration = Celebration.forDay(
+      quizCorrect: quizCorrect,
+      quizTotal: quizTotal,
+      streak: session.streak,
+    );
+    if (celebration.intensity > 0) const HapticsService().celebration();
+    setState(() => _celebration = _ShownCelebration(celebration, unlocked));
   }
 
   Future<void> _completeCard(Fact fact, {required bool liked}) {
@@ -114,6 +164,20 @@ class _HomeScreenState extends State<HomeScreen> {
     _updateSession(() => _deckService.finishQuiz(correct));
   }
 
+  void _addBonusCards() {
+    const HapticsService().cardAction();
+    _updateSession(_deckService.addBonusCards);
+  }
+
+  void _openAchievements() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            AchievementsScreen(achievementsService: widget.achievementsService),
+      ),
+    );
+  }
+
   Future<void> _openFavorites() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -126,7 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _openSettings() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => SettingsScreen(themeService: widget.themeService),
+        builder: (_) => SettingsScreen(
+          themeService: widget.themeService,
+          factsService: _factsService,
+          reminderService: widget.reminderService,
+          usageService: widget.usageService,
+        ),
       ),
     );
   }
@@ -144,12 +213,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final shown = _celebration;
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          child: _buildContent(),
-        ),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+              child: _buildContent(),
+            ),
+          ),
+          if (shown != null)
+            CelebrationOverlay(
+              celebration: shown.celebration,
+              unlocked: shown.unlocked,
+              onFinished: () => setState(() => _celebration = null),
+            ),
+        ],
       ),
     );
   }
@@ -171,6 +252,7 @@ class _HomeScreenState extends State<HomeScreen> {
           completed: session.completedCount,
           total: session.facts.length,
           streak: session.streak,
+          onOpenAchievements: _openAchievements,
           onOpenFavorites: _openFavorites,
           onOpenSettings: _openSettings,
         ),
@@ -202,6 +284,8 @@ class _HomeScreenState extends State<HomeScreen> {
         timeUntilNextDeck: () => _deckService.timeUntilNextDeck(session),
         onNextDeckReady: _loadSession,
         onReview: () => _openReview(session),
+        bonusCount: session.bonusCount,
+        onAddBonus: _addBonusCards,
       );
     }
 
@@ -215,11 +299,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
+class _ShownCelebration {
+  const _ShownCelebration(this.celebration, this.unlocked);
+
+  final Celebration celebration;
+  final List<Achievement> unlocked;
+}
+
 class _ProgressHeader extends StatelessWidget {
   const _ProgressHeader({
     required this.completed,
     required this.total,
     required this.streak,
+    required this.onOpenAchievements,
     required this.onOpenFavorites,
     required this.onOpenSettings,
   });
@@ -227,6 +319,7 @@ class _ProgressHeader extends StatelessWidget {
   final int completed;
   final int total;
   final int streak;
+  final VoidCallback onOpenAchievements;
   final VoidCallback onOpenFavorites;
   final VoidCallback onOpenSettings;
 
@@ -246,6 +339,14 @@ class _ProgressHeader extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                 ),
               ),
+            ),
+            IconButton(
+              tooltip: 'Osiągnięcia',
+              onPressed: onOpenAchievements,
+              visualDensity: VisualDensity.compact,
+              iconSize: 20,
+              color: mutedColor,
+              icon: const Icon(Icons.emoji_events_outlined),
             ),
             IconButton(
               tooltip: 'Ulubione',
@@ -610,6 +711,8 @@ class _CompletionView extends StatelessWidget {
     required this.timeUntilNextDeck,
     required this.onNextDeckReady,
     required this.onReview,
+    required this.bonusCount,
+    required this.onAddBonus,
   });
 
   final int? quizCorrect;
@@ -618,6 +721,8 @@ class _CompletionView extends StatelessWidget {
   final Duration Function() timeUntilNextDeck;
   final VoidCallback onNextDeckReady;
   final VoidCallback onReview;
+  final int bonusCount;
+  final VoidCallback onAddBonus;
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +799,15 @@ class _CompletionView extends StatelessWidget {
               onFinished: onNextDeckReady,
             ),
             const SizedBox(height: 32),
-            FilledButton.icon(
+            if (bonusCount > 0) ...[
+              FilledButton.icon(
+                onPressed: onAddBonus,
+                icon: const Icon(Icons.add_rounded),
+                label: Text('Jeszcze $bonusCount'),
+              ),
+              const SizedBox(height: 8),
+            ],
+            FilledButton.tonalIcon(
               onPressed: onReview,
               icon: const Icon(Icons.replay_rounded),
               label: const Text('Powtórz dzisiejszą talię'),

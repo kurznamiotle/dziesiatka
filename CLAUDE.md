@@ -54,7 +54,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Treść ciekawostek i postęp użytkownika są zapisane osobno (`factContent` i `factStates`). `Fact` łączy je tylko w pamięci.
 - Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
 - Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
-- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisuje `supabase/schema.sql`.
+- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` i `supabase/usage.sql` (licznik użytkowników).
 
 ## Polecenia
 

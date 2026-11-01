@@ -8,4 +8,6 @@ class HapticsService {
   Future<void> correctAnswer() => HapticFeedback.mediumImpact();
 
   Future<void> wrongAnswer() => HapticFeedback.heavyImpact();
+
+  Future<void> celebration() => HapticFeedback.heavyImpact();
 }

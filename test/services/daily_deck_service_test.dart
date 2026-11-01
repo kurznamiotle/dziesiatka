@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dziesiatka/models/daily_deck.dart';
+import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
@@ -160,10 +161,10 @@ void main() {
         for (final deck in decks)
           for (final id in deck.quizFactIds) deck.factIds.indexOf(id),
       };
-      expect(positions.length, greaterThan(2));
+      expect(positions.length, greaterThan(4));
       for (final deck in decks) {
-        expect(deck.quizFactIds, hasLength(2));
-        expect(deck.quizFactIds.toSet(), hasLength(2));
+        expect(deck.quizFactIds, hasLength(4));
+        expect(deck.quizFactIds.toSet(), hasLength(4));
         expect(deck.factIds, containsAll(deck.quizFactIds));
       }
     });
@@ -546,12 +547,12 @@ void main() {
       }
     }
 
-    test('offers 2 questions from today\'s deck', () async {
+    test('offers 4 questions from today\'s deck', () async {
       givenPool([for (var i = 0; i < 30; i++) fact(i)]);
 
       final session = await service.loadToday();
 
-      expect(session.quizQuestions, hasLength(2));
+      expect(session.quizQuestions, hasLength(4));
       expect(
         session.facts.map((fact) => fact.id),
         containsAll(session.deck.quizFactIds),
@@ -676,5 +677,147 @@ void main() {
       service.timeUntilNextDeck(session),
       const Duration(hours: 1, minutes: 30),
     );
+  });
+
+  group('category preferences', () {
+    Fact inCategory(int number, String category) {
+      return fact(number).copyWith(category: category);
+    }
+
+    void givenPoolWithDisabled(List<Fact> pool) {
+      SharedPreferences.setMockInitialValues({
+        ...storedFacts(pool),
+        'disabledCategories': ['Historia'],
+      });
+    }
+
+    test('a deck leaves out a turned-off category', () async {
+      givenPoolWithDisabled([
+        for (var i = 0; i < 15; i++) inCategory(i, 'Kosmos'),
+        for (var i = 15; i < 30; i++) inCategory(i, 'Historia'),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.facts, hasLength(10));
+      expect(session.facts.map((fact) => fact.category).toSet(), {'Kosmos'});
+    });
+
+    test('other categories fill a deck that would stay short', () async {
+      givenPoolWithDisabled([
+        for (var i = 0; i < 4; i++) inCategory(i, 'Kosmos'),
+        for (var i = 4; i < 30; i++) inCategory(i, 'Historia'),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.facts, hasLength(10));
+      expect(session.facts.take(4).map((fact) => fact.category).toSet(), {
+        'Kosmos',
+      });
+    });
+  });
+
+  group('bonus cards', () {
+    Future<DailySession> finishToday() async {
+      var session = await service.loadToday();
+      for (final card in session.remaining) {
+        session = await service.completeCard(card.id, liked: false);
+      }
+      return service.finishQuiz(1);
+    }
+
+    test('adds 5 unread cards to a finished day', () async {
+      givenPool([for (var i = 0; i < 30; i++) fact(i)]);
+      final finished = await finishToday();
+
+      final session = await service.addBonusCards();
+
+      expect(finished.bonusCount, 5);
+      expect(session.remaining, hasLength(5));
+      expect(session.facts, hasLength(15));
+      expect(session.facts.map((fact) => fact.id).toSet(), hasLength(15));
+      expect(session.remaining.where((fact) => fact.isRead), isEmpty);
+    });
+
+    test('does nothing before the day is finished', () async {
+      givenPool([for (var i = 0; i < 30; i++) fact(i)]);
+
+      final session = await service.addBonusCards();
+
+      expect(session.facts, hasLength(10));
+    });
+
+    test('offers only the unread cards that are left', () async {
+      givenPool([for (var i = 0; i < 13; i++) fact(i)]);
+
+      final finished = await finishToday();
+
+      expect(finished.bonusCount, 3);
+    });
+
+    test('offers nothing when all facts are read', () async {
+      givenPool([for (var i = 0; i < 10; i++) fact(i)]);
+
+      expect((await finishToday()).bonusCount, 0);
+    });
+
+    test('leaves out turned-off categories', () async {
+      SharedPreferences.setMockInitialValues({
+        ...storedFacts([
+          for (var i = 0; i < 12; i++) fact(i),
+          for (var i = 12; i < 30; i++) fact(i).copyWith(category: 'Historia'),
+        ]),
+        'disabledCategories': ['Historia'],
+      });
+
+      final session = await finishToday();
+
+      expect(session.bonusCount, 2);
+    });
+
+    test('keeps the finished quiz and the streak', () async {
+      givenPool([for (var i = 0; i < 30; i++) fact(i)]);
+      final finished = await finishToday();
+
+      var session = await service.addBonusCards();
+      for (final card in session.remaining) {
+        session = await service.completeCard(card.id, liked: false);
+      }
+
+      expect(session.deck.quizCorrect, 1);
+      expect(session.isQuizPending, isFalse);
+      expect(session.streak, finished.streak);
+      expect(session.isDayFinished, isTrue);
+    });
+
+    test('undo cannot reach back past the bonus round', () async {
+      givenPool([for (var i = 0; i < 30; i++) fact(i)]);
+      await finishToday();
+
+      var session = await service.addBonusCards();
+      expect(session.canUndo, isFalse);
+
+      session = await service.completeCard(
+        session.remaining.first.id,
+        liked: false,
+      );
+      expect(session.canUndo, isTrue);
+
+      session = await service.undo();
+      expect(session.canUndo, isFalse);
+      expect(session.remaining, hasLength(5));
+    });
+
+    test('survive a restart', () async {
+      givenPool([for (var i = 0; i < 30; i++) fact(i)]);
+      await finishToday();
+      await service.addBonusCards();
+
+      final session = await newService().loadToday();
+
+      expect(session.remaining, hasLength(5));
+      expect(session.canUndo, isFalse);
+    });
   });
 }

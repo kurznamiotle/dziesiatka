@@ -11,8 +11,15 @@ import 'package:flutter/material.dart';
 /// Below this height, such as on a phone in landscape, the card tightens up.
 const _compactHeight = 240.0;
 const _compactBannerHeight = 56.0;
-const _maxBannerHeight = 190.0;
-const _bannerShare = 0.32;
+const _maxBannerHeight = 300.0;
+const _minBannerShare = 0.32;
+const _bannerShare = 0.44;
+
+/// What the title, text and buttons need, so a small phone keeps its text
+/// readable without scrolling and gives up artwork instead.
+const _textRoom = 270.0;
+const _iconShare = 1.05;
+const _iconOpacity = 0.42;
 const _radius = 28.0;
 
 class FactCard extends StatelessWidget {
@@ -66,11 +73,17 @@ class FactCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final height = isCompact
         ? _compactBannerHeight
-        : min(cardHeight * _bannerShare, _maxBannerHeight);
+        : [
+            _maxBannerHeight,
+            cardHeight * _bannerShare,
+            max(cardHeight * _minBannerShare, cardHeight - _textRoom),
+          ].reduce(min);
     return SizedBox(
       height: height,
       child: CategoryArtwork(
         category: fact.category,
+        iconSize: height * _iconShare,
+        iconOpacity: _iconOpacity,
         showDecoration: !isCompact,
         child: Padding(
           padding: EdgeInsets.all(isCompact ? 12 : 20),
@@ -136,15 +149,22 @@ class FactCard extends StatelessWidget {
 
   Widget _buildActions(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        spacing: 4,
         children: [
-          Flexible(
-            child: TextButton.icon(
+          Expanded(
+            child: FilledButton.tonalIcon(
               onPressed: onExpand,
               icon: const Icon(Icons.expand_less_rounded),
               label: const Text('Dowiedz się więcej'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
           ),
           IconButton(
