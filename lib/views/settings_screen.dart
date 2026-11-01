@@ -21,10 +21,17 @@ const _privacyText =
     'Nowe ciekawostki są pobierane z serwerów usługi Supabase, która przy '
     'połączeniu widzi adres IP urządzenia. Aplikacja nie wysyła tam Twojego '
     'postępu.\n\n'
-    'Aby policzyć aktywnych użytkowników, aplikacja wysyła raz dziennie '
-    'losowy identyfikator, numer wersji i rodzaj systemu. Nie da się z nich '
-    'odczytać, kim jesteś ani co czytasz. Możesz to wyłączyć w ustawieniach '
-    'opcją „Anonimowe statystyki”.\n\n'
+    'Aby rozwijać aplikację, wysyłamy anonimowe statystyki: losowy '
+    'identyfikator instalacji, wersję aplikacji, rodzaj systemu oraz dzienne '
+    'podsumowanie, czyli liczbę kart, wynik quizu, przedział serii dni, '
+    'użycie dodatkowych kart i wybory z pierwszego uruchomienia.\n\n'
+    'Osobno sumujemy, jak często każda ciekawostka była pokazana, polubiona, '
+    'rozwinięta i udostępniona oraz jak często odpowiedź na jej pytanie była '
+    'poprawna. Te sumy nie mają identyfikatora, więc nie pokazują, kto co '
+    'czytał.\n\n'
+    'Nie zbieramy imienia, adresu e-mail, lokalizacji ani modelu telefonu. '
+    'Możesz to wyłączyć w ustawieniach opcją „Anonimowe statystyki”. '
+    'Wyłączenie kasuje identyfikator i niewysłane dane.\n\n'
     'Przypomnienia są planowane na tym urządzeniu i nie przechodzą przez '
     'żaden serwer.\n\n'
     'Aplikacja nie ma reklam. Grafika trafia do innych aplikacji tylko '
@@ -123,6 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       MaterialPageRoute<void>(
         builder: (_) => CategoriesScreen(
           factsService: widget.factsService ?? FactsService(),
+          onChanged: widget.usageService?.categoriesChanged,
         ),
       ),
     );
@@ -214,7 +222,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SwitchListTile(
                 secondary: const Icon(Icons.query_stats_rounded),
                 title: const Text('Anonimowe statystyki'),
-                subtitle: const Text('Pomagają policzyć użytkowników'),
+                subtitle: const Text(
+                  'Pomagają ulepszać aplikację i ciekawostki',
+                ),
                 value: usageEnabled,
                 onChanged: _setUsageEnabled,
               ),

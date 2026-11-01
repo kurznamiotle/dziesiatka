@@ -27,11 +27,13 @@ class FactCard extends StatelessWidget {
     super.key,
     required this.fact,
     required this.onExpand,
+    this.onShare,
     this.isReview = false,
   });
 
   final Fact fact;
   final VoidCallback onExpand;
+  final VoidCallback? onShare;
   final bool isReview;
 
   @override
@@ -169,7 +171,10 @@ class FactCard extends StatelessWidget {
           ),
           IconButton(
             tooltip: 'Udostępnij',
-            onPressed: () => ShareCardSheet.show(context, fact),
+            onPressed: () {
+              onShare?.call();
+              ShareCardSheet.show(context, fact);
+            },
             icon: const Icon(Icons.ios_share_rounded),
           ),
         ],

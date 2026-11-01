@@ -7,10 +7,12 @@ class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({
     super.key,
     required this.factsService,
+    this.onChanged,
     this.preferencesService = const CategoryPreferencesService(),
   });
 
   final FactsService factsService;
+  final VoidCallback? onChanged;
   final CategoryPreferencesService preferencesService;
 
   @override
@@ -47,6 +49,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       isEnabled ? _disabled.remove(category) : _disabled.add(category);
     });
     await widget.preferencesService.setEnabled(category, isEnabled: isEnabled);
+    widget.onChanged?.call();
   }
 
   @override

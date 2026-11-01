@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) setState(() => _session = session);
       unawaited(_downloadNewFacts());
       unawaited(_updateReminders(session));
-      unawaited(widget.usageService?.recordToday());
+      unawaited(_reportUsage());
     } catch (_) {
       if (mounted) setState(() => _loadFailed = true);
     }
@@ -96,6 +96,17 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await _factsService.syncWithRemote();
     } catch (_) {}
+  }
+
+  Future<void> _reportUsage() async {
+    final usage = widget.usageService;
+    if (usage == null) return;
+
+    final reminders = widget.reminderService;
+    if (reminders != null && reminders.isSupported) {
+      await usage.remindersState(isEnabled: await reminders.isEnabled());
+    }
+    await usage.recordToday();
   }
 
   Future<void> _updateReminders(DailySession session) async {
@@ -138,6 +149,13 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {
       // A lost achievement comes back with the next finished day.
     }
+    unawaited(
+      widget.usageService?.dayFinished(
+        streak: session.streak,
+        quizCorrect: quizCorrect,
+        quizTotal: quizTotal,
+      ),
+    );
     if (!mounted) return;
 
     final celebration = Celebration.forDay(
@@ -150,6 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _completeCard(Fact fact, {required bool liked}) {
+    unawaited(widget.usageService?.cardCompleted(fact.id, liked: liked));
     return _updateSession(
       () => _deckService.completeCard(fact.id, liked: liked),
     );
@@ -160,12 +179,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return _updateSession(_deckService.undo);
   }
 
+  void _recordAnswer(
+    DailySession session,
+    int question, {
+    required bool isCorrect,
+  }) {
+    final factId = session.quizFacts[question].id;
+    unawaited(widget.usageService?.quizAnswered(factId, isCorrect: isCorrect));
+  }
+
   void _finishQuiz(int correct) {
     _updateSession(() => _deckService.finishQuiz(correct));
   }
 
   void _addBonusCards() {
     const HapticsService().cardAction();
+    unawaited(widget.usageService?.bonusRoundStarted());
     _updateSession(_deckService.addBonusCards);
   }
 
@@ -270,6 +299,8 @@ class _HomeScreenState extends State<HomeScreen> {
     if (session.isQuizPending) {
       return DailyQuizScreen(
         questions: session.quizQuestions,
+        onAnswered: (question, {required isCorrect}) =>
+            _recordAnswer(session, question, isCorrect: isCorrect),
         onFinished: _finishQuiz,
         onUndo: _undo,
       );
@@ -295,6 +326,10 @@ class _HomeScreenState extends State<HomeScreen> {
       canUndo: session.canUndo,
       onCompleted: _completeCard,
       onUndo: _undo,
+      onFactOpened: (fact) =>
+          unawaited(widget.usageService?.factOpened(fact.id)),
+      onFactShared: (fact) =>
+          unawaited(widget.usageService?.factShared(fact.id)),
     );
   }
 }
@@ -432,6 +467,8 @@ class _CardDeck extends StatefulWidget {
     required this.canUndo,
     required this.onCompleted,
     required this.onUndo,
+    required this.onFactOpened,
+    required this.onFactShared,
   });
 
   final List<Fact> facts;
@@ -439,6 +476,8 @@ class _CardDeck extends StatefulWidget {
   final bool canUndo;
   final Future<void> Function(Fact fact, {required bool liked}) onCompleted;
   final Future<void> Function() onUndo;
+  final void Function(Fact fact) onFactOpened;
+  final void Function(Fact fact) onFactShared;
 
   @override
   State<_CardDeck> createState() => _CardDeckState();
@@ -600,7 +639,11 @@ class _CardDeckState extends State<_CardDeck>
           child: FactCard(
             fact: fact,
             isReview: widget.reviewFactIds.contains(fact.id),
-            onExpand: () => FactDetailsSheet.show(context, fact),
+            onExpand: () {
+              widget.onFactOpened(fact);
+              FactDetailsSheet.show(context, fact);
+            },
+            onShare: () => widget.onFactShared(fact),
           ),
         ),
     ];

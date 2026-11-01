@@ -14,11 +14,15 @@ class FavoriteCategoriesScreen extends StatefulWidget {
     super.key,
     required this.factsService,
     required this.onFinished,
+    this.onChosen,
     this.preferencesService = const CategoryPreferencesService(),
   });
 
   final FactsService factsService;
   final VoidCallback onFinished;
+
+  /// Reports whether the user took all categories.
+  final void Function({required bool choseAll})? onChosen;
   final CategoryPreferencesService preferencesService;
 
   @override
@@ -60,6 +64,7 @@ class _FavoriteCategoriesScreenState extends State<FavoriteCategoriesScreen> {
   }
 
   Future<void> _finish(Set<String> favorites) async {
+    widget.onChosen?.call(choseAll: favorites.length == _categories!.length);
     try {
       await widget.preferencesService.saveFavorites(
         favorites,

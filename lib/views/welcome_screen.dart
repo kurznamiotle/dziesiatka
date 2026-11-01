@@ -37,9 +37,12 @@ const _pages = [
 
 /// Introduces the app, both on the first start and from the settings.
 class WelcomeScreen extends StatefulWidget {
-  const WelcomeScreen({super.key, required this.onFinished});
+  const WelcomeScreen({super.key, required this.onFinished, this.onSkipped});
 
   final VoidCallback onFinished;
+
+  /// Used instead of [onFinished] after "Pomiń" when given.
+  final VoidCallback? onSkipped;
 
   @override
   State<WelcomeScreen> createState() => _WelcomeScreenState();
@@ -84,7 +87,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   maintainAnimation: true,
                   maintainSize: true,
                   child: TextButton(
-                    onPressed: widget.onFinished,
+                    onPressed: widget.onSkipped ?? widget.onFinished,
                     child: const Text('Pomiń'),
                   ),
                 ),

@@ -55,7 +55,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
 - Dobór talii (`DeckGeneratorService`): zasada 7-2-1, czyli 7 kart z ulubionych kategorii, 2 z pozostałych i 1 powtórka (bez powtórki 8-2), najwyżej 2 karty z tej samej kategorii pod rząd. Losowanie zależy od daty i lokalnego identyfikatora, który nie opuszcza urządzenia.
 - Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
-- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` i `supabase/usage.sql` (licznik użytkowników).
+- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` i `supabase/usage_02.sql` (anonimowe statystyki).
 
 ## Polecenia
 

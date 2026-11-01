@@ -67,22 +67,32 @@ class DziesiatkaApp extends StatelessWidget {
     );
   }
 
-  void _openFavoriteCategories(BuildContext context) {
+  void _openFavoriteCategories(BuildContext context, {required bool skipped}) {
+    usageService?.instructionsLeft(skipped: skipped);
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (context) => FavoriteCategoriesScreen(
           factsService: factsService ?? FactsService(),
+          onChosen: usageService?.categoriesChosen,
           onFinished: () => _finishWelcome(context),
         ),
       ),
     );
   }
 
+  /// Asked here, once the user knows the app, and not on the first launch.
+  Future<void> _askForNotifications() async {
+    final reminders = reminderService;
+    if (reminders == null || !reminders.isSupported) return;
+
+    final isAllowed = await reminders.requestPermission();
+    await usageService?.notificationsAnswered(isAllowed: isAllowed);
+  }
+
   /// Marked only now, so leaving halfway shows the first-run screens again.
   void _finishWelcome(BuildContext context) {
     onboardingService.markWelcomeSeen();
-    // Asked here, once the user knows the app, and not on the first launch.
-    reminderService?.requestPermission();
+    _askForNotifications();
     Navigator.of(
       context,
     ).pushReplacement(MaterialPageRoute<void>(builder: (_) => _buildHome()));
@@ -103,7 +113,10 @@ class DziesiatkaApp extends StatelessWidget {
         home: showWelcome
             ? Builder(
                 builder: (context) => WelcomeScreen(
-                  onFinished: () => _openFavoriteCategories(context),
+                  onFinished: () =>
+                      _openFavoriteCategories(context, skipped: false),
+                  onSkipped: () =>
+                      _openFavoriteCategories(context, skipped: true),
                 ),
               )
             : _buildHome(),

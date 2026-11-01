@@ -41,6 +41,15 @@ class DailySession {
     ];
   }
 
+  /// The facts behind [quizQuestions], in the same order.
+  List<Fact> get quizFacts {
+    return [
+      for (final id in deck.quizFactIds)
+        for (final fact in facts)
+          if (fact.id == id && fact.quiz != null) fact,
+    ];
+  }
+
   /// All cards are done and the quiz still has to be answered.
   bool get isQuizPending {
     return facts.isNotEmpty &&

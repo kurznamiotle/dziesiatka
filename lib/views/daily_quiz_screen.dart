@@ -16,11 +16,15 @@ class DailyQuizScreen extends StatefulWidget {
     required this.questions,
     required this.onFinished,
     required this.onUndo,
+    this.onAnswered,
   });
 
   final List<QuizQuestion> questions;
   final void Function(int correct) onFinished;
   final VoidCallback onUndo;
+
+  /// Reports each answer by the position of its question.
+  final void Function(int question, {required bool isCorrect})? onAnswered;
 
   @override
   State<DailyQuizScreen> createState() => _DailyQuizScreenState();
@@ -46,6 +50,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
     final isCorrect = option == _question.correctIndex;
     const haptics = HapticsService();
     isCorrect ? haptics.correctAnswer() : haptics.wrongAnswer();
+    widget.onAnswered?.call(_questionIndex, isCorrect: isCorrect);
 
     setState(() {
       _selectedOption = option;

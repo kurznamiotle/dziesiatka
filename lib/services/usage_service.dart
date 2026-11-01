@@ -2,15 +2,18 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:dziesiatka/models/daily_deck.dart';
+import 'package:dziesiatka/models/fact_usage.dart';
+import 'package:dziesiatka/models/usage_day.dart';
 import 'package:dziesiatka/services/app_info_service.dart';
 import 'package:dziesiatka/services/supabase_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Counts active users with one anonymous note a day. The random id says only
-/// that two notes came from the same installation, and nothing about the user
-/// or their progress. See `supabase/usage.sql`.
+/// Keeps anonymous statistics on the device and sends them at the start of the
+/// app and when a day is finished. The random id says only that two days came
+/// from the same installation. Facts are counted apart from it, so nothing on
+/// the server shows who read what. See `supabase/usage_02.sql`.
 class UsageService {
   UsageService({
     required String url,
@@ -35,8 +38,12 @@ class UsageService {
 
   static const _enabledKey = 'usageStatsEnabled';
   static const _installIdKey = 'usageInstallId';
-  static const _lastSentKey = 'usageLastSent';
+  static const _daysKey = 'usageDays';
+  static const _factsKey = 'usageFacts';
   static const _timeout = Duration(seconds: 15);
+
+  /// Older days are dropped. The server rejects them anyway.
+  static const _maxDaysKept = 14;
 
   final String _url;
   final String _publishableKey;
@@ -45,45 +52,280 @@ class UsageService {
   final DateTime Function() _now;
   final Random _random;
 
+  /// Runs saves one after another, so two quick events cannot overwrite each
+  /// other's numbers.
+  Future<void> _queue = Future.value();
+
   Future<bool> isEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_enabledKey) ?? true;
   }
 
-  /// Turning this off also forgets the id, so turning it on later starts a
-  /// new, unconnected one.
+  /// Turning this off also forgets the id and all unsent numbers, so turning
+  /// it on later starts a new, unconnected history.
   Future<void> setEnabled(bool isEnabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_enabledKey, isEnabled);
-    if (!isEnabled) await prefs.remove(_installIdKey);
+    if (isEnabled) return;
+
+    await prefs.remove(_installIdKey);
+    await prefs.remove(_daysKey);
+    await prefs.remove(_factsKey);
   }
 
-  /// Sends today's note once. A failure is retried on the next start, and the
-  /// app must work the same without it.
-  Future<void> recordToday() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final today = DailyDeck.dateKey(_now());
-      if (!await isEnabled() || prefs.getString(_lastSentKey) == today) return;
+  Future<void> cardCompleted(String factId, {required bool liked}) {
+    return _record((prefs) async {
+      await _updateToday(
+        prefs,
+        (day) => day.copyWith(cardsCompleted: day.cardsCompleted + 1),
+      );
+      await _addToFact(
+        prefs,
+        factId,
+        FactUsage(shown: 1, liked: liked ? 1 : 0),
+      );
+    });
+  }
 
-      final response = await _client
-          .post(
-            Uri.parse('$_url/rest/v1/rpc/record_usage'),
-            headers: {
-              'apikey': _publishableKey,
-              'Content-Type': 'application/json',
-            },
-            body: jsonEncode({
-              'p_install_id': await _installId(prefs),
-              'p_platform': kIsWeb ? 'web' : defaultTargetPlatform.name,
-              'p_app_version': await _appInfoService.getVersion(),
-            }),
-          )
-          .timeout(_timeout);
-      if (response.statusCode < 300) {
-        await prefs.setString(_lastSentKey, today);
+  Future<void> factOpened(String factId) {
+    return _record(
+      (prefs) => _addToFact(prefs, factId, const FactUsage(opened: 1)),
+    );
+  }
+
+  Future<void> factShared(String factId) {
+    return _record(
+      (prefs) => _addToFact(prefs, factId, const FactUsage(shared: 1)),
+    );
+  }
+
+  Future<void> quizAnswered(String factId, {required bool isCorrect}) {
+    return _record(
+      (prefs) => _addToFact(
+        prefs,
+        factId,
+        FactUsage(quizCorrect: isCorrect ? 1 : 0, quizWrong: isCorrect ? 0 : 1),
+      ),
+    );
+  }
+
+  Future<void> bonusRoundStarted() {
+    return _record(
+      (prefs) => _updateToday(
+        prefs,
+        (day) => day.copyWith(bonusRounds: day.bonusRounds + 1),
+      ),
+    );
+  }
+
+  Future<void> categoriesChanged() {
+    return _record(
+      (prefs) =>
+          _updateToday(prefs, (day) => day.copyWith(categoriesChanged: true)),
+    );
+  }
+
+  Future<void> remindersState({required bool isEnabled}) {
+    return _record(
+      (prefs) => _updateToday(
+        prefs,
+        (day) => day.copyWith(remindersEnabled: isEnabled),
+      ),
+    );
+  }
+
+  Future<void> instructionsLeft({required bool skipped}) {
+    return _record(
+      (prefs) => _updateToday(
+        prefs,
+        (day) => day.copyWith(instructions: skipped ? 'skipped' : 'finished'),
+      ),
+    );
+  }
+
+  Future<void> categoriesChosen({required bool choseAll}) {
+    return _record(
+      (prefs) => _updateToday(
+        prefs,
+        (day) => day.copyWith(choseAllCategories: choseAll),
+      ),
+    );
+  }
+
+  Future<void> notificationsAnswered({required bool isAllowed}) {
+    return _record(
+      (prefs) => _updateToday(
+        prefs,
+        (day) => day.copyWith(notificationsAllowed: isAllowed),
+      ),
+    );
+  }
+
+  /// Saves the finished day and sends it at once, as the app may not start
+  /// again for a while.
+  Future<void> dayFinished({
+    required int streak,
+    required int? quizCorrect,
+    required int quizTotal,
+  }) {
+    return _record((prefs) async {
+      await _updateToday(
+        prefs,
+        (day) => day.copyWith(
+          deckFinished: true,
+          quizCorrect: quizCorrect,
+          quizTotal: quizTotal,
+          streakBucket: UsageDay.bucketOf(streak),
+        ),
+      );
+      await _send(prefs);
+    });
+  }
+
+  /// Notes that the app was used today and sends what is waiting. A failure
+  /// is retried on the next start, and the app works the same without it.
+  Future<void> recordToday() {
+    return _record((prefs) async {
+      await _updateToday(prefs, (day) => day, keepSent: true);
+      await _send(prefs);
+    });
+  }
+
+  Future<void> _record(Future<void> Function(SharedPreferences prefs) action) {
+    final result = _queue.then((_) async {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        if (await isEnabled()) await action(prefs);
+      } catch (_) {
+        // Statistics must never disturb the app.
       }
-    } catch (_) {}
+    });
+    _queue = result;
+    return result;
+  }
+
+  Map<String, UsageDay> _readDays(SharedPreferences prefs) {
+    final stored = prefs.getString(_daysKey);
+    if (stored == null) return {};
+    final items = jsonDecode(stored) as Map<String, dynamic>;
+    return items.map(
+      (date, item) =>
+          MapEntry(date, UsageDay.fromJson(item as Map<String, dynamic>)),
+    );
+  }
+
+  Future<void> _saveDays(
+    SharedPreferences prefs,
+    Map<String, UsageDay> days,
+  ) async {
+    await prefs.setString(
+      _daysKey,
+      jsonEncode(days.map((date, day) => MapEntry(date, day.toJson()))),
+    );
+  }
+
+  Future<void> _updateToday(
+    SharedPreferences prefs,
+    UsageDay Function(UsageDay day) change, {
+    bool keepSent = false,
+  }) async {
+    final today = DailyDeck.dateKey(_now());
+    final days = _readDays(prefs);
+    final known = days[today];
+    if (known != null && keepSent) return;
+
+    days[today] = change(known ?? UsageDay(date: today));
+    await _saveDays(prefs, days);
+  }
+
+  Map<String, FactUsage> _readFacts(SharedPreferences prefs) {
+    final stored = prefs.getString(_factsKey);
+    if (stored == null) return {};
+    final items = jsonDecode(stored) as Map<String, dynamic>;
+    return items.map(
+      (id, item) =>
+          MapEntry(id, FactUsage.fromJson(item as Map<String, dynamic>)),
+    );
+  }
+
+  Future<void> _addToFact(
+    SharedPreferences prefs,
+    String factId,
+    FactUsage usage,
+  ) async {
+    final facts = _readFacts(prefs);
+    facts[factId] = (facts[factId] ?? const FactUsage()) + usage;
+    await prefs.setString(
+      _factsKey,
+      jsonEncode(facts.map((id, item) => MapEntry(id, item.toJson()))),
+    );
+  }
+
+  Future<void> _send(SharedPreferences prefs) async {
+    await _sendDays(prefs);
+    await _sendFacts(prefs);
+  }
+
+  /// Today stays in storage after sending, because more of it may follow.
+  Future<void> _sendDays(SharedPreferences prefs) async {
+    final today = DailyDeck.dateKey(_now());
+    final days = _readDays(prefs);
+    final dates = days.keys.toList()..sort();
+    for (final date in dates.reversed.skip(_maxDaysKept)) {
+      days.remove(date);
+    }
+
+    for (final day in days.values.toList()) {
+      if (day.isSent) {
+        if (day.date != today) days.remove(day.date);
+        continue;
+      }
+
+      final isSaved = await _post('record_usage_day', {
+        'p_report': {
+          ...day.toRow(),
+          'install_id': await _installId(prefs),
+          'platform': kIsWeb ? 'web' : defaultTargetPlatform.name,
+          'app_version': await _appInfoService.getVersion(),
+        },
+      });
+      if (!isSaved) break;
+
+      if (day.date == today) {
+        days[day.date] = day.asSent();
+      } else {
+        days.remove(day.date);
+      }
+      await _saveDays(prefs, days);
+    }
+    await _saveDays(prefs, days);
+  }
+
+  Future<void> _sendFacts(SharedPreferences prefs) async {
+    final facts = _readFacts(prefs);
+    if (facts.isEmpty) return;
+
+    final isSaved = await _post('record_fact_stats', {
+      'p_stats': [
+        for (final MapEntry(key: id, value: usage) in facts.entries)
+          {'id': id, ...usage.toJson()},
+      ],
+    });
+    if (isSaved) await prefs.remove(_factsKey);
+  }
+
+  Future<bool> _post(String function, Map<String, dynamic> body) async {
+    final response = await _client
+        .post(
+          Uri.parse('$_url/rest/v1/rpc/$function'),
+          headers: {
+            'apikey': _publishableKey,
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(body),
+        )
+        .timeout(_timeout);
+    return response.statusCode < 300;
   }
 
   Future<String> _installId(SharedPreferences prefs) async {
