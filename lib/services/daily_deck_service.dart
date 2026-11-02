@@ -33,6 +33,9 @@ class DailyDeckService {
   /// Keeps the hash within what both the VM and the web can multiply exactly.
   static const _hashModulus = 1000000007;
 
+  /// Not written as a shift, because `1 << 32` gives 0 on the web.
+  static const _ownerIdLimit = 0x100000000;
+
   final FactsService _factsService;
   final StreakService _streakService;
   final DateTime Function() _now;
@@ -203,7 +206,7 @@ class DailyDeckService {
 
     var ownerId = prefs.getString(_ownerIdKey);
     if (ownerId == null) {
-      ownerId = Random.secure().nextInt(1 << 32).toRadixString(16);
+      ownerId = Random.secure().nextInt(_ownerIdLimit).toRadixString(16);
       await prefs.setString(_ownerIdKey, ownerId);
     }
     return Random(_stableHash('$salt:$ownerId'));
