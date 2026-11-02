@@ -210,6 +210,73 @@ void main() {
     await expectLater(offline.recordToday(), completes);
   });
 
+  group('when consent is needed', () {
+    UsageService askingService() {
+      return UsageService(
+        url: 'https://example.supabase.co',
+        publishableKey: 'klucz',
+        appInfoService: const _FakeAppInfoService(),
+        now: () => now,
+        asksForConsent: true,
+        client: MockClient((request) async {
+          requests.add(request);
+          return http.Response('', statusCode);
+        }),
+      );
+    }
+
+    test('nothing is stored or sent before the answer', () async {
+      final service = askingService();
+
+      await service.cardCompleted('a', liked: true);
+      await service.recordToday();
+
+      expect(await service.needsConsent(), isTrue);
+      expect(await service.isEnabled(), isFalse);
+      expect(requests, isEmpty);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), isEmpty);
+    });
+
+    test('agreeing keeps what happened before the answer', () async {
+      final service = askingService();
+      await service.instructionsLeft(skipped: true);
+
+      await service.setEnabled(true);
+      await service.recordToday();
+
+      expect(await service.needsConsent(), isFalse);
+      expect(reports().single['instructions'], 'skipped');
+    });
+
+    test('refusing forgets what happened before the answer', () async {
+      final service = askingService();
+      await service.cardCompleted('a', liked: true);
+
+      await service.setEnabled(false);
+      await service.recordToday();
+
+      expect(await service.needsConsent(), isFalse);
+      expect(requests, isEmpty);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {'usageStatsEnabled'});
+    });
+
+    test('the answer survives a restart', () async {
+      await askingService().setEnabled(true);
+
+      final restarted = askingService();
+
+      expect(await restarted.needsConsent(), isFalse);
+      expect(await restarted.isEnabled(), isTrue);
+    });
+  });
+
+  test('without the question nothing changes', () async {
+    expect(await service.needsConsent(), isFalse);
+    expect(await service.isEnabled(), isTrue);
+  });
+
   test('turned off records and sends nothing', () async {
     await service.setEnabled(false);
 

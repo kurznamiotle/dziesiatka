@@ -24,7 +24,8 @@ const _privacyText =
     'Aby rozwijać aplikację, wysyłamy anonimowe statystyki: losowy '
     'identyfikator instalacji, wersję aplikacji, rodzaj systemu oraz dzienne '
     'podsumowanie, czyli liczbę kart, wynik quizu, przedział serii dni, '
-    'użycie dodatkowych kart i wybory z pierwszego uruchomienia.\n\n'
+    'użycie dodatkowych kart i wybory z pierwszego uruchomienia. W wersji '
+    'internetowej robimy to dopiero po Twojej zgodzie.\n\n'
     'Osobno sumujemy, jak często każda ciekawostka była pokazana, polubiona, '
     'rozwinięta i udostępniona oraz jak często odpowiedź na jej pytanie była '
     'poprawna. Te sumy nie mają identyfikatora, więc nie pokazują, kto co '
@@ -32,13 +33,16 @@ const _privacyText =
     'Nie zbieramy imienia, adresu e-mail, lokalizacji ani modelu telefonu. '
     'Możesz to wyłączyć w ustawieniach opcją „Anonimowe statystyki”. '
     'Wyłączenie kasuje identyfikator i niewysłane dane.\n\n'
+    'Gdy zgłosisz błąd w ciekawostce, na serwery usługi Supabase trafia, '
+    'której ciekawostki dotyczy, wybrany powód i Twój komentarz. Zgłoszenie '
+    'nie ma identyfikatora, więc nie wpisuj w komentarzu danych o sobie.\n\n'
     'Przypomnienia są planowane na tym urządzeniu i nie przechodzą przez '
     'żaden serwer.\n\n'
     'Aplikacja nie ma reklam. Grafika trafia do innych aplikacji tylko '
     'wtedy, gdy sam ją udostępnisz.\n\n'
     'Linki otwierają się poza aplikacją, na stronach z własnymi zasadami '
-    'prywatności. Wersja internetowa pobiera czcionki i silnik wyświetlania '
-    'z serwerów Google, które mogą przy tym zobaczyć adres IP.';
+    'prywatności. Wersja internetowa pobiera czcionki z serwerów Google, '
+    'które mogą przy tym zobaczyć adres IP.';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({

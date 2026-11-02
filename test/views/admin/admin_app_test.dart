@@ -86,6 +86,15 @@ void main() {
           'notifications_allowed': true,
         },
       ],
+      '/rest/v1/fact_reports' => [
+        {
+          'id': 5,
+          'fact_id': 'fact-1',
+          'reason': 'wrong_fact',
+          'comment': 'Zła data.',
+          'created_at': '2026-11-02T10:00:00+00:00',
+        },
+      ],
       _ => <Map<String, dynamic>>[],
     };
     return http.Response.bytes(utf8.encode(jsonEncode(rows)), 200);
@@ -154,6 +163,26 @@ void main() {
     expect(find.text('Instalacje'), findsOneWidget);
     expect(find.text('Zapas ciekawostek'), findsOneWidget);
     expect(find.text('Instrukcja do końca'), findsOneWidget);
+  });
+
+  testWidgets('a handled report is removed', (tester) async {
+    await pumpPanel(tester);
+    await signIn(tester);
+
+    await openPage(tester, 'Zgłoszenia');
+
+    expect(find.text('Opublikowana'), findsOneWidget);
+    expect(find.textContaining('Nieprawdziwa informacja'), findsOneWidget);
+    expect(find.textContaining('Zła data.'), findsOneWidget);
+
+    await tester.tap(find.text('Załatwione'));
+    await tester.pumpAndSettle();
+
+    final removal = requests.singleWhere(
+      (request) => request.method == 'DELETE',
+    );
+    expect(removal.url.path, '/rest/v1/fact_reports');
+    expect(removal.url.queryParameters['id'], 'eq.5');
   });
 
   testWidgets('drafts open first, with their doubts', (tester) async {

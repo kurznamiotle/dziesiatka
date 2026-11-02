@@ -1,11 +1,15 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/services/onboarding_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/services/usage_service.dart';
 import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:dziesiatka/views/home_screen.dart';
+import 'package:dziesiatka/views/usage_consent_dialog.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -73,6 +77,46 @@ void main() {
 
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(await const OnboardingService().shouldShowWelcome(), isFalse);
+  });
+
+  testWidgets('a web visitor is asked about statistics before the deck', (
+    tester,
+  ) async {
+    final usageService = UsageService(
+      url: 'https://example.supabase.co',
+      publishableKey: 'klucz',
+      asksForConsent: true,
+      client: MockClient((_) async => http.Response('', 204)),
+    );
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1400);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      DziesiatkaApp(
+        themeService: ThemeService(),
+        usageService: usageService,
+        showWelcome: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tapNext(tester);
+    await tapNext(tester);
+    await tapNext(tester);
+    await tester.tap(find.text('Zaczynamy'));
+    await tester.pumpAndSettle();
+
+    await chooseCategoriesAndConfirm(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(UsageConsentDialog), findsOneWidget);
+    expect(find.byType(HomeScreen), findsNothing);
+
+    await tester.tap(find.text('Nie zgadzam się'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(await usageService.isEnabled(), isFalse);
+    expect(await usageService.needsConsent(), isFalse);
   });
 
   testWidgets('skipping the instructions still offers the categories', (

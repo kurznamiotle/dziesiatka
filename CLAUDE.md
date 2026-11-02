@@ -55,14 +55,14 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
 - Dobór talii (`DeckGeneratorService`): zasada 7-2-1, czyli 7 kart z ulubionych kategorii, 2 z pozostałych i 1 powtórka (bez powtórki 8-2), najwyżej 2 karty z tej samej kategorii pod rząd. Losowanie zależy od daty i lokalnego identyfikatora, który nie opuszcza urządzenia.
 - Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
-- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` , `supabase/usage_02.sql` (anonimowe statystyki) i `supabase/admin.sql` (panel).
+- Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` , `supabase/usage_02.sql` (anonimowe statystyki), `supabase/admin.sql` (panel) i `supabase/reports.sql` (zgłoszenia błędów).
 
 ## Panel administratora
 
 - Osobna aplikacja Web z tego samego pakietu: punkt wejścia `lib/admin_main.dart`, ekrany w `lib/views/admin/`.
 - Logowanie przez Supabase Auth. Prawa nadaje `supabase/admin.sql` (tabela `admins`). W panelu nie ma klucza sekretnego.
 - Kod zależny od przeglądarki jest w `lib/services/browser_files_web.dart`.
-- GitHub Pages publikuje stronę o aplikacji z `website/`, a panel pod `/panel/`. Tekst polityki prywatności jest w `website/privacy.html` i `lib/views/settings_screen.dart`, więc zmieniaj oba.
+- GitHub Pages publikuje stronę o aplikacji z `website/`, panel pod `/panel/`, a aplikację jako demo pod `/app/`. Na komputerze `website/demo.js` otwiera demo w ramce po kliknięciu, a na telefonie link prowadzi do pełnego ekranu. Na Web statystyki ruszają dopiero po zgodzie. Tekst polityki prywatności jest w `website/privacy.html` i `lib/views/settings_screen.dart`, więc zmieniaj oba.
 - Nowe ciekawostki powstają w czacie według `supabase/prompt_ciekawostki.md` i trafiają do bazy przez Import w panelu.
 
 ## Polecenia

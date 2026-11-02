@@ -10,6 +10,7 @@ import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/phone_frame.dart';
+import 'package:dziesiatka/views/usage_consent_dialog.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -89,10 +90,22 @@ class DziesiatkaApp extends StatelessWidget {
     await usageService?.notificationsAnswered(isAllowed: isAllowed);
   }
 
+  Future<void> _askForStatistics(BuildContext context) async {
+    final usage = usageService;
+    if (usage == null || !await usage.needsConsent() || !context.mounted) {
+      return;
+    }
+
+    await usage.setEnabled(await UsageConsentDialog.show(context));
+  }
+
   /// Marked only now, so leaving halfway shows the first-run screens again.
-  void _finishWelcome(BuildContext context) {
+  Future<void> _finishWelcome(BuildContext context) async {
     onboardingService.markWelcomeSeen();
     _askForNotifications();
+    await _askForStatistics(context);
+    if (!context.mounted) return;
+
     Navigator.of(
       context,
     ).pushReplacement(MaterialPageRoute<void>(builder: (_) => _buildHome()));

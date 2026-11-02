@@ -6,9 +6,11 @@ import 'package:dziesiatka/models/celebration.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/achievements_service.dart';
+import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
+import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
@@ -22,6 +24,7 @@ import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
 import 'package:dziesiatka/views/settings_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 const _visibleCards = 3;
@@ -43,6 +46,8 @@ class HomeScreen extends StatefulWidget {
     this.reminderService,
     this.usageService,
     this.achievementsService = const AchievementsService(),
+    this.linkService = const LinkService(),
+    this.offersAppDownload = kIsWeb,
     this.now,
     this.random,
   });
@@ -52,6 +57,10 @@ class HomeScreen extends StatefulWidget {
   final ReminderService? reminderService;
   final UsageService? usageService;
   final AchievementsService achievementsService;
+  final LinkService linkService;
+
+  /// The web demo points to the app after a finished deck.
+  final bool offersAppDownload;
   final DateTime Function()? now;
   final Random? random;
 
@@ -229,6 +238,15 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _downloadApp() async {
+    final opened = await widget.linkService.open(AppLinks.androidApp);
+    if (opened || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nie udało się otworzyć linku.')),
+    );
+  }
+
   void _openReview(DailySession session) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -317,6 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onReview: () => _openReview(session),
         bonusCount: session.bonusCount,
         onAddBonus: _addBonusCards,
+        onDownloadApp: widget.offersAppDownload ? _downloadApp : null,
       );
     }
 
@@ -756,6 +775,7 @@ class _CompletionView extends StatelessWidget {
     required this.onReview,
     required this.bonusCount,
     required this.onAddBonus,
+    required this.onDownloadApp,
   });
 
   final int? quizCorrect;
@@ -766,6 +786,7 @@ class _CompletionView extends StatelessWidget {
   final VoidCallback onReview;
   final int bonusCount;
   final VoidCallback onAddBonus;
+  final VoidCallback? onDownloadApp;
 
   @override
   Widget build(BuildContext context) {
@@ -855,6 +876,14 @@ class _CompletionView extends StatelessWidget {
               icon: const Icon(Icons.replay_rounded),
               label: const Text('Powtórz dzisiejszą talię'),
             ),
+            if (onDownloadApp != null) ...[
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: onDownloadApp,
+                icon: const Icon(Icons.android_rounded),
+                label: const Text('Pobierz na Androida'),
+              ),
+            ],
           ],
         ),
       ),

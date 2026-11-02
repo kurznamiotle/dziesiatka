@@ -1,11 +1,15 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
+import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
+import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +20,16 @@ import '../helpers/keep_order_random.dart';
 
 const _firstTitle = 'Dzień dłuższy niż rok';
 const _secondTitle = 'Lodowe góry Plutona';
+
+class _FakeLinkService extends LinkService {
+  final opened = <String>[];
+
+  @override
+  Future<bool> open(String url) async {
+    opened.add(url);
+    return true;
+  }
+}
 
 void main() {
   setUp(() {
@@ -476,6 +490,50 @@ void main() {
   });
 
   group('after finishing the deck', () {
+    Future<void> pumpHome(
+      WidgetTester tester,
+      LinkService linkService, {
+      required bool offersAppDownload,
+    }) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 1000);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light,
+          home: HomeScreen(
+            themeService: ThemeService(),
+            linkService: linkService,
+            offersAppDownload: offersAppDownload,
+            random: const KeepOrderRandom(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('the web demo offers the Android app', (tester) async {
+      final linkService = _FakeLinkService();
+      await pumpHome(tester, linkService, offersAppDownload: true);
+
+      await finishDay(tester);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Pobierz na Androida'));
+
+      expect(linkService.opened, [AppLinks.androidApp]);
+    });
+
+    testWidgets('the installed app does not offer itself', (tester) async {
+      await pumpHome(tester, _FakeLinkService(), offersAppDownload: false);
+
+      await finishDay(tester);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pobierz na Androida'), findsNothing);
+    });
+
     testWidgets('the quiz appears before the summary', (tester) async {
       await pumpApp(tester);
 

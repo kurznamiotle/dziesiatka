@@ -28,13 +28,13 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get
-      - run: flutter build web -t lib/admin_main.dart --base-href /dziesiatka/panel/ --pwa-strategy=none
+      - run: mkdir public
+      # Without a service worker, so a new version reaches everyone at once.
+      - run: flutter build web --base-href /dziesiatka/app/ --pwa-strategy=none --no-web-resources-cdn -o public/app
+      - run: flutter build web -t lib/admin_main.dart --base-href /dziesiatka/panel/ --pwa-strategy=none --no-web-resources-cdn -o public/panel
       # The panel stays out of search results, and only the login protects it.
-      - run: sed -i 's#<head>#<head><meta name="robots" content="noindex">#' build/web/index.html
-      - run: |
-          mkdir public
-          cp -r website/. public/
-          cp -r build/web public/panel
+      - run: sed -i 's#<head>#<head><meta name="robots" content="noindex">#' public/panel/index.html
+      - run: cp -r website/. public/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public

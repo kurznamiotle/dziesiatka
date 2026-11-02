@@ -22,17 +22,21 @@ class UsageService {
     AppInfoService appInfoService = const AppInfoService(),
     DateTime Function()? now,
     Random? random,
+    bool asksForConsent = false,
   }) : _url = url,
        _publishableKey = publishableKey,
        _client = client ?? http.Client(),
        _appInfoService = appInfoService,
        _now = now ?? DateTime.now,
-       _random = random ?? Random.secure();
+       _random = random ?? Random.secure(),
+       _asksForConsent = asksForConsent;
 
+  /// The public web demo stays silent until its visitor agrees.
   factory UsageService.fromConfig() {
     return UsageService(
       url: SupabaseConfig.url,
       publishableKey: SupabaseConfig.publishableKey,
+      asksForConsent: kIsWeb,
     );
   }
 
@@ -51,14 +55,24 @@ class UsageService {
   final AppInfoService _appInfoService;
   final DateTime Function() _now;
   final Random _random;
+  final bool _asksForConsent;
 
   /// Runs saves one after another, so two quick events cannot overwrite each
   /// other's numbers.
   Future<void> _queue = Future.value();
 
+  /// Events from before the answer. They stay in memory, so nothing reaches
+  /// the browser's storage until the visitor agrees.
+  final _waitingForConsent = <Future<void> Function(SharedPreferences prefs)>[];
+
   Future<bool> isEnabled() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_enabledKey) ?? true;
+    return prefs.getBool(_enabledKey) ?? !_asksForConsent;
+  }
+
+  Future<bool> needsConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return _asksForConsent && !prefs.containsKey(_enabledKey);
   }
 
   /// Turning this off also forgets the id and all unsent numbers, so turning
@@ -66,7 +80,12 @@ class UsageService {
   Future<void> setEnabled(bool isEnabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_enabledKey, isEnabled);
-    if (isEnabled) return;
+    final waiting = [..._waitingForConsent];
+    _waitingForConsent.clear();
+    if (isEnabled) {
+      await Future.wait(waiting.map(_record));
+      return;
+    }
 
     await prefs.remove(_installIdKey);
     await prefs.remove(_daysKey);
@@ -195,7 +214,11 @@ class UsageService {
     final result = _queue.then((_) async {
       try {
         final prefs = await SharedPreferences.getInstance();
-        if (await isEnabled()) await action(prefs);
+        if (await needsConsent()) {
+          _waitingForConsent.add(action);
+        } else if (await isEnabled()) {
+          await action(prefs);
+        }
       } catch (_) {
         // Statistics must never disturb the app.
       }

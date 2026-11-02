@@ -1,11 +1,13 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/fact_report_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/fact_report_dialog.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
 class FactDetailsSheet extends StatelessWidget {
-  const FactDetailsSheet({super.key, required this.fact});
+  const FactDetailsSheet({super.key, required this.fact, this.reportService});
 
   static Future<void> show(BuildContext context, Fact fact) {
     return showModalBottomSheet<void>(
@@ -19,6 +21,15 @@ class FactDetailsSheet extends StatelessWidget {
   }
 
   final Fact fact;
+  final FactReportService? reportService;
+
+  void _report(BuildContext context) {
+    FactReportDialog.show(
+      context,
+      fact,
+      reportService ?? FactReportService.fromConfig(),
+    );
+  }
 
   Future<void> _openSource(BuildContext context, String url) async {
     final opened = await const LinkService().open(url);
@@ -94,6 +105,12 @@ class FactDetailsSheet extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
               ),
           ],
+          const SizedBox(height: 16),
+          TextButton.icon(
+            onPressed: () => _report(context),
+            icon: const Icon(Icons.flag_outlined),
+            label: const Text('Zgłoś błąd'),
+          ),
         ],
       ),
     );

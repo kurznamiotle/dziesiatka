@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_report.dart';
 import 'package:dziesiatka/models/fact_usage.dart';
 import 'package:dziesiatka/models/usage_row.dart';
 import 'package:dziesiatka/services/admin_service.dart';
@@ -6,6 +7,7 @@ import 'package:dziesiatka/views/admin/dashboard_page.dart';
 import 'package:dziesiatka/views/admin/facts_page.dart';
 import 'package:dziesiatka/views/admin/import_page.dart';
 import 'package:dziesiatka/views/admin/insights_page.dart';
+import 'package:dziesiatka/views/admin/reports_page.dart';
 import 'package:flutter/material.dart';
 
 /// Below this width the navigation moves from the side to the bottom.
@@ -16,6 +18,7 @@ const _destinations = [
   (icon: Icons.list_alt_rounded, label: 'Ciekawostki'),
   (icon: Icons.upload_file_rounded, label: 'Import'),
   (icon: Icons.leaderboard_outlined, label: 'Ranking'),
+  (icon: Icons.flag_outlined, label: 'Zgłoszenia'),
 ];
 
 class AdminShell extends StatefulWidget {
@@ -40,6 +43,7 @@ class _AdminShellState extends State<AdminShell> {
   Set<String> _categories = const {};
   List<UsageRow> _usage = const [];
   Map<String, FactUsage> _factUsage = const {};
+  List<FactReport> _reports = const [];
 
   @override
   void initState() {
@@ -58,12 +62,14 @@ class _AdminShellState extends State<AdminShell> {
       final categories = await service.loadCategories();
       final usage = await service.loadUsage();
       final factUsage = await service.loadFactUsage();
+      final reports = await service.loadReports();
       if (!mounted) return;
       setState(() {
         _facts = facts;
         _categories = categories;
         _usage = usage;
         _factUsage = factUsage;
+        _reports = reports;
         _isLoading = false;
       });
     } catch (_) {
@@ -113,10 +119,16 @@ class _AdminShellState extends State<AdminShell> {
         adminService: widget.adminService,
         onSaved: _load,
       ),
-      _ => InsightsPage(
+      3 => InsightsPage(
         facts: _facts,
         categories: _categories,
         factUsage: _factUsage,
+      ),
+      _ => ReportsPage(
+        reports: _reports,
+        facts: _facts,
+        adminService: widget.adminService,
+        onChanged: _load,
       ),
     };
   }

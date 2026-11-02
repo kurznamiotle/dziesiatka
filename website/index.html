@@ -8,6 +8,12 @@
   <meta property="og:title" content="Dziesiątka: dziesięć ciekawostek dziennie">
   <meta property="og:description" content="Kilka minut dziennie, bez konta i bez reklam.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kurznamiotle.github.io/dziesiatka/">
+  <meta property="og:image" content="https://kurznamiotle.github.io/dziesiatka/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Karta z ciekawostką i hasło Dziesięć ciekawostek dziennie">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="logo.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -24,27 +30,36 @@
       <div class="hero-text">
         <h1>Dziesięć ciekawostek dziennie.</h1>
         <p class="lead">Każdego dnia nowa talia kart i krótki quiz na koniec. Kilka minut i wiesz coś, czego rano jeszcze nie było w Twojej głowie.</p>
-        <!-- Po premierze zamień ten element na:
-             <a class="store" href="ADRES_W_SKLEPIE_PLAY">Pobierz z Google Play</a> -->
-        <span class="store is-soon">Wkrótce w Google Play</span>
-        <p class="note">Bez konta i bez reklam.</p>
+        <div class="actions">
+          <!-- Na komputerze demo.js otwiera demo obok tekstu. Na telefonie link
+               prowadzi do pełnego ekranu, bo ramka blokowałaby przewijanie. -->
+          <a class="store" id="demo-start" href="app/">Wypróbuj w przeglądarce</a>
+          <!-- Po premierze zamień ten link na:
+               <a class="store is-secondary" href="ADRES_W_SKLEPIE_PLAY">Pobierz z Google Play</a> -->
+          <a class="store is-secondary" href="https://github.com/kurznamiotle/dziesiatka/releases/latest/download/dziesiatka.apk">Pobierz na Androida</a>
+        </div>
+        <p class="note">Bez konta i bez reklam. Wkrótce w Google Play.</p>
+        <p class="note">W przeglądarce nie ma przypomnień, a postęp zostaje tylko w niej i nie przechodzi do aplikacji.</p>
       </div>
 
-      <div class="deck" aria-hidden="true">
-        <article class="card card-back"></article>
-        <article class="card card-middle"></article>
-        <article class="card card-front">
-          <div class="card-art">
-            <span class="badge">Absurdy Prawa</span>
-            <svg class="card-icon" viewBox="0 0 24 24" width="124" height="124">
-              <path fill="currentColor" d="M1 21h12v2H1zM5.245 8.07l2.83-2.827 14.14 14.142-2.828 2.828zM12.317 1l5.657 5.656-2.83 2.83-5.654-5.66zM3.825 9.485l5.657 5.657-2.828 2.828-5.657-5.657z"/>
-            </svg>
-          </div>
-          <div class="card-body">
-            <h2>Podejrzany łosoś</h2>
-            <p>W Wielkiej Brytanii zabronione jest obchodzenie się z łososiem w podejrzanych okolicznościach.</p>
-          </div>
-        </article>
+      <div class="stage" id="demo-stage">
+        <div class="deck" aria-hidden="true">
+          <article class="card card-back"></article>
+          <article class="card card-middle"></article>
+          <article class="card card-front">
+            <div class="card-art">
+              <span class="badge">Absurdy Prawa</span>
+              <svg class="card-icon" viewBox="0 0 24 24" width="124" height="124">
+                <path fill="currentColor" d="M1 21h12v2H1zM5.245 8.07l2.83-2.827 14.14 14.142-2.828 2.828zM12.317 1l5.657 5.656-2.83 2.83-5.654-5.66zM3.825 9.485l5.657 5.657-2.828 2.828-5.657-5.657z"/>
+              </svg>
+            </div>
+            <div class="card-body">
+              <h2>Podejrzany łosoś</h2>
+              <p>W Wielkiej Brytanii zabronione jest obchodzenie się z łososiem w podejrzanych okolicznościach.</p>
+            </div>
+          </article>
+        </div>
+        <a class="demo-link" id="demo-full" href="app/" hidden>Otwórz na pełnym ekranie</a>
       </div>
     </section>
 
@@ -96,5 +111,6 @@
     <a href="https://buycoffee.to/bunu" rel="noopener">Postaw kawę twórcy ☕</a>
     <a href="privacy.html">Polityka prywatności</a>
   </footer>
+  <script src="demo.js"></script>
 </body>
 </html>

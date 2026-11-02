@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_report.dart';
 import 'package:dziesiatka/models/fact_usage.dart';
 import 'package:dziesiatka/models/usage_row.dart';
 import 'package:dziesiatka/services/admin_auth_service.dart';
@@ -85,6 +86,25 @@ class AdminService {
     return {
       for (final row in rows) row['fact_id'] as String: FactUsage.fromJson(row),
     };
+  }
+
+  /// Newest first, as the panel works through them from the top.
+  Future<List<FactReport>> loadReports() async {
+    final rows = await _loadAll('fact_reports', {
+      'select': '*',
+      'order': 'created_at.desc,id.desc',
+    });
+    return rows.map(FactReport.fromRow).toList();
+  }
+
+  Future<void> deleteReport(int id) async {
+    final response = await _client
+        .delete(
+          _uri('fact_reports', {'id': 'eq.$id'}),
+          headers: await _headers(),
+        )
+        .timeout(_timeout);
+    _check(response);
   }
 
   Future<void> insertFacts(List<AdminFact> facts) async {

@@ -99,6 +99,12 @@ main,
   text-wrap: pretty;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .store {
   display: inline-block;
   padding: 14px 24px;
@@ -109,15 +115,35 @@ main,
   text-decoration: none;
 }
 
-.store.is-soon {
+.store.is-secondary {
   border: 1px solid var(--border);
   background: var(--surface);
-  color: var(--muted);
+  color: var(--text);
 }
 
 .note {
   margin: 12px 0 0;
   color: var(--muted);
+  font-size: 15px;
+}
+
+.stage {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+.demo-frame {
+  display: block;
+  width: min(390px, 100%);
+  height: min(760px, 90vh);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.demo-link {
   font-size: 15px;
 }
 
