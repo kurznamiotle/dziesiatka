@@ -127,7 +127,7 @@ void main() {
   });
 
   testWidgets('shows all sections', (tester) async {
-    await pumpSettings(tester);
+    await pumpSettings(tester, buyCoffeeUrl: 'https://example.com/kawa');
 
     expect(find.text('Wygląd'), findsOneWidget);
     expect(find.text('Wsparcie i rozwój'), findsOneWidget);
@@ -148,17 +148,13 @@ void main() {
     expect(tile(tester, 'Zgodny z systemem').selected, isFalse);
   });
 
-  testWidgets('links without an address are disabled', (tester) async {
-    final links = _FakeLinkService();
-    await pumpSettings(tester, linkService: links);
+  testWidgets('without a support address the section is hidden', (
+    tester,
+  ) async {
+    await pumpSettings(tester);
 
-    expect(find.text('Wkrótce'), findsOneWidget);
-    expect(tile(tester, 'Postaw kawę twórcy ☕').enabled, isFalse);
-
-    await tester.tap(find.text('Postaw kawę twórcy ☕'));
-    await tester.pumpAndSettle();
-
-    expect(links.opened, isEmpty);
+    expect(find.text('Wsparcie i rozwój'), findsNothing);
+    expect(find.text('Postaw kawę twórcy ☕'), findsNothing);
   });
 
   testWidgets('links with an address open through the link service', (
@@ -174,7 +170,6 @@ void main() {
     await tester.tap(find.text('Postaw kawę twórcy ☕'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Wkrótce'), findsNothing);
     expect(links.opened, ['https://example.com/kawa']);
   });
 

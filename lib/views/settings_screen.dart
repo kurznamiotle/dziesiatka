@@ -53,7 +53,7 @@ class SettingsScreen extends StatefulWidget {
     this.usageService,
     this.linkService = const LinkService(),
     this.appInfoService = const AppInfoService(),
-    this.buyCoffeeUrl = AppLinks.buyCoffee,
+    this.buyCoffeeUrl = AppLinks.buyCoffeeInApp,
   });
 
   final ThemeService themeService;
@@ -62,6 +62,8 @@ class SettingsScreen extends StatefulWidget {
   final UsageService? usageService;
   final LinkService linkService;
   final AppInfoService appInfoService;
+
+  /// Without an address the support section is hidden.
   final String? buyCoffeeUrl;
 
   @override
@@ -177,6 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final remindersEnabled = _remindersEnabled;
     final usageEnabled = _usageEnabled;
+    final buyCoffeeUrl = widget.buyCoffeeUrl;
     return Scaffold(
       appBar: AppBar(title: const Text('Ustawienia')),
       body: SafeArea(
@@ -199,13 +202,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: remindersEnabled,
                 onChanged: _setRemindersEnabled,
               ),
-            const _SectionHeader('Wsparcie i rozwój'),
-            _LinkTile(
-              icon: Icons.local_cafe_outlined,
-              title: 'Postaw kawę twórcy ☕',
-              url: widget.buyCoffeeUrl,
-              onOpen: _openLink,
-            ),
+            if (buyCoffeeUrl != null) ...[
+              const _SectionHeader('Wsparcie i rozwój'),
+              _LinkTile(
+                icon: Icons.local_cafe_outlined,
+                title: 'Postaw kawę twórcy ☕',
+                url: buyCoffeeUrl,
+                onOpen: _openLink,
+              ),
+            ],
             const _SectionHeader('O aplikacji'),
             ListTile(
               leading: const Icon(Icons.help_outline_rounded),
@@ -327,19 +332,16 @@ class _LinkTile extends StatelessWidget {
 
   final IconData icon;
   final String title;
-  final String? url;
+  final String url;
   final void Function(String url) onOpen;
 
   @override
   Widget build(BuildContext context) {
-    final link = url;
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      subtitle: link == null ? const Text('Wkrótce') : null,
-      trailing: link == null ? null : const Icon(Icons.open_in_new_rounded),
-      enabled: link != null,
-      onTap: link == null ? null : () => onOpen(link),
+      trailing: const Icon(Icons.open_in_new_rounded),
+      onTap: () => onOpen(url),
     );
   }
 }
