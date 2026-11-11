@@ -12,10 +12,18 @@ import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/phone_frame.dart';
 import 'package:dziesiatka/views/usage_consent_dialog.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Android 15 always draws apps under the system bars. Older versions do the
+  // same, so the app looks alike everywhere.
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
 
   // Loaded before the first frame, so the app never flashes the wrong theme.
   final themeService = ThemeService();

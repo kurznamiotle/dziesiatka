@@ -8,14 +8,14 @@ const _maxWidth = 440.0;
 const _maxHeight = 860.0;
 const _borderRadius = BorderRadius.all(Radius.circular(36));
 
+// Only icon brightness. Bar colors would call Window.setStatusBarColor, which
+// Android 15 ignores and Google Play reports as deprecated.
 const _lightThemeOverlay = SystemUiOverlayStyle(
-  statusBarColor: Colors.transparent,
   statusBarIconBrightness: Brightness.dark,
   statusBarBrightness: Brightness.light,
 );
 
 const _darkThemeOverlay = SystemUiOverlayStyle(
-  statusBarColor: Colors.transparent,
   statusBarIconBrightness: Brightness.light,
   statusBarBrightness: Brightness.dark,
 );

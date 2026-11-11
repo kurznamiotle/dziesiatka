@@ -98,10 +98,14 @@ class _CelebrationOverlayState extends State<CelebrationOverlay>
             ),
             if (showParticles)
               CustomPaint(painter: _ParticlePainter(_particles, _progress)),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: ScaleTransition(scale: _pop, child: _buildMessage()),
+            // The backdrop covers the system bars, the message stays clear of
+            // them.
+            SafeArea(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ScaleTransition(scale: _pop, child: _buildMessage()),
+                ),
               ),
             ),
           ],
