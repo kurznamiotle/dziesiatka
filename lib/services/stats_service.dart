@@ -33,6 +33,14 @@ class StatsService {
     required List<String> completedDays,
   }) {
     final known = [for (final fact in facts) ?records[fact.id]];
+    final categories = {
+      for (final fact in facts)
+        if (!fact.isWithdrawn) fact.category,
+    };
+    final readCategories = {
+      for (final fact in facts)
+        if (fact.isRead && categories.contains(fact.category)) fact.category,
+    };
     return UserStats(
       daysCompleted: completedDays.toSet().length,
       factsRead: facts.where((fact) => fact.isRead).length,
@@ -40,6 +48,9 @@ class StatsService {
       answersGiven: known.fold(0, (sum, record) => sum + record.answered),
       answersCorrect: known.fold(0, (sum, record) => sum + record.correct),
       favoriteCategory: _favoriteCategory(facts),
+      factsLiked: facts.where((fact) => fact.isFavorite).length,
+      categoriesRead: readCategories.length,
+      categoriesTotal: categories.length,
     );
   }
 

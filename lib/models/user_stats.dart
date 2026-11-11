@@ -7,6 +7,9 @@ class UserStats {
     required this.answersGiven,
     required this.answersCorrect,
     this.favoriteCategory,
+    this.factsLiked = 0,
+    this.categoriesRead = 0,
+    this.categoriesTotal = 0,
   });
 
   /// Every day with a finished deck, not only the current streak.
@@ -22,6 +25,14 @@ class UserStats {
 
   /// The category with the most liked facts, or null before the first like.
   final String? favoriteCategory;
+
+  /// Liked facts, still liked now.
+  final int factsLiked;
+
+  /// Categories with at least one read fact, out of [categoriesTotal] in the
+  /// facts still in circulation.
+  final int categoriesRead;
+  final int categoriesTotal;
 
   /// The share of correct answers from 0 to 100, or null without answers.
   int? get accuracyPercent {

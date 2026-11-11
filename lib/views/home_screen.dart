@@ -6,6 +6,7 @@ import 'package:dziesiatka/models/celebration.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/user_stats.dart';
+import 'package:dziesiatka/services/achievement_progress_service.dart';
 import 'package:dziesiatka/services/achievements_service.dart';
 import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
@@ -89,6 +90,11 @@ class _HomeScreenState extends State<HomeScreen> {
     _factsService,
     _streakService,
     _quizHistory,
+  );
+  late final _achievementProgress = AchievementProgressService(
+    _statsService,
+    _streakService,
+    widget.achievementsService,
   );
   late final _quickReview = QuickReviewService(
     _factsService,
@@ -222,13 +228,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final quizTotal = session.quizQuestions.length;
     var unlocked = const <Achievement>[];
     try {
-      unlocked = await widget.achievementsService.recordDay(
-        streak: session.streak,
-        factsRead: session.factsRead,
-        wasQuizPerfect: quizTotal > 0 && quizCorrect == quizTotal,
+      await widget.achievementsService.recordQuiz(
+        wasPerfect: quizTotal > 0 && quizCorrect == quizTotal,
       );
+      // "Zapamiętane" counts today's answers too.
+      await _answersSaved;
+      unlocked = await _achievementProgress.unlockNew();
     } catch (_) {
-      // A lost achievement comes back with the next finished day.
+      // A lost achievement comes back with the next check.
     }
     unawaited(
       widget.usageService?.dayFinished(
