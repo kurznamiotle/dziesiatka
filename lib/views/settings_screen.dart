@@ -15,9 +15,9 @@ const _aboutText =
     'Kilka minut dziennie, bez konta i bez reklam.';
 const _privacyText =
     'Dziesiątka nie ma kont użytkowników.\n\n'
-    'Postęp, ulubione, seria dni i wybrany motyw są zapisywane wyłącznie na '
-    'tym urządzeniu lub w tej przeglądarce. Usunięcie aplikacji albo danych '
-    'strony kasuje je bezpowrotnie.\n\n'
+    'Postęp, ulubione, odpowiedzi z quizu, seria dni i wybrany motyw są '
+    'zapisywane wyłącznie na tym urządzeniu lub w tej przeglądarce. '
+    'Usunięcie aplikacji albo danych strony kasuje je bezpowrotnie.\n\n'
     'Nowe ciekawostki są pobierane z serwerów usługi Supabase, która przy '
     'połączeniu widzi adres IP urządzenia. Aplikacja nie wysyła tam Twojego '
     'postępu.\n\n'
