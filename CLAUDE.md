@@ -48,6 +48,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Kod musi być zgodny z regułami z `analysis_options.yaml`.
 - Kod działa na wszystkich trzech platformach. `dart:io` nie jest dostępne na Web, więc kod zależny od platformy należy izolować w `services/`.
 - Testy w `test/` odwzorowują strukturę `lib/` (np. `test/services/` dla `lib/services/`).
+- Przy aktualizacji Fluttera zmień też flutter-version w .github/workflows/ci.yml i panel.yml na tę samą wersję.
 
 ## Dane
 
