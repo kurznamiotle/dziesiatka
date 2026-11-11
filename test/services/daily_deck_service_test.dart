@@ -625,6 +625,25 @@ void main() {
       expect(session.streak, 1);
     });
 
+    test('undo after the quiz keeps the streak and the score', () async {
+      givenPool([fact(0), fact(1)]);
+      await finishCards(service);
+      await service.finishQuiz(2);
+
+      var session = await service.undo();
+      expect(session.remaining.map((fact) => fact.id), ['fact-1']);
+      expect(session.isDayFinished, isTrue);
+      expect(session.deck.quizCorrect, 2);
+      expect(session.streak, 1);
+
+      session = await service.completeCard('fact-1', liked: false);
+
+      expect(session.isQuizPending, isFalse);
+      expect(session.isDayFinished, isTrue);
+      expect(session.deck.quizCorrect, 2);
+      expect(session.streak, 1);
+    });
+
     test('the streak grows across days', () async {
       givenPool([for (var i = 0; i < 40; i++) fact(i)]);
       await finishCards(service);

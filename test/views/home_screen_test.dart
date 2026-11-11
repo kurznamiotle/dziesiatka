@@ -544,6 +544,62 @@ void main() {
       expect(find.text('Dalej'), findsNothing);
     });
 
+    Future<void> swipeLastCard(WidgetTester tester) async {
+      await finishRemainingCards(tester, 9);
+      await tester.tap(find.text('Dalej'));
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    testWidgets('the last card leads to a screen before the quiz', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+
+      await swipeLastCard(tester);
+
+      expect(find.text('Przejdź do quizu'), findsOneWidget);
+      expect(find.text('Cofnij'), findsOneWidget);
+      expect(find.textContaining('Pytanie'), findsNothing);
+    });
+
+    testWidgets('the quiz appears after 3 seconds without a tap', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await swipeLastCard(tester);
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.textContaining('Pytanie'), findsNothing);
+
+      await tester.pump(const Duration(milliseconds: 1100));
+      await tester.pump();
+
+      expect(find.text('Pytanie 1 / 4'), findsOneWidget);
+      expect(find.text('Przejdź do quizu'), findsNothing);
+    });
+
+    testWidgets('undo before the quiz brings the last card back', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await swipeLastCard(tester);
+
+      await tester.tap(find.text('Cofnij'));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 5));
+
+      expect(find.text('9 / 10 ukończone'), findsOneWidget);
+      expect(find.text('Plecione oprogramowanie Apollo'), findsOneWidget);
+      expect(find.textContaining('Pytanie'), findsNothing);
+
+      await tester.tap(find.text('Dalej'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pytanie 1 / 4'), findsOneWidget);
+    });
+
     testWidgets('undo from the quiz returns to the last card', (tester) async {
       await pumpApp(tester);
       await finishRemainingCards(tester, 10);

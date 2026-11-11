@@ -20,6 +20,7 @@ import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/daily_quiz_screen.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
+import 'package:dziesiatka/views/deck_finished_view.dart';
 import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
@@ -80,6 +81,10 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loadFailed = false;
   _ShownCelebration? _celebration;
 
+  /// The user has left the screen after the last card. It is not saved, so a
+  /// restart shows that screen again before the quiz.
+  bool _isQuizStarted = false;
+
   @override
   void initState() {
     super.initState();
@@ -90,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await _factsService.syncWithSeed();
       final session = await _deckService.loadToday();
-      if (mounted) setState(() => _session = session);
+      if (mounted) setState(() => _showSession(session));
       unawaited(_downloadNewFacts());
       unawaited(_updateReminders(session));
       unawaited(_reportUsage());
@@ -105,6 +110,15 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       await _factsService.syncWithRemote();
     } catch (_) {}
+  }
+
+  void _showSession(DailySession session) {
+    _session = session;
+    if (!session.isQuizPending) _isQuizStarted = false;
+  }
+
+  void _startQuiz() {
+    setState(() => _isQuizStarted = true);
   }
 
   Future<void> _reportUsage() async {
@@ -131,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final wasDayFinished = _session?.isDayFinished ?? false;
       final session = await change();
-      if (mounted) setState(() => _session = session);
+      if (mounted) setState(() => _showSession(session));
       if (!wasDayFinished && session.isDayFinished) {
         unawaited(_updateReminders(session));
         unawaited(_celebrate(session));
@@ -312,6 +326,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildDeck(DailySession session) {
     if (session.facts.isEmpty) {
       return const Center(child: Text('Brak ciekawostek.'));
+    }
+
+    if (session.isQuizPending && !_isQuizStarted) {
+      return DeckFinishedView(onStartQuiz: _startQuiz, onUndo: _undo);
     }
 
     if (session.isQuizPending) {
