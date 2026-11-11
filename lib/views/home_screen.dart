@@ -956,26 +956,30 @@ class _CompletionView extends StatelessWidget {
               timeRemaining: timeUntilNextDeck,
               onFinished: onNextDeckReady,
             ),
-            const SizedBox(height: 32),
-            if (bonusCount > 0) ...[
-              FilledButton.icon(
-                onPressed: onAddBonus,
-                icon: const Icon(Icons.add_rounded),
-                label: Text('Jeszcze $bonusCount'),
-              ),
-              const SizedBox(height: 8),
-            ],
-            if (quickReviewCount > 0) ...[
-              _QuickReviewCard(
-                questionCount: quickReviewCount,
-                onTap: onQuickReview,
-              ),
-              const SizedBox(height: 8),
-            ],
-            FilledButton.tonalIcon(
-              onPressed: onReview,
-              icon: const Icon(Icons.replay_rounded),
-              label: const Text('Powtórz dzisiejszą talię'),
+            const SizedBox(height: 28),
+            _ActionGrid(
+              actions: [
+                if (bonusCount > 0)
+                  _ActionTile(
+                    icon: Icons.add_rounded,
+                    title: 'Jeszcze $bonusCount',
+                    subtitle: 'nowe ciekawostki',
+                    isPrimary: true,
+                    onTap: onAddBonus,
+                  ),
+                if (quickReviewCount > 0)
+                  _ActionTile(
+                    icon: Icons.bolt_rounded,
+                    title: 'Szybka powtórka',
+                    subtitle: _quickReviewLabel(quickReviewCount),
+                    onTap: onQuickReview,
+                  ),
+                _ActionTile(
+                  icon: Icons.replay_rounded,
+                  title: 'Powtórz dzisiejszą talię',
+                  onTap: onReview,
+                ),
+              ],
             ),
             if (onDownloadApp != null) ...[
               const SizedBox(height: 8),
@@ -992,54 +996,92 @@ class _CompletionView extends StatelessWidget {
   }
 }
 
-/// Invites to a few questions from earlier days.
-class _QuickReviewCard extends StatelessWidget {
-  const _QuickReviewCard({required this.questionCount, required this.onTap});
+String _quickReviewLabel(int count) {
+  final questions = count == 1 ? 'pytanie' : 'pytania';
+  return '$count $questions z poprzednich dni';
+}
 
-  final int questionCount;
+/// Lays the actions out two in a row. An odd last one takes the whole row.
+class _ActionGrid extends StatelessWidget {
+  const _ActionGrid({required this.actions});
+
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 10,
+      children: [
+        for (var start = 0; start < actions.length; start += 2)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                for (final action in actions.skip(start).take(2))
+                  Expanded(child: action),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+    this.isPrimary = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
   final VoidCallback onTap;
+
+  /// Filled with the main color, for the action most people take next.
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final surfaces = theme.extension<AppSurfaces>()!;
-    final questions = questionCount == 1 ? 'pytanie' : 'pytania';
+    final foreground = isPrimary ? colors.onPrimary : colors.onSurface;
+    final muted = isPrimary ? colors.onPrimary : colors.onSurfaceVariant;
+    final subtitle = this.subtitle;
     return Material(
-      color: surfaces.card,
+      color: isPrimary ? colors.primary : surfaces.card,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: surfaces.border),
+        side: isPrimary ? BorderSide.none : BorderSide(color: surfaces.border),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-          child: Row(
-            spacing: 12,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
             children: [
-              Icon(Icons.bolt_rounded, color: colors.primary),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Szybka powtórka',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      '$questionCount $questions z poprzednich dni',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
+              Icon(icon, color: isPrimary ? colors.onPrimary : colors.primary),
+              Text(
+                title,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: foreground,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(color: muted),
+                ),
             ],
           ),
         ),

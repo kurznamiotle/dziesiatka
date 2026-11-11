@@ -78,8 +78,7 @@ void main() {
   Future<void> answerQuiz(WidgetTester tester) async {
     for (var i = 0; i < DailyDeckService.quizQuestionCount; i++) {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump();
-      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
+      await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
     }
   }
@@ -606,12 +605,10 @@ void main() {
       expect(find.text('Pytanie 1 / 4'), findsOneWidget);
     });
 
-    testWidgets('an answered question opens its fact again', (tester) async {
+    testWidgets('a question shows its fact as a hint', (tester) async {
       await pumpApp(tester);
       await finishRemainingCards(tester, 10);
 
-      await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump();
       await tester.tap(find.text('Przypomnij sobie'));
       await tester.pumpAndSettle();
 
@@ -805,16 +802,14 @@ void main() {
       await finishRemainingCards(tester, 10);
       for (var i = 0; i < DailyDeckService.quizQuestionCount - 1; i++) {
         await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-        await tester.pump();
-        await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
+        await tester.pump(const Duration(seconds: 1));
         await tester.pumpAndSettle();
       }
     }
 
     Future<void> answerLastQuestion(WidgetTester tester) async {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump();
-      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
+      await tester.pump(const Duration(seconds: 1));
       await tester.pump();
       await tester.pump();
     }
@@ -898,6 +893,10 @@ void main() {
       final score = find.textContaining(RegExp(r'^\d/4 poprawne!$'));
       final scoreBefore = tester.widget<Text>(score).data;
       expect(find.text('3 pytania z poprzednich dni'), findsOneWidget);
+      final bonus = tester.getTopLeft(find.text('Jeszcze 5'));
+      final review = tester.getTopLeft(find.text('Szybka powtórka'));
+      expect(review.dy, bonus.dy);
+      expect(review.dx, greaterThan(bonus.dx));
 
       await tester.ensureVisible(find.text('Szybka powtórka'));
       await tester.pumpAndSettle();
@@ -909,8 +908,7 @@ void main() {
 
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-        await tester.pump();
-        await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
+        await tester.pump(const Duration(seconds: 1));
         await tester.pumpAndSettle();
       }
 

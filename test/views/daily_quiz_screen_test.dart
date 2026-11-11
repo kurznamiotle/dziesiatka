@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+const _feedback = Duration(seconds: 1);
+
 const _questions = [
   QuizQuestion(
     question: 'Pierwsze pytanie',
@@ -84,7 +86,7 @@ void main() {
       await pumpQuiz(tester);
 
       await tester.tap(find.text('A. Dobra'));
-      await tester.pump();
+      await tester.pump(_feedback);
 
       expect(vibrations, ['HapticFeedbackType.mediumImpact']);
     });
@@ -93,7 +95,7 @@ void main() {
       await pumpQuiz(tester);
 
       await tester.tap(find.text('B. Zła'));
-      await tester.pump();
+      await tester.pump(_feedback);
 
       expect(vibrations, ['HapticFeedbackType.heavyImpact']);
     });
@@ -104,7 +106,7 @@ void main() {
       await tester.tap(find.text('B. Zła'));
       await tester.pump();
       await tester.tap(find.text('A. Dobra'));
-      await tester.pump();
+      await tester.pump(_feedback);
 
       expect(vibrations, hasLength(1));
     });
@@ -118,7 +120,7 @@ void main() {
 
     expect(optionColor(tester, 'A. Dobra'), const Color(0xFF15803D));
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-    await tester.pump();
+    await tester.pump(_feedback);
   });
 
   testWidgets('a wrong answer turns red and reveals the right one', (
@@ -131,30 +133,23 @@ void main() {
 
     expect(optionColor(tester, 'B. Zła'), const Color(0xFFB91C1C));
     expect(optionColor(tester, 'A. Dobra'), const Color(0xFF15803D));
-    await tester.pump();
+    await tester.pump(_feedback);
   });
 
-  testWidgets('waits for the next button and reports the score once', (
+  testWidgets('moves on after the feedback and reports the score', (
     tester,
   ) async {
     await pumpQuiz(tester);
 
     await tester.tap(find.text('A. Dobra'));
-    await tester.pump(const Duration(seconds: 5));
-    expect(find.text('Pytanie 1 / 2'), findsOneWidget);
-
-    await tester.tap(find.text('Dalej'));
+    await tester.pump(_feedback);
     await tester.pump();
     expect(find.text('Pytanie 2 / 2'), findsOneWidget);
     expect(find.text('Drugie pytanie'), findsOneWidget);
-    expect(find.text('Dalej'), findsNothing);
     expect(results, isEmpty);
 
     await tester.tap(find.text('A. Jeden'));
-    await tester.pump();
-    await tester.tap(find.text('Zobacz wynik'));
-    await tester.tap(find.text('Zobacz wynik'));
-    await tester.pump();
+    await tester.pump(_feedback);
 
     expect(results, [1]);
   });
@@ -165,13 +160,11 @@ void main() {
     await tester.tap(find.text('B. Zła'));
     await tester.pump();
     await tester.tap(find.text('A. Dobra'));
-    await tester.pump();
-    await tester.tap(find.text('Dalej'));
+    await tester.pump(_feedback);
     await tester.pump();
 
     await tester.tap(find.text('C. Trzy'));
-    await tester.pump();
-    await tester.tap(find.text('Zobacz wynik'));
+    await tester.pump(_feedback);
 
     expect(results, [1]);
   });
@@ -201,10 +194,10 @@ void main() {
     await tester.pump();
 
     expect(find.text('Cofnij ostatnią kartę').hitTestable(), findsNothing);
-    await tester.pump();
+    await tester.pump(_feedback);
   });
 
-  group('remembering the fact', () {
+  group('the hint', () {
     final facts = [
       for (final (index, question) in _questions.indexed)
         Fact(
@@ -219,24 +212,10 @@ void main() {
         ),
     ];
 
-    testWidgets('is offered only after an answer', (tester) async {
-      await pumpQuiz(tester, facts: facts);
-
-      expect(find.text('Przypomnij sobie'), findsNothing);
-
-      await tester.tap(find.text('B. Zła'));
-      await tester.pump();
-
-      expect(find.text('Przypomnij sobie'), findsOneWidget);
-    });
-
     testWidgets('opens the fact behind the current question', (tester) async {
       await pumpQuiz(tester, facts: facts);
       await tester.tap(find.text('A. Dobra'));
-      await tester.pump();
-      await tester.tap(find.text('Dalej'));
-      await tester.pump();
-      await tester.tap(find.text('A. Jeden'));
+      await tester.pump(_feedback);
       await tester.pump();
 
       await tester.tap(find.text('Przypomnij sobie'));
@@ -249,16 +228,23 @@ void main() {
       await tester.tapAt(const Offset(10, 10));
       await tester.pumpAndSettle();
 
-      expect(find.byType(FactDetailsSheet), findsNothing);
       expect(find.text('Pytanie 2 / 2'), findsOneWidget);
       expect(results, isEmpty);
     });
 
+    testWidgets('is gone once the question is answered', (tester) async {
+      await pumpQuiz(tester, facts: facts);
+      expect(find.text('Przypomnij sobie').hitTestable(), findsOneWidget);
+
+      await tester.tap(find.text('B. Zła'));
+      await tester.pump();
+
+      expect(find.text('Przypomnij sobie').hitTestable(), findsNothing);
+      await tester.pump(_feedback);
+    });
+
     testWidgets('is not offered without the facts', (tester) async {
       await pumpQuiz(tester);
-
-      await tester.tap(find.text('A. Dobra'));
-      await tester.pump();
 
       expect(find.text('Przypomnij sobie'), findsNothing);
     });
