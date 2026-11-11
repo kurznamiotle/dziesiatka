@@ -1,11 +1,14 @@
 import 'dart:ui' as ui;
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/services/achievement_progress_service.dart';
+import 'package:dziesiatka/services/achievements_service.dart';
 import 'package:dziesiatka/services/share_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:flutter/foundation.dart';
+import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -29,6 +32,8 @@ class ShareCardSheet extends StatefulWidget {
     super.key,
     required this.fact,
     this.shareService = const ShareService(),
+    this.achievementsService = const AchievementsService(),
+    this.achievementProgress,
   });
 
   static Future<void> show(BuildContext context, Fact fact) {
@@ -44,6 +49,10 @@ class ShareCardSheet extends StatefulWidget {
 
   final Fact fact;
   final ShareService shareService;
+  final AchievementsService achievementsService;
+
+  /// Checks achievements after a share. Reads this device's storage when null.
+  final AchievementProgressService? achievementProgress;
 
   @override
   State<ShareCardSheet> createState() => _ShareCardSheetState();
@@ -73,7 +82,8 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
     return button.localToGlobal(Offset.zero) & button.size;
   }
 
-  Future<void> _run(
+  /// Returns whether [action] succeeded.
+  Future<bool> _run(
     Future<void> Function() action, {
     required String failureMessage,
     String? successMessage,
@@ -90,16 +100,17 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
       failed = true;
     }
 
-    if (!mounted) return;
+    if (!mounted) return !failed;
     setState(() {
       _isWorking = false;
       _isError = failed;
       _message = failed ? failureMessage : successMessage;
     });
+    return !failed;
   }
 
-  Future<void> _share() {
-    return _run(() async {
+  Future<void> _share() async {
+    final isShared = await _run(() async {
       await widget.shareService.shareImage(
         await _captureImage(),
         fileName: _fileName,
@@ -107,10 +118,28 @@ class _ShareCardSheetState extends State<ShareCardSheet> {
         origin: _buttonRect(),
       );
     }, failureMessage: 'Nie udało się udostępnić grafiki.');
+    if (isShared) await _countShare();
   }
 
-  Future<void> _save() {
-    return _run(
+  /// Counted on this device whatever the choice about anonymous statistics.
+  Future<void> _countShare() async {
+    try {
+      await widget.achievementsService.recordShare();
+      final progress =
+          widget.achievementProgress ??
+          AchievementProgressService.local(
+            achievementsService: widget.achievementsService,
+          );
+      final unlocked = await progress.unlockNew();
+      if (!mounted) return;
+      CelebrationOverlay.showUnlocked(context, unlocked);
+    } catch (_) {
+      // A lost check comes back with the next one.
+    }
+  }
+
+  Future<void> _save() async {
+    await _run(
       () async => widget.shareService.saveImage(
         await _captureImage(),
         fileName: _fileName,

@@ -10,6 +10,13 @@ void main() {
     );
   }
 
+  test('achievements apart from a day celebrate calmly, several at once', () {
+    expect(Celebration.forAchievements(1).headline, 'Brawo!');
+    expect(Celebration.forAchievements(3).headline, 'Nowe osiągnięcia!');
+    expect(Celebration.forAchievements(3).intensity, 1);
+    expect(Celebration.forAchievements(3).message, isNull);
+  });
+
   test('the headline and intensity follow the quiz score', () {
     expect(dayWith(1).headline, 'Dobra robota!');
     expect(dayWith(1).intensity, 0);

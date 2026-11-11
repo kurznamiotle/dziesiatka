@@ -797,6 +797,74 @@ void main() {
     });
   });
 
+  group('achievements outside a finished day', () {
+    testWidgets('an update brings what was reached in one celebration', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({'perfectQuizCount': 50});
+
+      await tester.runAsync(() async {});
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(390, 844);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        DziesiatkaApp(
+          themeService: ThemeService(),
+          random: const KeepOrderRandom(),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(CelebrationOverlay), findsOneWidget);
+      expect(find.text('Nowe osiągnięcia!'), findsOneWidget);
+      expect(find.text('Nowe osiągnięcie: Bezbłędnie'), findsOneWidget);
+      expect(find.text('Nowe osiągnięcie: Mistrz quizów'), findsOneWidget);
+      expect(find.text('Nowe osiągnięcie: Quizowy weteran'), findsOneWidget);
+
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox());
+      await pumpApp(tester);
+
+      expect(find.byType(CelebrationOverlay), findsNothing);
+    });
+
+    testWidgets('a like that reaches 25 favorites unlocks Kolekcjoner', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      final facts = await FactsService().getFacts();
+      final others = facts
+          .where((fact) => fact.title != _firstTitle)
+          .take(24)
+          .toList();
+      expect(others, hasLength(24));
+      for (final fact in others) {
+        await FactsService().toggleFavorite(fact.id);
+      }
+
+      await tester.tap(find.text('Polub'));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(await favoriteCount(), 25);
+      expect(find.text('Nowe osiągnięcie: Kolekcjoner'), findsOneWidget);
+      await tester.pumpAndSettle();
+      expect(find.text('1 / 10 ukończone'), findsOneWidget);
+    });
+
+    testWidgets('moving on without a like celebrates nothing', (tester) async {
+      await pumpApp(tester);
+
+      await tester.tap(find.text('Dalej'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CelebrationOverlay), findsNothing);
+    });
+  });
+
   group('celebrating a finished day', () {
     Future<void> answerUpToLastQuestion(WidgetTester tester) async {
       await finishRemainingCards(tester, 10);
@@ -909,11 +977,19 @@ void main() {
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.textContaining(RegExp(r'^A\. ')));
         await tester.pump(const Duration(seconds: 1));
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 500));
       }
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.textContaining(RegExp(r'^\d/3 – ')), findsOneWidget);
+      expect(
+        find.text('Nowe osiągnięcie: Powrót do przeszłości'),
+        findsOneWidget,
+      );
+
+      await tester.pumpAndSettle();
 
       expect(find.text('Gratulacje!'), findsOneWidget);
-      expect(find.textContaining(RegExp(r'^\d/3 – ')), findsOneWidget);
       expect(tester.widget<Text>(score).data, scoreBefore);
       expect(find.text('Seria: 2 dni'), findsOneWidget);
     });

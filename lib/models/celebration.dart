@@ -28,6 +28,15 @@ class Celebration {
     );
   }
 
+  /// Achievements unlocked apart from a finished day, such as after a share.
+  /// Several of them share one celebration.
+  factory Celebration.forAchievements(int count) {
+    return Celebration(
+      headline: count > 1 ? 'Nowe osiągnięcia!' : 'Brawo!',
+      intensity: 1,
+    );
+  }
+
   static const maxIntensity = 3;
   static const streakMilestones = {5, 10, 25, 50, 100};
 

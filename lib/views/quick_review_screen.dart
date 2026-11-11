@@ -14,21 +14,19 @@ class QuickReviewScreen extends StatelessWidget {
     required this.reviewService,
   });
 
-  /// Opens the review and returns the message to show once it is done, or
-  /// null when the user leaves early.
-  static Future<String?> open(
+  /// Opens the review and returns the number of correct answers, or null
+  /// when the user leaves early.
+  static Future<int?> open(
     BuildContext context, {
     required List<Fact> facts,
     required QuickReviewService reviewService,
-  }) async {
-    final correct = await Navigator.of(context).push<int>(
+  }) {
+    return Navigator.of(context).push<int>(
       MaterialPageRoute(
         builder: (_) =>
             QuickReviewScreen(facts: facts, reviewService: reviewService),
       ),
     );
-    if (correct == null) return null;
-    return resultMessage(correct, facts.length);
   }
 
   static String resultMessage(int correct, int total) {

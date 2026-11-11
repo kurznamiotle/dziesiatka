@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dziesiatka/models/achievement.dart';
 import 'package:dziesiatka/models/celebration.dart';
+import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -31,6 +32,27 @@ class CelebrationOverlay extends StatefulWidget {
     required this.unlocked,
     required this.onFinished,
   });
+
+  /// Celebrates [unlocked] above everything else, so it works from a sheet
+  /// or a screen that has no place for an overlay of its own.
+  static void showUnlocked(BuildContext context, List<Achievement> unlocked) {
+    if (unlocked.isEmpty) return;
+    const HapticsService().celebration();
+    late final OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => Material(
+        type: MaterialType.transparency,
+        child: CelebrationOverlay(
+          celebration: Celebration.forAchievements(unlocked.length),
+          unlocked: unlocked,
+          onFinished: () {
+            if (entry.mounted) entry.remove();
+          },
+        ),
+      ),
+    );
+    Overlay.of(context, rootOverlay: true).insert(entry);
+  }
 
   final Celebration celebration;
   final List<Achievement> unlocked;
@@ -100,9 +122,11 @@ class _CelebrationOverlayState extends State<CelebrationOverlay>
               CustomPaint(painter: _ParticlePainter(_particles, _progress)),
             // The backdrop covers the system bars, the message stays clear of
             // them.
+            // Scrolls when many achievements come at once, such as the first
+            // check after an update.
             SafeArea(
               child: Center(
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: ScaleTransition(scale: _pop, child: _buildMessage()),
                 ),

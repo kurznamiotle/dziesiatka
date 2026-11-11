@@ -1,13 +1,16 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/share_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/services/achievements_service.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeShareService extends ShareService {
   _FakeShareService({this.error});
@@ -213,5 +216,62 @@ void main() {
       ),
     );
     expect(button.onPressed, isNotNull);
+  });
+
+  group('the share achievement', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+      rootBundle.clear();
+    });
+
+    testWidgets('the first share is counted and celebrated', (tester) async {
+      await pumpSheet(tester, _FakeShareService());
+
+      await tapShare(tester);
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pump();
+
+      expect(
+        (await tester.runAsync(
+          () => const AchievementsService().getCounts(),
+        ))!.shares,
+        1,
+      );
+      expect(find.byType(CelebrationOverlay), findsOneWidget);
+      expect(find.text('Nowe osiągnięcie: Podaj dalej'), findsOneWidget);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(CelebrationOverlay), findsNothing);
+    });
+
+    testWidgets('a failed share counts nothing', (tester) async {
+      await pumpSheet(tester, _FakeShareService(error: Exception('nope')));
+
+      await tapShare(tester);
+      await tester.pump();
+
+      expect(
+        (await tester.runAsync(
+          () => const AchievementsService().getCounts(),
+        ))!.shares,
+        0,
+      );
+      expect(find.byType(CelebrationOverlay), findsNothing);
+    });
+
+    testWidgets('saving to the gallery is not a share', (tester) async {
+      await pumpSheet(tester, _FakeShareService());
+
+      await tapAndCapture(tester, 'Zapisz w galerii');
+
+      expect(
+        (await tester.runAsync(
+          () => const AchievementsService().getCounts(),
+        ))!.shares,
+        0,
+      );
+    });
   });
 }

@@ -130,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final session = await _deckService.loadToday();
       if (mounted) setState(() => _showSession(session));
       unawaited(_loadStats());
+      unawaited(_checkAchievements());
       unawaited(_downloadNewFacts());
       unawaited(_updateReminders(session));
       unawaited(_reportUsage());
@@ -167,17 +168,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _openQuickReview() async {
     const HapticsService().cardAction();
-    final message = await QuickReviewScreen.open(
+    final total = _reviewFacts.length;
+    final correct = await QuickReviewScreen.open(
       context,
       facts: _reviewFacts,
       reviewService: _quickReview,
     );
+    if (correct != null) {
+      try {
+        await widget.achievementsService.recordReview(
+          wasPerfect: correct == total,
+        );
+      } catch (_) {}
+    }
     await _loadStats();
-    if (message == null || !mounted) return;
+    if (correct == null || !mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(QuickReviewScreen.resultMessage(correct, total))),
+    );
+    await _checkAchievements();
+  }
+
+  /// Celebrates what the current progress newly unlocked. On the first start
+  /// after an update this brings everything already reached, in one go.
+  Future<void> _checkAchievements() async {
+    List<Achievement> unlocked;
+    try {
+      unlocked = await _achievementProgress.unlockNew();
+    } catch (_) {
+      return;
+    }
+    if (unlocked.isEmpty || !mounted) return;
+
+    const HapticsService().celebration();
+    setState(() {
+      _celebration = _ShownCelebration(
+        Celebration.forAchievements(unlocked.length),
+        unlocked,
+      );
+    });
   }
 
   void _startQuiz() {
@@ -255,11 +285,15 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() => _celebration = _ShownCelebration(celebration, unlocked));
   }
 
-  Future<void> _completeCard(Fact fact, {required bool liked}) {
+  Future<void> _completeCard(Fact fact, {required bool liked}) async {
     unawaited(widget.usageService?.cardCompleted(fact.id, liked: liked));
-    return _updateSession(
+    await _updateSession(
       () => _deckService.completeCard(fact.id, liked: liked),
     );
+    // A like that finishes the day is checked by the day's celebration.
+    if (liked && !(_session?.isDayFinished ?? false)) {
+      unawaited(_checkAchievements());
+    }
   }
 
   Future<void> _undo() {
