@@ -9,15 +9,19 @@ const _maxHeight = 860.0;
 const _borderRadius = BorderRadius.all(Radius.circular(36));
 
 // Only icon brightness. Bar colors would call Window.setStatusBarColor, which
-// Android 15 ignores and Google Play reports as deprecated.
+// Android 15 ignores and Google Play reports as deprecated. The navigation bar
+// icons matter too, because Android picks the 3-button bar's backdrop to
+// contrast with them.
 const _lightThemeOverlay = SystemUiOverlayStyle(
   statusBarIconBrightness: Brightness.dark,
   statusBarBrightness: Brightness.light,
+  systemNavigationBarIconBrightness: Brightness.dark,
 );
 
 const _darkThemeOverlay = SystemUiOverlayStyle(
   statusBarIconBrightness: Brightness.light,
   statusBarBrightness: Brightness.dark,
+  systemNavigationBarIconBrightness: Brightness.light,
 );
 
 bool get _isMobileApp {

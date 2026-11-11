@@ -179,6 +179,10 @@ void main() {
             style.statusBarIconBrightness,
             mode == ThemeMode.dark ? Brightness.light : Brightness.dark,
           );
+          expect(
+            style.systemNavigationBarIconBrightness,
+            style.statusBarIconBrightness,
+          );
         },
         variant: TargetPlatformVariant.only(TargetPlatform.android),
       );
