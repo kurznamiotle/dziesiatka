@@ -87,7 +87,8 @@ void main() {
     }
     for (var i = 0; i < DailyDeckService.quizQuestionCount; i++) {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
       await tester.pumpAndSettle();
     }
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
@@ -120,7 +121,8 @@ void main() {
     }
     for (var i = 0; i < DailyDeckService.quizQuestionCount; i++) {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
       await tester.pumpAndSettle();
     }
 

@@ -9,6 +9,7 @@ import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/celebration_overlay.dart';
 import 'package:dziesiatka/views/daily_review_screen.dart';
 import 'package:dziesiatka/views/fact_card.dart';
+import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/home_screen.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +78,8 @@ void main() {
   Future<void> answerQuiz(WidgetTester tester) async {
     for (var i = 0; i < DailyDeckService.quizQuestionCount; i++) {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
       await tester.pumpAndSettle();
     }
   }
@@ -604,6 +606,18 @@ void main() {
       expect(find.text('Pytanie 1 / 4'), findsOneWidget);
     });
 
+    testWidgets('an answered question opens its fact again', (tester) async {
+      await pumpApp(tester);
+      await finishRemainingCards(tester, 10);
+
+      await tester.tap(find.textContaining(RegExp(r'^A\. ')));
+      await tester.pump();
+      await tester.tap(find.text('Przypomnij sobie'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FactDetailsSheet), findsOneWidget);
+    });
+
     testWidgets('undo from the quiz returns to the last card', (tester) async {
       await pumpApp(tester);
       await finishRemainingCards(tester, 10);
@@ -791,14 +805,16 @@ void main() {
       await finishRemainingCards(tester, 10);
       for (var i = 0; i < DailyDeckService.quizQuestionCount - 1; i++) {
         await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-        await tester.pump(const Duration(seconds: 1));
+        await tester.pump();
+        await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
         await tester.pumpAndSettle();
       }
     }
 
     Future<void> answerLastQuestion(WidgetTester tester) async {
       await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
       await tester.pump();
       await tester.pump();
     }
@@ -893,7 +909,8 @@ void main() {
 
       for (var i = 0; i < 3; i++) {
         await tester.tap(find.textContaining(RegExp(r'^A\. ')));
-        await tester.pump(const Duration(seconds: 1));
+        await tester.pump();
+        await tester.tap(find.textContaining(RegExp(r'^(Dalej|Zobacz wynik)$')));
         await tester.pumpAndSettle();
       }
 

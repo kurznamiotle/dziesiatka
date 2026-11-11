@@ -50,6 +50,7 @@ class QuickReviewScreen extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: DailyQuizScreen(
             questions: [for (final fact in facts) fact.quiz!],
+            facts: facts,
             onAnswered: (question, {required isCorrect}) => unawaited(
               reviewService.recordAnswer(
                 facts[question].id,

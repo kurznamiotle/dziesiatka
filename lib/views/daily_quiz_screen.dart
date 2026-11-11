@@ -1,11 +1,13 @@
-import 'dart:async';
-
+import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:flutter/material.dart';
 
-const _feedbackDuration = Duration(milliseconds: 900);
+/// Holds the buttons below the options, so the question does not jump when
+/// they change after an answer.
+const _actionsHeight = 112.0;
 const _optionLetters = ['A', 'B', 'C'];
 const _correctColor = Color(0xFF15803D);
 const _wrongColor = Color(0xFFB91C1C);
@@ -17,9 +19,14 @@ class DailyQuizScreen extends StatefulWidget {
     required this.onFinished,
     this.onUndo,
     this.onAnswered,
+    this.facts,
   });
 
   final List<QuizQuestion> questions;
+
+  /// The facts behind [questions], in the same order. With them, an answered
+  /// question offers the whole fact again.
+  final List<Fact>? facts;
   final void Function(int correct) onFinished;
 
   /// Brings back the last card of the deck. Without it there is no undo.
@@ -36,15 +43,11 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
   int _questionIndex = 0;
   int _correctCount = 0;
   int? _selectedOption;
-  Timer? _feedbackTimer;
+  bool _isFinished = false;
 
   QuizQuestion get _question => widget.questions[_questionIndex];
 
-  @override
-  void dispose() {
-    _feedbackTimer?.cancel();
-    super.dispose();
-  }
+  bool get _isLastQuestion => _questionIndex == widget.questions.length - 1;
 
   void _selectOption(int option) {
     if (_selectedOption != null) return;
@@ -58,11 +61,12 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
       _selectedOption = option;
       if (isCorrect) _correctCount++;
     });
-    _feedbackTimer = Timer(_feedbackDuration, _goToNextQuestion);
   }
 
   void _goToNextQuestion() {
-    if (_questionIndex == widget.questions.length - 1) {
+    if (_isFinished) return;
+    if (_isLastQuestion) {
+      _isFinished = true;
       widget.onFinished(_correctCount);
       return;
     }
@@ -78,7 +82,8 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
     final theme = Theme.of(context);
     final question = _question;
     final onUndo = widget.onUndo;
-    final isFirstUnanswered = _questionIndex == 0 && _selectedOption == null;
+    final facts = widget.facts;
+    final isAnswered = _selectedOption != null;
     return Center(
       child: SingleChildScrollView(
         child: Column(
@@ -105,19 +110,42 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 state: _optionState(index),
                 onTap: () => _selectOption(index),
               ),
-            // Keeps its space when hidden, so the question does not jump.
-            if (onUndo != null)
-              Visibility(
-                visible: isFirstUnanswered,
-                maintainState: true,
-                maintainAnimation: true,
-                maintainSize: true,
-                child: TextButton.icon(
-                  onPressed: onUndo,
-                  icon: const Icon(Icons.undo_rounded),
-                  label: const Text('Cofnij ostatnią kartę'),
-                ),
+            SizedBox(
+              height: _actionsHeight,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 4,
+                children: [
+                  if (isAnswered) ...[
+                    FilledButton(
+                      onPressed: _goToNextQuestion,
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                      ),
+                      child: Text(_isLastQuestion ? 'Zobacz wynik' : 'Dalej'),
+                    ),
+                    if (facts != null)
+                      Center(
+                        child: TextButton.icon(
+                          onPressed: () => FactDetailsSheet.show(
+                            context,
+                            facts[_questionIndex],
+                          ),
+                          icon: const Icon(Icons.lightbulb_outline_rounded),
+                          label: const Text('Przypomnij sobie'),
+                        ),
+                      ),
+                  ] else if (onUndo != null && _questionIndex == 0)
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: onUndo,
+                        icon: const Icon(Icons.undo_rounded),
+                        label: const Text('Cofnij ostatnią kartę'),
+                      ),
+                    ),
+                ],
               ),
+            ),
           ],
         ),
       ),

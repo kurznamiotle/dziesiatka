@@ -396,6 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (session.isQuizPending) {
       return DailyQuizScreen(
         questions: session.quizQuestions,
+        facts: session.quizFacts,
         onAnswered: (question, {required isCorrect}) =>
             _recordAnswer(session, question, isCorrect: isCorrect),
         onFinished: _finishQuiz,

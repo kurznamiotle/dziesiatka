@@ -1,11 +1,11 @@
+import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/daily_quiz_screen.dart';
+import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-const _feedback = Duration(seconds: 1);
 
 const _questions = [
   QuizQuestion(
@@ -24,7 +24,7 @@ void main() {
   late List<int> results;
   late int undoCount;
 
-  Future<void> pumpQuiz(WidgetTester tester) async {
+  Future<void> pumpQuiz(WidgetTester tester, {List<Fact>? facts}) async {
     results = [];
     undoCount = 0;
     await tester.pumpWidget(
@@ -33,6 +33,7 @@ void main() {
         home: Scaffold(
           body: DailyQuizScreen(
             questions: _questions,
+            facts: facts,
             onFinished: results.add,
             onUndo: () => undoCount++,
           ),
@@ -83,7 +84,7 @@ void main() {
       await pumpQuiz(tester);
 
       await tester.tap(find.text('A. Dobra'));
-      await tester.pump(_feedback);
+      await tester.pump();
 
       expect(vibrations, ['HapticFeedbackType.mediumImpact']);
     });
@@ -92,7 +93,7 @@ void main() {
       await pumpQuiz(tester);
 
       await tester.tap(find.text('B. Zła'));
-      await tester.pump(_feedback);
+      await tester.pump();
 
       expect(vibrations, ['HapticFeedbackType.heavyImpact']);
     });
@@ -103,7 +104,7 @@ void main() {
       await tester.tap(find.text('B. Zła'));
       await tester.pump();
       await tester.tap(find.text('A. Dobra'));
-      await tester.pump(_feedback);
+      await tester.pump();
 
       expect(vibrations, hasLength(1));
     });
@@ -117,7 +118,7 @@ void main() {
 
     expect(optionColor(tester, 'A. Dobra'), const Color(0xFF15803D));
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-    await tester.pump(_feedback);
+    await tester.pump();
   });
 
   testWidgets('a wrong answer turns red and reveals the right one', (
@@ -130,23 +131,30 @@ void main() {
 
     expect(optionColor(tester, 'B. Zła'), const Color(0xFFB91C1C));
     expect(optionColor(tester, 'A. Dobra'), const Color(0xFF15803D));
-    await tester.pump(_feedback);
+    await tester.pump();
   });
 
-  testWidgets('moves on after the feedback and reports the score', (
+  testWidgets('waits for the next button and reports the score once', (
     tester,
   ) async {
     await pumpQuiz(tester);
 
     await tester.tap(find.text('A. Dobra'));
-    await tester.pump(_feedback);
+    await tester.pump(const Duration(seconds: 5));
+    expect(find.text('Pytanie 1 / 2'), findsOneWidget);
+
+    await tester.tap(find.text('Dalej'));
     await tester.pump();
     expect(find.text('Pytanie 2 / 2'), findsOneWidget);
     expect(find.text('Drugie pytanie'), findsOneWidget);
+    expect(find.text('Dalej'), findsNothing);
     expect(results, isEmpty);
 
     await tester.tap(find.text('A. Jeden'));
-    await tester.pump(_feedback);
+    await tester.pump();
+    await tester.tap(find.text('Zobacz wynik'));
+    await tester.tap(find.text('Zobacz wynik'));
+    await tester.pump();
 
     expect(results, [1]);
   });
@@ -157,11 +165,13 @@ void main() {
     await tester.tap(find.text('B. Zła'));
     await tester.pump();
     await tester.tap(find.text('A. Dobra'));
-    await tester.pump(_feedback);
+    await tester.pump();
+    await tester.tap(find.text('Dalej'));
     await tester.pump();
 
     await tester.tap(find.text('C. Trzy'));
-    await tester.pump(_feedback);
+    await tester.pump();
+    await tester.tap(find.text('Zobacz wynik'));
 
     expect(results, [1]);
   });
@@ -191,6 +201,66 @@ void main() {
     await tester.pump();
 
     expect(find.text('Cofnij ostatnią kartę').hitTestable(), findsNothing);
-    await tester.pump(_feedback);
+    await tester.pump();
+  });
+
+  group('remembering the fact', () {
+    final facts = [
+      for (final (index, question) in _questions.indexed)
+        Fact(
+          id: 'fact-$index',
+          title: 'Ciekawostka ${index + 1}',
+          category: 'Kosmos',
+          shortText: 'Zajawka',
+          longText: 'Całe rozwinięcie ${index + 1}',
+          sourceLabel: 'Źródło',
+          quiz: question,
+          createdAt: DateTime.utc(2026),
+        ),
+    ];
+
+    testWidgets('is offered only after an answer', (tester) async {
+      await pumpQuiz(tester, facts: facts);
+
+      expect(find.text('Przypomnij sobie'), findsNothing);
+
+      await tester.tap(find.text('B. Zła'));
+      await tester.pump();
+
+      expect(find.text('Przypomnij sobie'), findsOneWidget);
+    });
+
+    testWidgets('opens the fact behind the current question', (tester) async {
+      await pumpQuiz(tester, facts: facts);
+      await tester.tap(find.text('A. Dobra'));
+      await tester.pump();
+      await tester.tap(find.text('Dalej'));
+      await tester.pump();
+      await tester.tap(find.text('A. Jeden'));
+      await tester.pump();
+
+      await tester.tap(find.text('Przypomnij sobie'));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FactDetailsSheet), findsOneWidget);
+      expect(find.text('Ciekawostka 2'), findsOneWidget);
+      expect(find.text('Całe rozwinięcie 2'), findsOneWidget);
+
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(FactDetailsSheet), findsNothing);
+      expect(find.text('Pytanie 2 / 2'), findsOneWidget);
+      expect(results, isEmpty);
+    });
+
+    testWidgets('is not offered without the facts', (tester) async {
+      await pumpQuiz(tester);
+
+      await tester.tap(find.text('A. Dobra'));
+      await tester.pump();
+
+      expect(find.text('Przypomnij sobie'), findsNothing);
+    });
   });
 }
