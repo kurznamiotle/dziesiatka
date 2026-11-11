@@ -15,13 +15,15 @@ class DailyQuizScreen extends StatefulWidget {
     super.key,
     required this.questions,
     required this.onFinished,
-    required this.onUndo,
+    this.onUndo,
     this.onAnswered,
   });
 
   final List<QuizQuestion> questions;
   final void Function(int correct) onFinished;
-  final VoidCallback onUndo;
+
+  /// Brings back the last card of the deck. Without it there is no undo.
+  final VoidCallback? onUndo;
 
   /// Reports each answer by the position of its question.
   final void Function(int question, {required bool isCorrect})? onAnswered;
@@ -75,6 +77,7 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final question = _question;
+    final onUndo = widget.onUndo;
     final isFirstUnanswered = _questionIndex == 0 && _selectedOption == null;
     return Center(
       child: SingleChildScrollView(
@@ -103,17 +106,18 @@ class _DailyQuizScreenState extends State<DailyQuizScreen> {
                 onTap: () => _selectOption(index),
               ),
             // Keeps its space when hidden, so the question does not jump.
-            Visibility(
-              visible: isFirstUnanswered,
-              maintainState: true,
-              maintainAnimation: true,
-              maintainSize: true,
-              child: TextButton.icon(
-                onPressed: widget.onUndo,
-                icon: const Icon(Icons.undo_rounded),
-                label: const Text('Cofnij ostatnią kartę'),
+            if (onUndo != null)
+              Visibility(
+                visible: isFirstUnanswered,
+                maintainState: true,
+                maintainAnimation: true,
+                maintainSize: true,
+                child: TextButton.icon(
+                  onPressed: onUndo,
+                  icon: const Icon(Icons.undo_rounded),
+                  label: const Text('Cofnij ostatnią kartę'),
+                ),
               ),
-            ),
           ],
         ),
       ),

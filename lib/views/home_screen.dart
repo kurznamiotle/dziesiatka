@@ -12,6 +12,7 @@ import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/quick_review_service.dart';
 import 'package:dziesiatka/services/quiz_history_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/stats_service.dart';
@@ -27,6 +28,7 @@ import 'package:dziesiatka/views/deck_finished_view.dart';
 import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
+import 'package:dziesiatka/views/quick_review_screen.dart';
 import 'package:dziesiatka/views/settings_screen.dart';
 import 'package:dziesiatka/views/user_stats_view.dart';
 import 'package:flutter/foundation.dart';
@@ -88,8 +90,18 @@ class _HomeScreenState extends State<HomeScreen> {
     _streakService,
     _quizHistory,
   );
+  late final _quickReview = QuickReviewService(
+    _factsService,
+    _quizHistory,
+    now: widget.now,
+    random: widget.random,
+  );
   DailySession? _session;
   UserStats? _stats;
+
+  /// Questions for the quick review, empty until something was read on an
+  /// earlier day.
+  List<Fact> _reviewFacts = const [];
 
   /// Quiz answers are saved without waiting, so stats wait for them here.
   Future<void> _answersSaved = Future.value();
@@ -133,13 +145,33 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!session.isQuizPending) _isQuizStarted = false;
   }
 
-  /// Stats are only extra, so a failure leaves them out.
+  /// Stats and the quick review are only extra, so a failure leaves them out.
   Future<void> _loadStats() async {
     try {
       await _answersSaved;
       final stats = await _statsService.load();
-      if (mounted) setState(() => _stats = stats);
+      final reviewFacts = await _quickReview.chooseFacts();
+      if (!mounted) return;
+      setState(() {
+        _stats = stats;
+        _reviewFacts = reviewFacts;
+      });
     } catch (_) {}
+  }
+
+  Future<void> _openQuickReview() async {
+    const HapticsService().cardAction();
+    final message = await QuickReviewScreen.open(
+      context,
+      facts: _reviewFacts,
+      reviewService: _quickReview,
+    );
+    await _loadStats();
+    if (message == null || !mounted) return;
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _startQuiz() {
@@ -383,6 +415,8 @@ class _HomeScreenState extends State<HomeScreen> {
         onReview: () => _openReview(session),
         bonusCount: session.bonusCount,
         onAddBonus: _addBonusCards,
+        quickReviewCount: _reviewFacts.length,
+        onQuickReview: _openQuickReview,
         onDownloadApp: widget.offersAppDownload ? _downloadApp : null,
       );
     }
@@ -824,6 +858,8 @@ class _CompletionView extends StatelessWidget {
     required this.onReview,
     required this.bonusCount,
     required this.onAddBonus,
+    required this.quickReviewCount,
+    required this.onQuickReview,
     required this.onDownloadApp,
   });
 
@@ -836,6 +872,8 @@ class _CompletionView extends StatelessWidget {
   final VoidCallback onReview;
   final int bonusCount;
   final VoidCallback onAddBonus;
+  final int quickReviewCount;
+  final VoidCallback onQuickReview;
   final VoidCallback? onDownloadApp;
 
   @override
@@ -926,6 +964,13 @@ class _CompletionView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
             ],
+            if (quickReviewCount > 0) ...[
+              _QuickReviewCard(
+                questionCount: quickReviewCount,
+                onTap: onQuickReview,
+              ),
+              const SizedBox(height: 8),
+            ],
             FilledButton.tonalIcon(
               onPressed: onReview,
               icon: const Icon(Icons.replay_rounded),
@@ -940,6 +985,62 @@ class _CompletionView extends StatelessWidget {
               ),
             ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Invites to a few questions from earlier days.
+class _QuickReviewCard extends StatelessWidget {
+  const _QuickReviewCard({required this.questionCount, required this.onTap});
+
+  final int questionCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final surfaces = theme.extension<AppSurfaces>()!;
+    final questions = questionCount == 1 ? 'pytanie' : 'pytania';
+    return Material(
+      color: surfaces.card,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: surfaces.border),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+          child: Row(
+            spacing: 12,
+            children: [
+              Icon(Icons.bolt_rounded, color: colors.primary),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Szybka powtórka',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      '$questionCount $questions z poprzednich dni',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );

@@ -856,6 +856,54 @@ void main() {
     });
   });
 
+  group('quick review', () {
+    Future<void> finishTwoDays(WidgetTester tester) async {
+      var now = DateTime(2026, 11, 2, 12);
+      await pumpApp(tester, now: () => now);
+      await finishDay(tester);
+
+      await tester.pumpWidget(const SizedBox());
+      now = DateTime(2026, 11, 3, 12);
+      await pumpApp(tester, now: () => now);
+      await finishDay(tester);
+    }
+
+    testWidgets('is not offered on the first day', (tester) async {
+      await pumpApp(tester);
+      await finishDay(tester);
+
+      expect(find.text('Szybka powtórka'), findsNothing);
+    });
+
+    testWidgets('asks 3 questions from earlier days and returns', (
+      tester,
+    ) async {
+      await finishTwoDays(tester);
+      final score = find.textContaining(RegExp(r'^\d/4 poprawne!$'));
+      final scoreBefore = tester.widget<Text>(score).data;
+      expect(find.text('3 pytania z poprzednich dni'), findsOneWidget);
+
+      await tester.ensureVisible(find.text('Szybka powtórka'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Szybka powtórka'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pytanie 1 / 3'), findsOneWidget);
+      expect(find.text('Cofnij ostatnią kartę'), findsNothing);
+
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(find.textContaining(RegExp(r'^A\. ')));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+      }
+
+      expect(find.text('Gratulacje!'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^\d/3 – ')), findsOneWidget);
+      expect(tester.widget<Text>(score).data, scoreBefore);
+      expect(find.text('Seria: 2 dni'), findsOneWidget);
+    });
+  });
+
   group('bonus cards', () {
     testWidgets('continue a finished day and return to the summary', (
       tester,

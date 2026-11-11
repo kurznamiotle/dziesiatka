@@ -166,6 +166,21 @@ void main() {
     expect(results, [1]);
   });
 
+  testWidgets('there is no undo without a deck behind the quiz', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: DailyQuizScreen(questions: _questions, onFinished: (_) {}),
+        ),
+      ),
+    );
+
+    expect(find.text('Cofnij ostatnią kartę'), findsNothing);
+  });
+
   testWidgets('undo is offered only before the first answer', (tester) async {
     await pumpQuiz(tester);
 
