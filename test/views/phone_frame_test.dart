@@ -52,25 +52,17 @@ void main() {
   }
 
   group('frame', () {
-    testWidgets(
-      'wide desktop windows center a 440px frame',
-      (tester) async {
-        await pumpApp(tester, size: const Size(1200, 900));
+    testWidgets('wide desktop windows center a 440px frame', (tester) async {
+      await pumpApp(tester, size: const Size(1200, 900));
 
-        expect(headerLeft(tester), (1200 - 440) / 2 + _pagePadding);
-      },
-      variant: TargetPlatformVariant.desktop(),
-    );
+      expect(headerLeft(tester), (1200 - 440) / 2 + _pagePadding);
+    }, variant: TargetPlatformVariant.desktop());
 
-    testWidgets(
-      'narrow desktop windows use the full width',
-      (tester) async {
-        await pumpApp(tester);
+    testWidgets('narrow desktop windows use the full width', (tester) async {
+      await pumpApp(tester);
 
-        expect(headerLeft(tester), _pagePadding);
-      },
-      variant: TargetPlatformVariant.desktop(),
-    );
+      expect(headerLeft(tester), _pagePadding);
+    }, variant: TargetPlatformVariant.desktop());
 
     testWidgets('mobile apps fill wide screens', (tester) async {
       const tablet = Size(1200, 900);

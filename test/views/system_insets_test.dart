@@ -153,39 +153,37 @@ void main() {
 
   group('system bar style on Android', () {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
-      testWidgets(
-        'sets only icon brightness in ${mode.name} mode',
-        (tester) async {
-          SharedPreferences.setMockInitialValues({'themeMode': mode.name});
-          final themeService = ThemeService();
-          await themeService.load();
-          await tester.pumpWidget(
-            DziesiatkaApp(
-              themeService: themeService,
-              random: const KeepOrderRandom(),
-            ),
-          );
-          await tester.pumpAndSettle();
+      testWidgets('sets only icon brightness in ${mode.name} mode', (
+        tester,
+      ) async {
+        SharedPreferences.setMockInitialValues({'themeMode': mode.name});
+        final themeService = ThemeService();
+        await themeService.load();
+        await tester.pumpWidget(
+          DziesiatkaApp(
+            themeService: themeService,
+            random: const KeepOrderRandom(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-          final region = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
-            find.byType(AnnotatedRegion<SystemUiOverlayStyle>).first,
-          );
-          final style = region.value;
+        final region = tester.widget<AnnotatedRegion<SystemUiOverlayStyle>>(
+          find.byType(AnnotatedRegion<SystemUiOverlayStyle>).first,
+        );
+        final style = region.value;
 
-          expect(style.statusBarColor, isNull);
-          expect(style.systemNavigationBarColor, isNull);
-          expect(style.systemNavigationBarDividerColor, isNull);
-          expect(
-            style.statusBarIconBrightness,
-            mode == ThemeMode.dark ? Brightness.light : Brightness.dark,
-          );
-          expect(
-            style.systemNavigationBarIconBrightness,
-            style.statusBarIconBrightness,
-          );
-        },
-        variant: TargetPlatformVariant.only(TargetPlatform.android),
-      );
+        expect(style.statusBarColor, isNull);
+        expect(style.systemNavigationBarColor, isNull);
+        expect(style.systemNavigationBarDividerColor, isNull);
+        expect(
+          style.statusBarIconBrightness,
+          mode == ThemeMode.dark ? Brightness.light : Brightness.dark,
+        );
+        expect(
+          style.systemNavigationBarIconBrightness,
+          style.statusBarIconBrightness,
+        );
+      }, variant: TargetPlatformVariant.only(TargetPlatform.android));
     }
   });
 }
