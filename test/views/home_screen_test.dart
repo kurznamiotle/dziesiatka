@@ -478,6 +478,8 @@ void main() {
       await finishRemainingCards(tester, 10);
       await answerQuiz(tester);
 
+      await tester.ensureVisible(find.text('Powtórz dzisiejszą talię'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Powtórz dzisiejszą talię'));
       await tester.pumpAndSettle();
       for (var i = 0; i < 9; i++) {
@@ -518,6 +520,8 @@ void main() {
 
       await finishDay(tester);
       await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('Pobierz na Androida'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Pobierz na Androida'));
 
@@ -625,6 +629,23 @@ void main() {
       expect(find.text('Następna dziesiątka za: 02:29:45'), findsOneWidget);
     });
 
+    testWidgets('the summary shows the stats', (tester) async {
+      await pumpApp(tester);
+      await tester.tap(find.text('Polub'));
+      await tester.pumpAndSettle();
+      await finishRemainingCards(tester, 9);
+      await answerQuiz(tester);
+
+      expect(find.text('Twoje statystyki'), findsOneWidget);
+      expect(find.text('Dni z Dziesiątką'), findsOneWidget);
+      expect(find.text('Przeczytane ciekawostki'), findsOneWidget);
+      expect(find.text('Zapamiętane'), findsOneWidget);
+      expect(find.textContaining('% trafnych odpowiedzi'), findsOneWidget);
+      expect(find.text('Ulubiona kategoria'), findsOneWidget);
+      final liked = await storedFact(_firstTitle);
+      expect(find.text(liked.category), findsWidgets);
+    });
+
     testWidgets('the summary is still there after a restart', (tester) async {
       await pumpApp(tester);
       await finishDay(tester);
@@ -700,6 +721,8 @@ void main() {
 
       final before = (await FactsService().getFacts()).map(snapshot).toList();
 
+      await tester.ensureVisible(find.text('Powtórz dzisiejszą talię'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Powtórz dzisiejszą talię'));
       await tester.pumpAndSettle();
 
@@ -840,6 +863,8 @@ void main() {
       await pumpApp(tester);
       await finishDay(tester);
 
+      await tester.ensureVisible(find.text('Jeszcze 5'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Jeszcze 5'));
       await tester.pumpAndSettle();
 

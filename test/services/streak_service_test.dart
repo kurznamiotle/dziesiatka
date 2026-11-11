@@ -93,4 +93,47 @@ void main() {
 
     expect(await StreakService(now: () => now).getCurrentStreak(), 1);
   });
+
+  group('completed days', () {
+    test('keeps every finished day, also after a broken streak', () async {
+      await service.recordCompletion();
+      await service.recordCompletion();
+      now = DateTime(2026, 11, 5, 12);
+      await service.recordCompletion();
+
+      expect(await service.getCurrentStreak(), 1);
+      expect(await service.getCompletedDays(), ['2026-11-02', '2026-11-05']);
+    });
+
+    test('start from the last streak of an older version', () async {
+      SharedPreferences.setMockInitialValues({
+        'streakCount': 3,
+        'streakLastCompleted': '2026-11-01',
+      });
+
+      expect(await service.getCompletedDays(), [
+        '2026-10-30',
+        '2026-10-31',
+        '2026-11-01',
+      ]);
+
+      await service.recordCompletion();
+
+      expect(await service.getCompletedDays(), hasLength(4));
+      expect(await service.getCurrentStreak(), 4);
+    });
+
+    test('a broken streak of an older version still counts', () async {
+      SharedPreferences.setMockInitialValues({
+        'streakCount': 2,
+        'streakLastCompleted': '2026-10-20',
+      });
+
+      expect(await service.getCompletedDays(), ['2026-10-19', '2026-10-20']);
+    });
+
+    test('are empty before the first finished day', () async {
+      expect(await service.getCompletedDays(), isEmpty);
+    });
+  });
 }

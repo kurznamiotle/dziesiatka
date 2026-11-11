@@ -5,13 +5,16 @@ import 'package:dziesiatka/models/achievement.dart';
 import 'package:dziesiatka/models/celebration.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/user_stats.dart';
 import 'package:dziesiatka/services/achievements_service.dart';
 import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/quiz_history_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
+import 'package:dziesiatka/services/stats_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/services/usage_service.dart';
@@ -25,6 +28,7 @@ import 'package:dziesiatka/views/fact_card.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
 import 'package:dziesiatka/views/settings_screen.dart';
+import 'package:dziesiatka/views/user_stats_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -71,13 +75,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final _factsService = widget.factsService ?? FactsService();
+  late final _streakService = StreakService(now: widget.now);
+  late final _quizHistory = QuizHistoryService(now: widget.now);
   late final _deckService = DailyDeckService(
     _factsService,
-    StreakService(now: widget.now),
+    _streakService,
     now: widget.now,
     random: widget.random,
   );
+  late final _statsService = StatsService(
+    _factsService,
+    _streakService,
+    _quizHistory,
+  );
   DailySession? _session;
+  UserStats? _stats;
+
+  /// Quiz answers are saved without waiting, so stats wait for them here.
+  Future<void> _answersSaved = Future.value();
   bool _loadFailed = false;
   _ShownCelebration? _celebration;
 
@@ -96,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _factsService.syncWithSeed();
       final session = await _deckService.loadToday();
       if (mounted) setState(() => _showSession(session));
+      unawaited(_loadStats());
       unawaited(_downloadNewFacts());
       unawaited(_updateReminders(session));
       unawaited(_reportUsage());
@@ -115,6 +131,15 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showSession(DailySession session) {
     _session = session;
     if (!session.isQuizPending) _isQuizStarted = false;
+  }
+
+  /// Stats are only extra, so a failure leaves them out.
+  Future<void> _loadStats() async {
+    try {
+      await _answersSaved;
+      final stats = await _statsService.load();
+      if (mounted) setState(() => _stats = stats);
+    } catch (_) {}
   }
 
   void _startQuiz() {
@@ -146,6 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final wasDayFinished = _session?.isDayFinished ?? false;
       final session = await change();
       if (mounted) setState(() => _showSession(session));
+      unawaited(_loadStats());
       if (!wasDayFinished && session.isDayFinished) {
         unawaited(_updateReminders(session));
         unawaited(_celebrate(session));
@@ -208,6 +234,9 @@ class _HomeScreenState extends State<HomeScreen> {
     required bool isCorrect,
   }) {
     final factId = session.quizFacts[question].id;
+    _answersSaved = _answersSaved
+        .then((_) => _quizHistory.recordAnswer(factId, isCorrect: isCorrect))
+        .catchError((Object _) {});
     unawaited(widget.usageService?.quizAnswered(factId, isCorrect: isCorrect));
   }
 
@@ -348,6 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
         quizCorrect: session.deck.quizCorrect,
         quizTotal: session.quizQuestions.length,
         streak: session.streak,
+        stats: _stats,
         timeUntilNextDeck: () => _deckService.timeUntilNextDeck(session),
         onNextDeckReady: _loadSession,
         onReview: () => _openReview(session),
@@ -788,6 +818,7 @@ class _CompletionView extends StatelessWidget {
     required this.quizCorrect,
     required this.quizTotal,
     required this.streak,
+    required this.stats,
     required this.timeUntilNextDeck,
     required this.onNextDeckReady,
     required this.onReview,
@@ -799,6 +830,7 @@ class _CompletionView extends StatelessWidget {
   final int? quizCorrect;
   final int quizTotal;
   final int streak;
+  final UserStats? stats;
   final Duration Function() timeUntilNextDeck;
   final VoidCallback onNextDeckReady;
   final VoidCallback onReview;
@@ -812,25 +844,26 @@ class _CompletionView extends StatelessWidget {
     final colors = theme.colorScheme;
     final surfaces = theme.extension<AppSurfaces>()!;
     final correct = quizCorrect;
+    final stats = this.stats;
     return Center(
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 96,
-              height: 96,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
                 color: colors.primaryContainer,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.check_rounded,
-                size: 48,
+                size: 36,
                 color: colors.onPrimaryContainer,
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
             Text(
               'Gratulacje!',
               textAlign: TextAlign.center,
@@ -875,6 +908,10 @@ class _CompletionView extends StatelessWidget {
                 ),
               ],
             ),
+            if (stats != null) ...[
+              const SizedBox(height: 24),
+              UserStatsView(stats: stats),
+            ],
             const SizedBox(height: 20),
             _NextDeckCountdown(
               timeRemaining: timeUntilNextDeck,

@@ -124,6 +124,8 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    await tester.ensureVisible(find.text('Jeszcze 5'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Jeszcze 5'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Dalej'));

@@ -54,6 +54,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Treść ciekawostek i postęp użytkownika są zapisane osobno (`factContent` i `factStates`). `Fact` łączy je tylko w pamięci.
 - Treść pochodzi z `FactSource`: `AssetFactSource` (plik w aplikacji) i `SupabaseFactSource` (serwer). Przy dwóch kopiach wygrywa nowszy `updatedAt`.
 - Dobór talii (`DeckGeneratorService`): zasada 7-2-1, czyli 7 kart z ulubionych kategorii, 2 z pozostałych i 1 powtórka (bez powtórki 8-2), najwyżej 2 karty z tej samej kategorii pod rząd. Losowanie zależy od daty i lokalnego identyfikatora, który nie opuszcza urządzenia.
+- Odpowiedzi z quizu (`quizHistory`, `QuizHistoryService`) i lista ukończonych dni (`streakDays`, `StreakService`) zostają na urządzeniu. `StatsService` liczy z nich statystyki ekranu końcowego.
 - Talia nigdy nie czeka na sieć. Nowe ciekawostki pobierane są w tle i trafiają do następnej talii.
 - Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` , `supabase/usage_02.sql` (anonimowe statystyki), `supabase/admin.sql` (panel) i `supabase/reports.sql` (zgłoszenia błędów).
 
