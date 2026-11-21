@@ -9,8 +9,10 @@ abstract final class AppLinks {
   /// only the web demo shows the support page.
   static const String? buyCoffeeInApp = kIsWeb ? buyCoffee : null;
 
-  /// The Android app in the newest GitHub release. The file must keep this
-  /// name in every release, or the link breaks.
+  /// The Android app in Google Play. The utm parameters tell the Play Console
+  /// that the visit came from the banner in the web demo.
   static const androidApp =
-      'https://github.com/kurznamiotle/dziesiatka/releases/latest/download/dziesiatka.apk';
+      'https://play.google.com/store/apps/details'
+      '?id=io.github.kurznamiotle.dziesiatka'
+      '&utm_source=webapp&utm_medium=baner';
 }
