@@ -53,7 +53,7 @@ class SettingsScreen extends StatefulWidget {
     this.usageService,
     this.linkService = const LinkService(),
     this.appInfoService = const AppInfoService(),
-    this.buyCoffeeUrl = AppLinks.buyCoffeeInApp,
+    this.supportUrl = AppLinks.supportInApp,
   });
 
   final ThemeService themeService;
@@ -64,7 +64,7 @@ class SettingsScreen extends StatefulWidget {
   final AppInfoService appInfoService;
 
   /// Without an address the support section is hidden.
-  final String? buyCoffeeUrl;
+  final String? supportUrl;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -179,7 +179,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final remindersEnabled = _remindersEnabled;
     final usageEnabled = _usageEnabled;
-    final buyCoffeeUrl = widget.buyCoffeeUrl;
+    final supportUrl = widget.supportUrl;
     return Scaffold(
       appBar: AppBar(title: const Text('Ustawienia')),
       body: SafeArea(
@@ -202,12 +202,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: remindersEnabled,
                 onChanged: _setRemindersEnabled,
               ),
-            if (buyCoffeeUrl != null) ...[
+            if (supportUrl != null) ...[
               const _SectionHeader('Wsparcie i rozwój'),
               _LinkTile(
                 icon: Icons.local_cafe_outlined,
                 title: 'Postaw kawę twórcy ☕',
-                url: buyCoffeeUrl,
+                url: supportUrl,
                 onOpen: _openLink,
               ),
             ],

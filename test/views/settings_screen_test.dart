@@ -46,7 +46,7 @@ void main() {
     WidgetTester tester, {
     LinkService linkService = const LinkService(),
     AppInfoService appInfoService = const _FakeAppInfoService(),
-    String? buyCoffeeUrl,
+    String? supportUrl,
     ThemeService? themeService,
   }) async {
     tester.view.devicePixelRatio = 1;
@@ -59,7 +59,7 @@ void main() {
           themeService: themeService ?? ThemeService(),
           linkService: linkService,
           appInfoService: appInfoService,
-          buyCoffeeUrl: buyCoffeeUrl,
+          supportUrl: supportUrl,
         ),
       ),
     );
@@ -127,7 +127,7 @@ void main() {
   });
 
   testWidgets('shows all sections', (tester) async {
-    await pumpSettings(tester, buyCoffeeUrl: 'https://example.com/kawa');
+    await pumpSettings(tester, supportUrl: 'https://example.com/kawa');
 
     expect(find.text('Wygląd'), findsOneWidget);
     expect(find.text('Wsparcie i rozwój'), findsOneWidget);
@@ -164,7 +164,7 @@ void main() {
     await pumpSettings(
       tester,
       linkService: links,
-      buyCoffeeUrl: 'https://example.com/kawa',
+      supportUrl: 'https://example.com/kawa',
     );
 
     await tester.tap(find.text('Postaw kawę twórcy ☕'));
@@ -177,7 +177,7 @@ void main() {
     await pumpSettings(
       tester,
       linkService: _FakeLinkService(opens: false),
-      buyCoffeeUrl: 'https://example.com/kawa',
+      supportUrl: 'https://example.com/kawa',
     );
 
     await tester.tap(find.text('Postaw kawę twórcy ☕'));
