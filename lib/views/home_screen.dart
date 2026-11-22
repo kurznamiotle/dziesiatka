@@ -13,6 +13,7 @@ import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/purchase_service.dart';
 import 'package:dziesiatka/services/quick_review_service.dart';
 import 'package:dziesiatka/services/quiz_history_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
@@ -50,6 +51,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.themeService,
+    this.purchaseService,
     this.factsService,
     this.reminderService,
     this.usageService,
@@ -61,6 +63,7 @@ class HomeScreen extends StatefulWidget {
   });
 
   final ThemeService themeService;
+  final PurchaseService? purchaseService;
   final FactsService? factsService;
   final ReminderService? reminderService;
   final UsageService? usageService;
@@ -346,6 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute<void>(
         builder: (_) => SettingsScreen(
           themeService: widget.themeService,
+          purchaseService: widget.purchaseService,
           factsService: _factsService,
           reminderService: widget.reminderService,
           usageService: widget.usageService,

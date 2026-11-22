@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/app_accent.dart';
 import 'package:flutter/material.dart';
 
 /// App surfaces that have no direct [ColorScheme] role. Material's lowest
@@ -54,7 +55,15 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
 }
 
 abstract final class AppTheme {
-  static const _seedColor = Color(0xFF4F46E5);
+  /// Picked to sit beside the category colors and to keep text and buttons
+  /// readable in both themes, which `test/views/app_theme_test.dart` checks.
+  static const seedColors = {
+    AppAccent.indigo: Color(0xFF4F46E5),
+    AppAccent.teal: Color(0xFF0F766E),
+    AppAccent.rose: Color(0xFFBE123C),
+    AppAccent.amber: Color(0xFFB45309),
+    AppAccent.forest: Color(0xFF15803D),
+  };
 
   static const _lightSurfaces = AppSurfaces(
     backdrop: Color(0xFFE9E6F2),
@@ -74,12 +83,29 @@ abstract final class AppTheme {
     streak: Color(0xFFFB923C),
   );
 
-  static final light = _build(Brightness.light, _lightSurfaces);
-  static final dark = _build(Brightness.dark, _darkSurfaces);
+  static final light = of(AppAccent.standard, Brightness.light);
+  static final dark = of(AppAccent.standard, Brightness.dark);
 
-  static ThemeData _build(Brightness brightness, AppSurfaces surfaces) {
+  static final _cache = <(AppAccent, Brightness), ThemeData>{};
+
+  static ThemeData of(AppAccent accent, Brightness brightness) {
+    return _cache.putIfAbsent(
+      (accent, brightness),
+      () => _build(
+        seedColors[accent]!,
+        brightness,
+        brightness == Brightness.dark ? _darkSurfaces : _lightSurfaces,
+      ),
+    );
+  }
+
+  static ThemeData _build(
+    Color seedColor,
+    Brightness brightness,
+    AppSurfaces surfaces,
+  ) {
     final colors = ColorScheme.fromSeed(
-      seedColor: _seedColor,
+      seedColor: seedColor,
       brightness: brightness,
       dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
       surface: surfaces.frame,

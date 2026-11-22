@@ -37,13 +37,26 @@ class CelebrationOverlay extends StatefulWidget {
   /// or a screen that has no place for an overlay of its own.
   static void showUnlocked(BuildContext context, List<Achievement> unlocked) {
     if (unlocked.isEmpty) return;
+    show(
+      context,
+      Celebration.forAchievements(unlocked.length),
+      unlocked: unlocked,
+    );
+  }
+
+  /// Celebrates above everything else, like [showUnlocked].
+  static void show(
+    BuildContext context,
+    Celebration celebration, {
+    List<Achievement> unlocked = const [],
+  }) {
     const HapticsService().celebration();
     late final OverlayEntry entry;
     entry = OverlayEntry(
       builder: (_) => Material(
         type: MaterialType.transparency,
         child: CelebrationOverlay(
-          celebration: Celebration.forAchievements(unlocked.length),
+          celebration: celebration,
           unlocked: unlocked,
           onFinished: () {
             if (entry.mounted) entry.remove();

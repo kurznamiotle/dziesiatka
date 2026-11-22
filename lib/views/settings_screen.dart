@@ -1,11 +1,15 @@
+import 'package:dziesiatka/models/app_accent.dart';
 import 'package:dziesiatka/services/app_info_service.dart';
 import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/purchase_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/services/usage_service.dart';
+import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/categories_screen.dart';
+import 'package:dziesiatka/views/plus_screen.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -44,6 +48,9 @@ const _privacyText =
     'żeby przypisać ewentualny zakup. Aplikacja nie przekazuje im żadnych '
     'Twoich danych. Za zgodą na anonimowe statystyki liczymy tylko, przy '
     'której ciekawostce link został otwarty.\n\n'
+    'Zakupy w aplikacji, czyli Dziesiątkę+ i napiwki, obsługuje Google Play. '
+    'Dane płatności widzi tylko Google, a aplikacja zapisuje na urządzeniu '
+    'jedynie, czy masz Dziesiątkę+.\n\n'
     'Grafika trafia do innych aplikacji tylko wtedy, gdy sam ją '
     'udostępnisz.\n\n'
     'Linki otwierają się poza aplikacją, na stronach z własnymi zasadami '
@@ -54,6 +61,7 @@ class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
     required this.themeService,
+    this.purchaseService,
     this.factsService,
     this.reminderService,
     this.usageService,
@@ -63,6 +71,7 @@ class SettingsScreen extends StatefulWidget {
   });
 
   final ThemeService themeService;
+  final PurchaseService? purchaseService;
   final FactsService? factsService;
   final ReminderService? reminderService;
   final UsageService? usageService;
@@ -148,6 +157,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _openPlus(PurchaseService purchases) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PlusScreen(purchaseService: purchases),
+      ),
+    );
+  }
+
   void _openInstructions() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -183,6 +200,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final purchases = widget.purchaseService;
+    if (purchases == null) return _buildScreen(context, null);
+    return ListenableBuilder(
+      listenable: purchases,
+      builder: (context, _) => _buildScreen(context, purchases),
+    );
+  }
+
+  Widget _buildScreen(BuildContext context, PurchaseService? purchases) {
+    final hasPlus = purchases?.hasPlus ?? false;
     final remindersEnabled = _remindersEnabled;
     final usageEnabled = _usageEnabled;
     final supportUrl = widget.supportUrl;
@@ -194,6 +221,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const _SectionHeader('Wygląd'),
             _ThemeOptions(themeService: widget.themeService),
+            if (hasPlus) _AccentOptions(themeService: widget.themeService),
+            if (purchases != null && purchases.showsPlus) ...[
+              const _SectionHeader('Dziesiątka+'),
+              ListTile(
+                leading: const Icon(Icons.workspace_premium_outlined),
+                title: const Text('Dziesiątka+'),
+                subtitle: Text(
+                  hasPlus
+                      ? 'Aktywna. Dziękujemy za wsparcie!'
+                      : 'Bez poleceń partnerskich, więcej kolorów',
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _openPlus(purchases),
+              ),
+            ],
             const _SectionHeader('Ciekawostki'),
             ListTile(
               leading: const Icon(Icons.category_outlined),
@@ -324,6 +366,45 @@ class _ThemeOptions extends StatelessWidget {
       selected: isSelected,
       trailing: isSelected ? const Icon(Icons.check_rounded) : null,
       onTap: () => themeService.setThemeMode(mode),
+    );
+  }
+}
+
+class _AccentOptions extends StatelessWidget {
+  const _AccentOptions({required this.themeService});
+
+  final ThemeService themeService;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: themeService,
+      builder: (context, _) => ListTile(
+        leading: const Icon(Icons.palette_outlined),
+        title: const Text('Kolor akcentu'),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final accent in AppAccent.values)
+                _buildChip(context, accent),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChip(BuildContext context, AppAccent accent) {
+    final brightness = Theme.of(context).brightness;
+    final color = AppTheme.of(accent, brightness).colorScheme.primary;
+    return ChoiceChip(
+      avatar: CircleAvatar(backgroundColor: color, radius: 8),
+      label: Text(accent.label),
+      selected: themeService.accent == accent,
+      onSelected: (_) => themeService.setAccent(accent),
     );
   }
 }

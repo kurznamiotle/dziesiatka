@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:dziesiatka/models/app_accent.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/onboarding_service.dart';
+import 'package:dziesiatka/services/purchase_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/supabase_fact_source.dart';
 import 'package:dziesiatka/services/theme_service.dart';
@@ -29,6 +32,10 @@ Future<void> main() async {
   // Loaded before the first frame, so the app never flashes the wrong theme.
   final themeService = ThemeService();
   await themeService.load();
+  final purchaseService = PurchaseService.forPlatform();
+  await purchaseService.loadOwned();
+  // The store answers later. Until then nothing is offered for sale.
+  unawaited(purchaseService.connect());
 
   const onboardingService = OnboardingService();
   final showWelcome = await onboardingService.shouldShowWelcome();
@@ -36,6 +43,7 @@ Future<void> main() async {
   runApp(
     DziesiatkaApp(
       themeService: themeService,
+      purchaseService: purchaseService,
       factsService: FactsService(remote: SupabaseFactSource.fromConfig()),
       reminderService: ReminderService(),
       usageService: UsageService.fromConfig(),
@@ -48,6 +56,7 @@ class DziesiatkaApp extends StatelessWidget {
   const DziesiatkaApp({
     super.key,
     required this.themeService,
+    this.purchaseService,
     this.factsService,
     this.reminderService,
     this.usageService,
@@ -58,6 +67,9 @@ class DziesiatkaApp extends StatelessWidget {
   });
 
   final ThemeService themeService;
+
+  /// Without one, as in most tests, nothing is for sale.
+  final PurchaseService? purchaseService;
   final FactsService? factsService;
   final ReminderService? reminderService;
   final UsageService? usageService;
@@ -69,6 +81,7 @@ class DziesiatkaApp extends StatelessWidget {
   Widget _buildHome() {
     return HomeScreen(
       themeService: themeService,
+      purchaseService: purchaseService,
       factsService: factsService,
       reminderService: reminderService,
       usageService: usageService,
@@ -122,33 +135,42 @@ class DziesiatkaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final purchases = purchaseService;
     return ListenableBuilder(
-      listenable: themeService,
-      builder: (context, _) => MaterialApp(
-        title: 'Dziesiątka',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
-        themeMode: themeService.themeMode,
-        // Above the navigator, so routes, dialogs and sheets stay in the frame.
-        builder: (context, child) => OfferScope(
-          isHidden: false,
-          onOpened: usageService == null
-              ? null
-              : (factId) => usageService!.offerOpened(factId),
-          child: PhoneFrame(child: child!),
-        ),
-        home: showWelcome
-            ? Builder(
-                builder: (context) => WelcomeScreen(
-                  onFinished: () =>
-                      _openFavoriteCategories(context, skipped: false),
-                  onSkipped: () =>
-                      _openFavoriteCategories(context, skipped: true),
-                ),
-              )
-            : _buildHome(),
+      listenable: Listenable.merge([themeService, ?purchases]),
+      builder: (context, _) {
+        final hasPlus = purchases?.hasPlus ?? false;
+        final accent = themeService.accentFor(hasPlus: hasPlus);
+        return _buildApp(accent, hasPlus: hasPlus);
+      },
+    );
+  }
+
+  Widget _buildApp(AppAccent accent, {required bool hasPlus}) {
+    return MaterialApp(
+      title: 'Dziesiątka',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.of(accent, Brightness.light),
+      darkTheme: AppTheme.of(accent, Brightness.dark),
+      themeMode: themeService.themeMode,
+      // Above the navigator, so routes, dialogs and sheets stay in the frame.
+      builder: (context, child) => OfferScope(
+        isHidden: hasPlus,
+        onOpened: usageService == null
+            ? null
+            : (factId) => usageService!.offerOpened(factId),
+        child: PhoneFrame(child: child!),
       ),
+      home: showWelcome
+          ? Builder(
+              builder: (context) => WelcomeScreen(
+                onFinished: () =>
+                    _openFavoriteCategories(context, skipped: false),
+                onSkipped: () =>
+                    _openFavoriteCategories(context, skipped: true),
+              ),
+            )
+          : _buildHome(),
     );
   }
 }
