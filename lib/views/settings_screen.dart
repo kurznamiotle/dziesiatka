@@ -10,6 +10,7 @@ import 'package:dziesiatka/services/usage_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/categories_screen.dart';
 import 'package:dziesiatka/views/plus_screen.dart';
+import 'package:dziesiatka/views/tip_sheet.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -78,7 +79,8 @@ class SettingsScreen extends StatefulWidget {
   final LinkService linkService;
   final AppInfoService appInfoService;
 
-  /// Without an address the support section is hidden.
+  /// The outside support page, given only on the web. Without it and without
+  /// tips from the store the support section is hidden.
   final String? supportUrl;
 
   @override
@@ -250,7 +252,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: remindersEnabled,
                 onChanged: _setRemindersEnabled,
               ),
-            if (supportUrl != null) ...[
+            // Google Play allows no other way to pay, so with tips from the
+            // store the outside link never shows.
+            if (purchases != null && purchases.hasTips) ...[
+              const _SectionHeader('Wsparcie i rozwój'),
+              ListTile(
+                leading: const Icon(Icons.local_cafe_outlined),
+                title: const Text('Postaw kawę twórcy ☕'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => TipSheet.show(context, purchases),
+              ),
+            ] else if (supportUrl != null) ...[
               const _SectionHeader('Wsparcie i rozwój'),
               _LinkTile(
                 icon: Icons.local_cafe_outlined,
