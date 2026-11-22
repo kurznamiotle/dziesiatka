@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/deck_generator_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -174,5 +175,106 @@ void main() {
 
   test('a single category cannot be spread but still fills the deck', () {
     expect(generate(many(20, 'Kosmos')), hasLength(10));
+  });
+
+  group('partner offers', () {
+    const offer = FactOffer(
+      product: 'Atlas nieba',
+      shop: 'Księgarnia',
+      url: 'https://example.com/atlas',
+    );
+
+    Fact withOffer(Fact fact, {String? until}) {
+      return fact.copyWith(
+        offer: FactOffer(
+          product: offer.product,
+          shop: offer.shop,
+          url: offer.url,
+          until: until,
+        ),
+      );
+    }
+
+    int offersIn(List<Fact> deck) {
+      return deck.where((card) => card.activeOfferOn(now) != null).length;
+    }
+
+    test('a deck has at most one card with an offer', () {
+      for (var seed = 0; seed < 30; seed++) {
+        final pool = [
+          for (final fact in balancedPool()) withOffer(fact),
+          ...balancedPool(),
+        ];
+        final deck = generate(pool, disabled: others, seed: seed);
+
+        expect(deck, hasLength(10), reason: 'seed $seed');
+        expect(offersIn(deck), 1, reason: 'seed $seed');
+      }
+    });
+
+    test('keeps 7-2-1 and short runs while replacing offers', () {
+      for (var seed = 0; seed < 30; seed++) {
+        final review = fact('Kosmos', lastReadAt: DateTime(2026, 11, 7));
+        final pool = [
+          for (final (index, fact) in balancedPool().indexed)
+            index.isEven ? withOffer(fact) : fact,
+          review,
+        ];
+        final deck = generate(pool, disabled: others, seed: seed);
+
+        expect(offersIn(deck), lessThanOrEqualTo(1), reason: 'seed $seed');
+        expect(countIn(deck, others), 2, reason: 'seed $seed');
+        expect(deck.where((card) => card.isRead), hasLength(1));
+        expect(longestRun(deck), lessThanOrEqualTo(2), reason: 'seed $seed');
+      }
+    });
+
+    test('an ended offer does not count', () {
+      final pool = [
+        for (final fact in balancedPool()) withOffer(fact, until: '2026-11-09'),
+      ];
+
+      final deck = generate(pool, disabled: others);
+
+      expect(deck.where((card) => card.offer != null), hasLength(10));
+      expect(offersIn(deck), 0);
+    });
+
+    test('the category limit can leave an extra offer in', () {
+      final pool = [
+        for (final fact in balancedPool()) withOffer(fact),
+        ...many(30, 'Kosmos'),
+      ];
+
+      final deck = generate(pool, disabled: others);
+
+      expect(deck, hasLength(10));
+      expect(countIn(deck, {'Kosmos'}), lessThanOrEqualTo(7));
+    });
+
+    test('a card stays when nothing can replace it', () {
+      final pool = [for (final fact in many(10, 'Kosmos')) withOffer(fact)];
+
+      final deck = generate(pool);
+
+      expect(deck, hasLength(10));
+    });
+
+    test('limitOffers prefers a replacement from the same category', () {
+      final cards = [
+        withOffer(fact('Kosmos')),
+        withOffer(fact('Historia')),
+        fact('Technologia'),
+      ];
+      final spare = fact('Historia');
+
+      final limited = generator.limitOffers(cards, [
+        withOffer(fact('Historia')),
+        fact('Zwierzęta'),
+        spare,
+      ]);
+
+      expect(limited, [cards[0], spare, cards[2]]);
+    });
   });
 }

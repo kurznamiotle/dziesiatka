@@ -151,6 +151,35 @@ void main() {
       expect(sent, hasLength(2));
     });
 
+    test('without offers no row names the offer column', () async {
+      final service = await signedIn();
+      answer = (_) => http.Response('', 201);
+
+      await service.insertFacts([fact('fact-1')]);
+
+      final sent = jsonDecode(requests.last.body) as List<dynamic>;
+      expect((sent.single as Map).containsKey('offer'), isFalse);
+    });
+
+    test('one offer gives every row the same keys', () async {
+      final service = await signedIn();
+      answer = (_) => http.Response('', 201);
+      final withOffer = AdminFact.fromImport({
+        ...fact('').toRow(),
+        'offer_product': 'Atlas',
+        'offer_shop': 'Sklep',
+        'offer_url': 'https://example.com',
+      });
+
+      await service.insertFacts([fact('fact-1'), withOffer]);
+
+      final sent = (jsonDecode(requests.last.body) as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+      expect(sent[0].keys.toSet(), sent[1].keys.toSet());
+      expect(sent[0]['offer'], isNull);
+      expect(sent[1]['offer'], isNotNull);
+    });
+
     test('publishing several clears their notes', () async {
       final service = await signedIn();
       answer = (_) => http.Response('', 204);

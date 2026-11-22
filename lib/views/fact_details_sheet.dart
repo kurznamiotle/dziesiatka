@@ -3,6 +3,7 @@ import 'package:dziesiatka/services/fact_report_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/views/category_badge.dart';
 import 'package:dziesiatka/views/fact_report_dialog.dart';
+import 'package:dziesiatka/views/offer_scope.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
@@ -40,11 +41,19 @@ class FactDetailsSheet extends StatelessWidget {
     );
   }
 
+  /// Opens in the browser, outside the app, so the partner can save the
+  /// visit in its cookie.
+  Future<void> _openOffer(BuildContext context, String url) async {
+    OfferScope.reportOpened(context, fact);
+    await _openSource(context, url);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final sourceUrl = fact.sourceUrl;
+    final offer = OfferScope.offerFor(context, fact);
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(28, 0, 28, 32),
       child: Column(
@@ -104,6 +113,35 @@ class FactDetailsSheet extends StatelessWidget {
                 fact.sourceLabel,
                 style: theme.textTheme.bodyMedium,
               ),
+          ],
+          if (offer != null) ...[
+            const SizedBox(height: 24),
+            Text(
+              'Polecamy',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonalIcon(
+              onPressed: () => _openOffer(context, offer.url),
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: Text(
+                '${offer.product} · ${offer.shop}',
+                textAlign: TextAlign.center,
+              ),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Link partnerski – kupując przez niego, wspierasz Dziesiątkę '
+              'bez dopłat.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
           ],
           const SizedBox(height: 16),
           TextButton.icon(

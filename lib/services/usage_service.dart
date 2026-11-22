@@ -118,6 +118,13 @@ class UsageService {
     );
   }
 
+  /// Counts a tap on a partner offer, by fact only, without the link.
+  Future<void> offerOpened(String factId) {
+    return _record(
+      (prefs) => _addToFact(prefs, factId, const FactUsage(offerClicked: 1)),
+    );
+  }
+
   Future<void> quizAnswered(String factId, {required bool isCorrect}) {
     return _record(
       (prefs) => _addToFact(

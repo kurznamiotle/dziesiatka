@@ -13,6 +13,9 @@ class DeckGeneratorService {
   static const minDaysBetweenReads = 3;
   static const maxSameCategoryInRow = 2;
 
+  /// Partner offers stay a small extra: one per deck and one per bonus round.
+  static const maxOffersPerRound = 1;
+
   /// The most that 3 other cards can still keep apart with no 3 in a row.
   static const maxSameCategoryInDeck = 7;
 
@@ -54,7 +57,62 @@ class DeckGeneratorService {
     }.difference(reviews.toSet());
     final chosen = [...rest.take(deckSize - reviews.length), ...reviews]
       ..shuffle(random);
-    return _withoutLongRuns(chosen);
+    final spares = [...unread, ...read].where((fact) => !chosen.contains(fact));
+    return _withoutLongRuns(limitOffers(chosen, spares));
+  }
+
+  /// Keeps the first [maxOffersPerRound] cards with an active offer. Each one
+  /// past that gives its place to a card without an offer from [spares], from
+  /// the same category and in the same read state when there is one, so the
+  /// mix of favorites, discoveries and reviews stays as chosen. A card that
+  /// has no fitting replacement stays, because a full deck matters more.
+  List<Fact> limitOffers(List<Fact> cards, Iterable<Fact> spares) {
+    final moment = now();
+    bool hasOffer(Fact fact) => fact.activeOfferOn(moment) != null;
+
+    final free = spares.where((fact) => !hasOffer(fact)).toList();
+    final result = <Fact>[];
+    var offers = 0;
+    for (final (index, card) in cards.indexed) {
+      if (!hasOffer(card) || offers < maxOffersPerRound) {
+        if (hasOffer(card)) offers++;
+        result.add(card);
+        continue;
+      }
+
+      final others = [...result, ...cards.skip(index + 1)];
+      final replacement = _replacementFor(card, free, others);
+      if (replacement == null) {
+        offers++;
+        result.add(card);
+      } else {
+        free.remove(replacement);
+        result.add(replacement);
+      }
+    }
+    return result;
+  }
+
+  /// [others] are the rest of the deck, without [card].
+  Fact? _replacementFor(Fact card, List<Fact> free, List<Fact> others) {
+    bool fitsCategory(Fact fact) {
+      if (fact.category == card.category) return true;
+      final count = others.where((item) => item.category == fact.category);
+      return count.length < maxSameCategoryInDeck;
+    }
+
+    final rules = <bool Function(Fact)>[
+      (fact) => fact.category == card.category && fact.isRead == card.isRead,
+      (fact) => fact.category == card.category,
+      (fact) => fact.isRead == card.isRead && fitsCategory(fact),
+      fitsCategory,
+    ];
+    for (final rule in rules) {
+      for (final fact in free) {
+        if (rule(fact)) return fact;
+      }
+    }
+    return null;
   }
 
   /// Walks the shuffled cards and skips ahead only when the next card would

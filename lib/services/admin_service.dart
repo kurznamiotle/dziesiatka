@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_report.dart';
 import 'package:dziesiatka/models/fact_usage.dart';
 import 'package:dziesiatka/models/usage_row.dart';
@@ -107,12 +108,20 @@ class AdminService {
     _check(response);
   }
 
+  /// Supabase takes a list only when every row has the same keys, so an
+  /// offer on one row gives the others an empty one.
   Future<void> insertFacts(List<AdminFact> facts) async {
+    final rows = facts.map((fact) => fact.toRow()).toList();
+    if (rows.any((row) => row.containsKey('offer'))) {
+      for (final row in rows) {
+        row.putIfAbsent('offer', () => null);
+      }
+    }
     final response = await _client
         .post(
           _uri('facts'),
           headers: {...await _headers(), 'Prefer': 'return=minimal'},
-          body: jsonEncode(facts.map((fact) => fact.toRow()).toList()),
+          body: jsonEncode(rows),
         )
         .timeout(_timeout);
     _check(response);
@@ -127,6 +136,21 @@ class AdminService {
         )
         .timeout(_timeout);
     _check(response);
+  }
+
+  /// Sets only the offers, one fact at a time, so the rest of each fact and
+  /// the facts left out of the file stay as they are.
+  Future<void> updateOffers(Map<String, FactOffer> offers) async {
+    for (final MapEntry(key: id, value: offer) in offers.entries) {
+      final response = await _client
+          .patch(
+            _uri('facts', {'id': 'eq.$id'}),
+            headers: {...await _headers(), 'Prefer': 'return=minimal'},
+            body: jsonEncode({'offer': offer.toJson()}),
+          )
+          .timeout(_timeout);
+      _check(response);
+    }
   }
 
   /// Publishing clears the review note, because the app can read published

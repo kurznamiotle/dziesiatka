@@ -4,6 +4,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/offer_scope.dart';
 import 'package:dziesiatka/views/pill_badge.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,9 @@ class FactCard extends StatelessWidget {
   }
 
   Widget _buildBanner(BuildContext context, double cardHeight, bool isCompact) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final hasOffer = OfferScope.offerFor(context, fact) != null;
     final height = isCompact
         ? _compactBannerHeight
         : [
@@ -89,17 +92,32 @@ class FactCard extends StatelessWidget {
         showDecoration: !isCompact,
         child: Padding(
           padding: EdgeInsets.all(isCompact ? 12 : 20),
-          child: Wrap(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 8,
-            runSpacing: 8,
             children: [
-              CategoryBadge(category: fact.category, solid: true),
-              if (isReview)
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    CategoryBadge(category: fact.category, solid: true),
+                    if (isReview)
+                      PillBadge(
+                        icon: Icons.refresh_rounded,
+                        label: 'Powtórka',
+                        color: colors.onSecondaryContainer,
+                        background: colors.secondaryContainer,
+                      ),
+                  ],
+                ),
+              ),
+              if (hasOffer)
                 PillBadge(
-                  icon: Icons.refresh_rounded,
-                  label: 'Powtórka',
-                  color: colors.onSecondaryContainer,
-                  background: colors.secondaryContainer,
+                  icon: Icons.handshake_outlined,
+                  label: 'Partner',
+                  color: colors.onSurfaceVariant,
+                  background: theme.extension<AppSurfaces>()!.card,
                 ),
             ],
           ),

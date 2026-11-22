@@ -95,6 +95,7 @@ void main() {
           sourceUrl: null,
           quiz: null,
           reviewNote: null,
+          offer: null,
         );
 
     expect(edited.sourceUrl, isNull);

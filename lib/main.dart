@@ -9,6 +9,7 @@ import 'package:dziesiatka/services/usage_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:dziesiatka/views/home_screen.dart';
+import 'package:dziesiatka/views/offer_scope.dart';
 import 'package:dziesiatka/views/phone_frame.dart';
 import 'package:dziesiatka/views/usage_consent_dialog.dart';
 import 'package:dziesiatka/views/welcome_screen.dart';
@@ -130,7 +131,13 @@ class DziesiatkaApp extends StatelessWidget {
         darkTheme: AppTheme.dark,
         themeMode: themeService.themeMode,
         // Above the navigator, so routes, dialogs and sheets stay in the frame.
-        builder: (context, child) => PhoneFrame(child: child!),
+        builder: (context, child) => OfferScope(
+          isHidden: false,
+          onOpened: usageService == null
+              ? null
+              : (factId) => usageService!.offerOpened(factId),
+          child: PhoneFrame(child: child!),
+        ),
         home: showWelcome
             ? Builder(
                 builder: (context) => WelcomeScreen(

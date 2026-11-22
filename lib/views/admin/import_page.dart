@@ -1,5 +1,6 @@
 import 'package:dziesiatka/models/admin_fact.dart';
 import 'package:dziesiatka/models/import_item.dart';
+import 'package:dziesiatka/models/offer_import_item.dart';
 import 'package:dziesiatka/services/admin_service.dart';
 import 'package:dziesiatka/services/browser_files.dart';
 import 'package:dziesiatka/services/import_service.dart';
@@ -30,6 +31,7 @@ class ImportPage extends StatefulWidget {
 class _ImportPageState extends State<ImportPage> {
   final _text = TextEditingController();
   List<ImportItem>? _items;
+  List<OfferImportItem>? _offerItems;
   bool _publishConfident = false;
   bool _isSaving = false;
   String? _error;
@@ -49,7 +51,12 @@ class _ImportPageState extends State<ImportPage> {
   }
 
   void _check() {
+    if (widget.importService.isOfferFile(_text.text)) {
+      _checkOffers();
+      return;
+    }
     setState(() {
+      _offerItems = null;
       try {
         _items = widget.importService.check(
           _text.text,
@@ -63,6 +70,53 @@ class _ImportPageState extends State<ImportPage> {
             'To nie jest poprawna lista JSON. Poproś czat o poprawę pliku.';
       }
     });
+  }
+
+  void _checkOffers() {
+    setState(() {
+      _items = null;
+      try {
+        _offerItems = widget.importService.checkOffers(
+          _text.text,
+          existing: widget.facts,
+        );
+        _error = null;
+      } on FormatException {
+        _offerItems = null;
+        _error =
+            'To nie jest poprawny plik CSV z kolumną id. Użyj pliku '
+            'z „Pobierz CSV dla czatu”.';
+      }
+    });
+  }
+
+  Future<void> _saveOffers() async {
+    final offers = {
+      for (final item in _offerItems!.where((item) => item.isValid))
+        item.factId: item.offer,
+    };
+    setState(() => _isSaving = true);
+    try {
+      await widget.adminService.updateOffers(offers);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Zapisano polecenia: ${offers.length}.')),
+      );
+      _text.clear();
+      setState(() => _offerItems = null);
+      await widget.onSaved();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Nie udało się zapisać wszystkich poleceń. Sprawdź listę '
+            'ciekawostek.',
+          ),
+        ),
+      );
+    }
+    if (mounted) setState(() => _isSaving = false);
   }
 
   Future<void> _save() async {
@@ -95,6 +149,7 @@ class _ImportPageState extends State<ImportPage> {
   @override
   Widget build(BuildContext context) {
     final items = _items;
+    final offerItems = _offerItems;
     final error = _error;
     final colors = Theme.of(context).colorScheme;
     return ListView(
@@ -103,7 +158,10 @@ class _ImportPageState extends State<ImportPage> {
         const Text(
           'Wybierz plik JSON z czatu albo wklej jego treść. Panel sprawdzi '
           'limity, kategorie i podobieństwo do istniejących ciekawostek, '
-          'zanim cokolwiek zapisze.',
+          'zanim cokolwiek zapisze.\n\n'
+          'Plik CSV z „Pobierz CSV dla czatu” z wypełnionymi kolumnami '
+          'offer_product, offer_shop, offer_url i offer_until ustawia '
+          'polecenia partnerskie. Puste kolumny niczego nie zmieniają.',
         ),
         const SizedBox(height: 12),
         TextField(
@@ -134,6 +192,7 @@ class _ImportPageState extends State<ImportPage> {
             child: Text(error, style: TextStyle(color: colors.error)),
           ),
         if (items != null) ..._buildPreview(items),
+        if (offerItems != null) ..._buildOfferPreview(offerItems),
       ],
     );
   }
@@ -163,6 +222,54 @@ class _ImportPageState extends State<ImportPage> {
       ),
       const SizedBox(height: 8),
       for (final item in items) _ImportTile(item: item),
+    ];
+  }
+}
+
+extension on _ImportPageState {
+  List<Widget> _buildOfferPreview(List<OfferImportItem> items) {
+    final theme = Theme.of(context);
+    final valid = items.where((item) => item.isValid).length;
+    return [
+      const SizedBox(height: 16),
+      Text(
+        items.isEmpty
+            ? 'Plik nie zmienia żadnego polecenia.'
+            : 'Polecenia do zmiany: ${items.length}. Do zapisania: $valid. '
+                  'Z błędem: ${items.length - valid}.',
+      ),
+      const SizedBox(height: 8),
+      FilledButton(
+        onPressed: valid == 0 || _isSaving ? null : _saveOffers,
+        child: Text('Zapisz polecenia ($valid)'),
+      ),
+      const SizedBox(height: 8),
+      for (final item in items)
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(
+            item.isValid ? Icons.handshake_outlined : Icons.error_outline,
+            color: item.isValid ? null : theme.colorScheme.error,
+          ),
+          title: Text(item.title),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${item.offer.product} · ${item.offer.shop}'
+                '${item.offer.until == null ? '' : ' · do ${item.offer.until}'}',
+              ),
+              for (final error in item.errors)
+                Text(
+                  error,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+            ],
+          ),
+        ),
     ];
   }
 }

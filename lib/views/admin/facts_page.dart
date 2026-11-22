@@ -46,6 +46,7 @@ class _FactsPageState extends State<FactsPage> {
   final _selected = <String>{};
   String _category = _allCategories;
   String? _status;
+  bool _onlyWithOffer = false;
   bool _isBusy = false;
 
   @override
@@ -67,6 +68,7 @@ class _FactsPageState extends State<FactsPage> {
     final query = _search.text.trim().toLowerCase();
     return widget.facts.where((fact) {
       if (_status != null && fact.status != _status) return false;
+      if (_onlyWithOffer && fact.offer == null) return false;
       if (_category != _allCategories && fact.category != _category) {
         return false;
       }
@@ -224,6 +226,15 @@ class _FactsPageState extends State<FactsPage> {
               DropdownMenuItem(value: status, child: Text(label)),
           ],
         ),
+        FilterChip(
+          label: const Text('Z poleceniem'),
+          selected: _onlyWithOffer,
+          // Offers sit on published facts, which the default drafts hide.
+          onSelected: (value) => setState(() {
+            _onlyWithOffer = value;
+            if (value) _status = null;
+          }),
+        ),
       ],
     );
   }
@@ -231,6 +242,8 @@ class _FactsPageState extends State<FactsPage> {
   Widget _buildTile(AdminFact fact) {
     final theme = Theme.of(context);
     final note = fact.reviewNote;
+    final offer = fact.offer;
+    final hasEnded = fact.hasEndedOfferOn(DateTime.now());
     return CheckboxListTile(
       value: _selected.contains(fact.id),
       controlAffinity: ListTileControlAffinity.leading,
@@ -248,6 +261,32 @@ class _FactsPageState extends State<FactsPage> {
             '${fact.id}',
             style: theme.textTheme.bodySmall,
           ),
+          if (offer != null)
+            Row(
+              spacing: 4,
+              children: [
+                Icon(
+                  hasEnded ? Icons.link_off_rounded : Icons.handshake_outlined,
+                  size: 16,
+                  color: hasEnded
+                      ? theme.colorScheme.error
+                      : theme.colorScheme.primary,
+                ),
+                Flexible(
+                  child: Text(
+                    hasEnded
+                        ? 'Polecenie wygasło ${offer.until}: ${offer.product}'
+                        : 'Polecenie: ${offer.product} · ${offer.shop}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: hasEnded
+                          ? theme.colorScheme.error
+                          : theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           if (note != null)
             Text(
               note,

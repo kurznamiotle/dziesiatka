@@ -8,6 +8,7 @@ class FactUsage {
     this.shared = 0,
     this.quizCorrect = 0,
     this.quizWrong = 0,
+    this.offerClicked = 0,
   });
 
   factory FactUsage.fromJson(Map<String, dynamic> json) {
@@ -18,6 +19,8 @@ class FactUsage {
       shared: json['shared'] as int,
       quizCorrect: json['quiz_correct'] as int,
       quizWrong: json['quiz_wrong'] as int,
+      // Missing until `supabase/offers_stats.sql` runs.
+      offerClicked: json['offer_clicked'] as int? ?? 0,
     );
   }
 
@@ -28,6 +31,9 @@ class FactUsage {
   final int quizCorrect;
   final int quizWrong;
 
+  /// Taps on the partner offer under the fact. The link itself is not kept.
+  final int offerClicked;
+
   FactUsage operator +(FactUsage other) {
     return FactUsage(
       shown: shown + other.shown,
@@ -36,6 +42,7 @@ class FactUsage {
       shared: shared + other.shared,
       quizCorrect: quizCorrect + other.quizCorrect,
       quizWrong: quizWrong + other.quizWrong,
+      offerClicked: offerClicked + other.offerClicked,
     );
   }
 
@@ -47,6 +54,7 @@ class FactUsage {
       'shared': shared,
       'quiz_correct': quizCorrect,
       'quiz_wrong': quizWrong,
+      'offer_clicked': offerClicked,
     };
   }
 }

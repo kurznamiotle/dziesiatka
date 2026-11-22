@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/import_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -212,6 +213,148 @@ void main() {
 
       expect(facts.single.status, AdminFact.draft);
       expect(facts.single.reviewNote, contains('Burza większa od Ziemi'));
+    });
+  });
+
+  group('offers in an import', () {
+    test('a JSON item can bring an offer', () {
+      final items = service.check(
+        jsonEncode([
+          {
+            ...item(),
+            'offer_product': 'Atlas',
+            'offer_shop': 'Sklep',
+            'offer_url': 'https://example.com',
+          },
+        ]),
+        existing: existing,
+        categories: categories,
+      );
+
+      expect(items.single.isValid, isTrue);
+      expect(items.single.fact.offer?.product, 'Atlas');
+      final saved = service.prepareToSave(
+        items,
+        existing: existing,
+        publishConfident: false,
+      );
+      expect(saved.single.toRow()['offer'], isNotNull);
+    });
+
+    test('a partly filled offer is an error', () {
+      final items = service.check(
+        jsonEncode([
+          {...item(), 'offer_product': 'Atlas'},
+        ]),
+        existing: existing,
+        categories: categories,
+      );
+
+      expect(items.single.isValid, isFalse);
+    });
+
+    test('an item without offer columns saves no offer key', () {
+      final items = service.check(
+        jsonEncode([item()]),
+        existing: existing,
+        categories: categories,
+      );
+      final saved = service.prepareToSave(
+        items,
+        existing: existing,
+        publishConfident: false,
+      );
+
+      expect(saved.single.toRow().containsKey('offer'), isFalse);
+    });
+  });
+
+  group('checkOffers', () {
+    final withColumn = [
+      for (final fact in existing)
+        AdminFact.fromRow({...fact.toRow(), 'offer': null}),
+    ];
+    const header = 'id,title,offer_product,offer_shop,offer_url,offer_until';
+
+    test('tells a CSV file from a JSON one', () {
+      expect(service.isOfferFile('﻿id,title\n'), isTrue);
+      expect(service.isOfferFile('  [{"title": "A"}]'), isFalse);
+      expect(service.isOfferFile('```json\n[]\n```'), isFalse);
+    });
+
+    test('sets filled offers and skips empty rows', () {
+      final items = service.checkOffers(
+        '$header\n'
+        'fact-220,Burza,Atlas,Sklep,https://example.com/a,2026-12-31\n'
+        'seed-999,Stara,,,,\n',
+        existing: withColumn,
+      );
+
+      expect(items, hasLength(1));
+      expect(items.single.factId, 'fact-220');
+      expect(items.single.title, 'Burza większa od Ziemi');
+      expect(items.single.isValid, isTrue);
+      expect(items.single.offer.until, '2026-12-31');
+    });
+
+    test('a file without offer columns changes nothing', () {
+      final items = service.checkOffers(
+        'id,title\nfact-220,Burza\n',
+        existing: withColumn,
+      );
+
+      expect(items, isEmpty);
+    });
+
+    test('an offer already saved is left out', () {
+      final known = [
+        withColumn.first.withEdits(
+          title: withColumn.first.title,
+          category: 'Kosmos',
+          shortText: withColumn.first.shortText,
+          longText: withColumn.first.longText,
+          sourceLabel: 'NASA',
+          sourceUrl: null,
+          quiz: null,
+          reviewNote: null,
+          offer: const FactOffer(
+            product: 'Atlas',
+            shop: 'Sklep',
+            url: 'https://example.com/a',
+          ),
+        ),
+      ];
+
+      final items = service.checkOffers(
+        '$header\nfact-220,B,Atlas,Sklep,https://example.com/a,\n',
+        existing: known,
+      );
+
+      expect(items, isEmpty);
+    });
+
+    test('names unknown ids, bad offers and a missing column', () {
+      final items = service.checkOffers(
+        '$header\n'
+        'fact-404,X,Atlas,Sklep,https://example.com,\n'
+        'fact-220,B,Atlas,Sklep,http://example.com,31.12.2026\n',
+        existing: withColumn,
+      );
+      final beforeMigration = service.checkOffers(
+        '$header\nfact-220,B,Atlas,Sklep,https://example.com,\n',
+        existing: existing,
+      );
+
+      expect(items[0].errors.single, contains('fact-404'));
+      expect(items[1].errors, hasLength(2));
+      expect(beforeMigration.single.errors.single, contains('offers.sql'));
+    });
+
+    test('a file without an id column is rejected', () {
+      expect(
+        () => service.checkOffers('title\nA\n', existing: existing),
+        throwsFormatException,
+      );
     });
   });
 }

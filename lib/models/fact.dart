@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_state.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 
@@ -19,6 +20,7 @@ class Fact {
     this.isFavorite = false,
     this.lastReadAt,
     this.quiz,
+    this.offer,
   }) : updatedAt = updatedAt ?? createdAt;
 
   /// Reads the app's own format. Facts saved before the split into [shortText]
@@ -39,12 +41,14 @@ class Fact {
       sourceUrl: json['sourceUrl'] as String?,
       isWithdrawn: json['isWithdrawn'] as bool? ?? false,
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
+      offer: FactOffer.tryParse(json['offer']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: updatedAt == null ? null : DateTime.parse(updatedAt),
     );
   }
 
-  /// Reads a row of the `facts` table from Supabase.
+  /// Reads a row of the `facts` table from Supabase. Before
+  /// `supabase/offers.sql` runs, rows have no `offer` and so no offer.
   factory Fact.fromRow(Map<String, dynamic> row) {
     final quiz = row['quiz'] as Map<String, dynamic>?;
     return Fact(
@@ -57,6 +61,7 @@ class Fact {
       sourceUrl: row['source_url'] as String?,
       isWithdrawn: row['status'] == 'withdrawn',
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
+      offer: FactOffer.tryParse(row['offer']),
       createdAt: DateTime.parse(row['created_at'] as String),
       updatedAt: DateTime.parse(row['updated_at'] as String),
     );
@@ -81,10 +86,19 @@ class Fact {
   /// When the fact was last read, or null if never or before dates were saved.
   final DateTime? lastReadAt;
   final QuizQuestion? quiz;
+
+  /// A partner product under the fact. Use [activeOfferOn], which leaves out
+  /// an offer past its end date.
+  final FactOffer? offer;
   final DateTime createdAt;
 
   /// Decides which copy of a fact is newer when two sources have it.
   final DateTime updatedAt;
+
+  FactOffer? activeOfferOn(DateTime moment) {
+    final offer = this.offer;
+    return offer != null && offer.isActiveOn(moment) ? offer : null;
+  }
 
   FactState get state {
     return FactState(
@@ -107,6 +121,7 @@ class Fact {
     bool? isFavorite,
     DateTime? lastReadAt,
     QuizQuestion? quiz,
+    FactOffer? offer,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -123,6 +138,7 @@ class Fact {
       isFavorite: isFavorite ?? this.isFavorite,
       lastReadAt: lastReadAt ?? this.lastReadAt,
       quiz: quiz ?? this.quiz,
+      offer: offer ?? this.offer,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -144,6 +160,7 @@ class Fact {
       isFavorite: state.isFavorite,
       lastReadAt: state.lastReadAt,
       quiz: quiz,
+      offer: offer,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -160,6 +177,7 @@ class Fact {
       'sourceUrl': sourceUrl,
       'isWithdrawn': isWithdrawn,
       'quiz': quiz?.toJson(),
+      'offer': offer?.toJson(),
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };

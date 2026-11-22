@@ -3,10 +3,14 @@ import 'dart:math';
 
 import 'package:dziesiatka/models/admin_fact.dart';
 import 'package:dziesiatka/models/import_item.dart';
+import 'package:dziesiatka/models/offer_import_item.dart';
+import 'package:dziesiatka/services/facts_csv_service.dart';
 
 /// Checks a file prepared by a chat and turns it into facts ready to save.
 class ImportService {
-  const ImportService();
+  const ImportService({this.csvService = const FactsCsvService()});
+
+  final FactsCsvService csvService;
 
   static const _similarityLimit = 0.6;
   static const _shortestWord = 4;
@@ -60,6 +64,57 @@ class ImportService {
       seen.add((title: fact.title, words: words));
     }
     return checked;
+  }
+
+  /// A chat returns facts as JSON, while offers come back in the CSV file the
+  /// panel exported.
+  bool isOfferFile(String text) {
+    final start = text.replaceFirst('\uFEFF', '').trimLeft();
+    if (start.startsWith('[') || start.startsWith('```')) return false;
+    final header = start.split('\n').first;
+    return header
+        .split(RegExp('[,;]'))
+        .map((cell) => cell.trim())
+        .contains('id');
+  }
+
+  /// Reads the offer columns of a CSV file with an `id` column. A row with
+  /// them empty, a file without them and an offer that is already saved are
+  /// left out, so nothing else changes. Removing an offer is done by hand in
+  /// the panel. Throws [FormatException] if the file cannot be read.
+  List<OfferImportItem> checkOffers(
+    String text, {
+    required List<AdminFact> existing,
+  }) {
+    final rows = csvService.decode(text);
+    if (rows.isNotEmpty && !rows.first.containsKey('id')) {
+      throw const FormatException('Plik CSV musi mieć kolumnę id.');
+    }
+
+    final byId = {for (final fact in existing) fact.id: fact};
+    final items = <OfferImportItem>[];
+    for (final row in rows) {
+      final id = row['id']!.trim();
+      final offer = AdminFact.offerFromColumns(row);
+      if (offer == null) continue;
+
+      final fact = byId[id];
+      if (fact != null && fact.offer == offer) continue;
+      items.add(
+        OfferImportItem(
+          factId: id,
+          title: fact?.title ?? id,
+          offer: offer,
+          errors: [
+            if (fact == null) 'Nie ma ciekawostki o id „$id”.',
+            if (fact != null && !fact.hasOfferColumn)
+              'Baza nie ma jeszcze kolumny offer. Uruchom supabase/offers.sql.',
+            ...offer.validationErrors(),
+          ],
+        ),
+      );
+    }
+    return items;
   }
 
   /// Gives each valid item the next free id. Items are saved as drafts unless

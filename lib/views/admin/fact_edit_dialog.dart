@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:flutter/material.dart';
 
@@ -50,6 +51,14 @@ class _FactEditDialogState extends State<FactEditDialog> {
             : '',
       ),
   ];
+  late final _offerProduct = TextEditingController(
+    text: widget.fact.offer?.product,
+  );
+  late final _offerShop = TextEditingController(text: widget.fact.offer?.shop);
+  late final _offerUrl = TextEditingController(text: widget.fact.offer?.url);
+  late final _offerUntil = TextEditingController(
+    text: widget.fact.offer?.until,
+  );
   late String _category = widget.fact.category;
   late int _correctIndex = widget.fact.quiz?.correctIndex ?? 0;
   List<String> _errors = const [];
@@ -65,10 +74,32 @@ class _FactEditDialogState extends State<FactEditDialog> {
       _reviewNote,
       _question,
       ..._options,
+      ..._offerFields,
     ]) {
       controller.dispose();
     }
     super.dispose();
+  }
+
+  List<TextEditingController> get _offerFields {
+    return [_offerProduct, _offerShop, _offerUrl, _offerUntil];
+  }
+
+  void _removeOffer() {
+    setState(() {
+      for (final controller in _offerFields) {
+        controller.clear();
+      }
+    });
+  }
+
+  FactOffer? _offer() {
+    return AdminFact.offerFromColumns({
+      'offer_product': _offerProduct.text,
+      'offer_shop': _offerShop.text,
+      'offer_url': _offerUrl.text,
+      'offer_until': _offerUntil.text,
+    });
   }
 
   String? _textOrNull(TextEditingController controller) {
@@ -86,6 +117,7 @@ class _FactEditDialogState extends State<FactEditDialog> {
       sourceLabel: _sourceLabel.text,
       sourceUrl: _textOrNull(_sourceUrl),
       reviewNote: _textOrNull(_reviewNote),
+      offer: _offer(),
       quiz: question == null
           ? null
           : QuizQuestion(
@@ -99,9 +131,13 @@ class _FactEditDialogState extends State<FactEditDialog> {
   void _save() {
     final edited = _edited();
     // Facts in any status follow the same content rules.
-    final errors = edited
-        .copyWith(status: AdminFact.draft)
-        .validationErrors(widget.categories);
+    final errors = [
+      ...edited
+          .copyWith(status: AdminFact.draft)
+          .validationErrors(widget.categories),
+      if (edited.offer != null && !widget.fact.hasOfferColumn)
+        'Baza nie ma jeszcze kolumny offer. Uruchom supabase/offers.sql.',
+    ];
     if (errors.isEmpty) {
       Navigator.of(context).pop(edited);
     } else {
@@ -114,17 +150,64 @@ class _FactEditDialogState extends State<FactEditDialog> {
     String label, {
     int? maxLength,
     int maxLines = 1,
+    String? hint,
+    bool enabled = true,
   }) {
     return TextField(
       controller: controller,
+      enabled: enabled,
       maxLength: maxLength,
       minLines: 1,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
+        hintText: hint,
         border: const OutlineInputBorder(),
       ),
     );
+  }
+
+  List<Widget> _buildOffer(BuildContext context) {
+    final theme = Theme.of(context);
+    final enabled = widget.fact.hasOfferColumn;
+    return [
+      const SizedBox(height: 8),
+      Text('Polecenie partnerskie', style: theme.textTheme.titleSmall),
+      Text(
+        enabled
+            ? 'Produkt naprawdę związany z ciekawostką. Aplikacja pokaże go '
+                  'jako „Link partnerski”. Puste pola: brak polecenia.'
+            : 'Najpierw uruchom supabase/offers.sql w Supabase.',
+        style: theme.textTheme.bodySmall,
+      ),
+      _field(
+        _offerProduct,
+        'Produkt',
+        maxLength: FactOffer.maxProductLength,
+        enabled: enabled,
+      ),
+      _field(
+        _offerShop,
+        'Sklep',
+        maxLength: FactOffer.maxShopLength,
+        enabled: enabled,
+      ),
+      _field(_offerUrl, 'Link (https)', hint: 'https://…', enabled: enabled),
+      _field(
+        _offerUntil,
+        'Ważne do (opcjonalnie)',
+        hint: 'RRRR-MM-DD',
+        enabled: enabled,
+      ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: enabled ? _removeOffer : null,
+          icon: const Icon(Icons.link_off_rounded),
+          label: const Text('Usuń polecenie'),
+        ),
+      ),
+    ];
   }
 
   @override
@@ -185,6 +268,7 @@ class _FactEditDialogState extends State<FactEditDialog> {
                   ],
                 ),
               ),
+              ..._buildOffer(context),
               for (final error in _errors)
                 Text(error, style: TextStyle(color: colors.error)),
             ],

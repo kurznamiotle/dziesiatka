@@ -13,6 +13,7 @@ Map<String, dynamic> _row(
   String title, {
   String status = 'published',
   String? note,
+  Map<String, dynamic>? offer,
 }) {
   return {
     'id': id,
@@ -29,6 +30,7 @@ Map<String, dynamic> _row(
       'correctIndex': 0,
     },
     'review_note': note,
+    'offer': offer,
   };
 }
 
@@ -68,6 +70,25 @@ void main() {
       '/rest/v1/facts' => [
         _row('fact-1', 'Opublikowana'),
         _row('fact-2', 'Szkic', status: 'draft', note: 'Jedno źródło.'),
+        _row(
+          'fact-3',
+          'Z poleceniem',
+          offer: {
+            'product': 'Atlas nieba',
+            'shop': 'Księgarnia',
+            'url': 'https://example.com/atlas',
+          },
+        ),
+        _row(
+          'fact-4',
+          'Po terminie',
+          offer: {
+            'product': 'Stary atlas',
+            'shop': 'Księgarnia',
+            'url': 'https://example.com/stary',
+            'until': '2020-01-01',
+          },
+        ),
       ],
       '/rest/v1/categories' => [
         {'name': 'Kosmos'},
@@ -248,7 +269,7 @@ void main() {
           request.method == 'POST' && request.url.path == '/rest/v1/facts',
     );
     final saved = (jsonDecode(insert.body) as List).single as Map;
-    expect(saved['id'], 'fact-003');
+    expect(saved['id'], 'fact-005');
     expect(saved['status'], 'draft');
   });
 
@@ -281,5 +302,89 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Zaloguj się'), findsOneWidget);
+  });
+
+  testWidgets('facts with offers can be filtered and are marked', (
+    tester,
+  ) async {
+    await pumpPanel(tester);
+    await signIn(tester);
+    await openPage(tester, 'Ciekawostki');
+
+    await tester.tap(find.text('Z poleceniem'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Szkic'), findsNothing);
+    expect(find.text('Polecenie: Atlas nieba · Księgarnia'), findsOneWidget);
+    expect(
+      find.text('Polecenie wygasło 2020-01-01: Stary atlas'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('an offer is edited and removed in the form', (tester) async {
+    await pumpPanel(tester);
+    await signIn(tester);
+    await openPage(tester, 'Ciekawostki');
+    await tester.tap(find.text('Z poleceniem'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Działania').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edytuj'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Polecenie partnerskie'), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Link (https)'),
+      'http://example.com',
+    );
+    await tester.ensureVisible(find.text('Zapisz'));
+    await tester.tap(find.text('Zapisz'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('https://'), findsWidgets);
+    expect(requests.where((request) => request.method == 'PATCH'), isEmpty);
+
+    await tester.ensureVisible(find.text('Usuń polecenie'));
+    await tester.tap(find.text('Usuń polecenie'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Zapisz'));
+    await tester.pumpAndSettle();
+
+    final patch = requests.lastWhere((request) => request.method == 'PATCH');
+    final body = jsonDecode(patch.body) as Map<String, dynamic>;
+    expect(body.containsKey('offer'), isTrue);
+    expect(body['offer'], isNull);
+  });
+
+  testWidgets('a CSV file sets offers of existing facts', (tester) async {
+    await pumpPanel(tester);
+    await signIn(tester);
+    await openPage(tester, 'Import');
+
+    await tester.enterText(
+      find.byType(TextField).first,
+      'id,title,offer_product,offer_shop,offer_url,offer_until\n'
+      'fact-1,Opublikowana,Mapa,Sklep,https://example.com/mapa,2026-12-31\n'
+      'fact-2,Szkic,,,,\n',
+    );
+    await tester.tap(find.text('Sprawdź'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Zapisz polecenia (1)'), findsOneWidget);
+    await tester.tap(find.text('Zapisz polecenia (1)'));
+    await tester.pumpAndSettle();
+
+    final patches = requests.where((request) => request.method == 'PATCH');
+    expect(patches, hasLength(1));
+    expect(patches.single.url.queryParameters['id'], 'eq.fact-1');
+    expect(jsonDecode(patches.single.body), {
+      'offer': {
+        'product': 'Mapa',
+        'shop': 'Sklep',
+        'url': 'https://example.com/mapa',
+        'until': '2026-12-31',
+      },
+    });
   });
 }

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dziesiatka/models/daily_deck.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
@@ -810,6 +811,28 @@ void main() {
       expect(session.facts, hasLength(15));
       expect(session.facts.map((fact) => fact.id).toSet(), hasLength(15));
       expect(session.remaining.where((fact) => fact.isRead), isEmpty);
+    });
+
+    test('a round has at most one card with an offer', () async {
+      const offer = FactOffer(
+        product: 'Atlas',
+        shop: 'Sklep',
+        url: 'https://example.com',
+      );
+      givenPool([
+        for (var i = 0; i < 40; i++)
+          i.isEven ? fact(i).copyWith(offer: offer) : fact(i),
+      ]);
+      final finished = await finishToday();
+      expect(finished.facts.where((fact) => fact.offer != null), hasLength(1));
+
+      final session = await service.addBonusCards();
+
+      expect(session.remaining, hasLength(5));
+      expect(
+        session.remaining.where((fact) => fact.offer != null),
+        hasLength(1),
+      );
     });
 
     test('does nothing before the day is finished', () async {

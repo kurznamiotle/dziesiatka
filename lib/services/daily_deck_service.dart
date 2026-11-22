@@ -107,11 +107,13 @@ class DailyDeckService {
         '${session.deck.date}:bonus:${session.deck.factIds.length}',
       ),
     );
+    final chosen = _generator.limitOffers(
+      bonus.take(bonusSize).toList(),
+      bonus.skip(bonusSize),
+    );
     await _saveDeck(
       prefs,
-      session.deck.withBonus(
-        bonus.take(bonusSize).map((fact) => fact.id).toList(),
-      ),
+      session.deck.withBonus(chosen.map((fact) => fact.id).toList()),
     );
     return loadToday();
   }

@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 const _appName = 'Dziesiątka';
 const _aboutText =
     'Dziesiątka to codzienna talia dziesięciu ciekawostek z krótkim quizem. '
-    'Kilka minut dziennie, bez konta i bez reklam.';
+    'Kilka minut dziennie, bez konta.';
 const _privacyText =
     'Dziesiątka nie ma kont użytkowników.\n\n'
     'Postęp, ulubione, odpowiedzi z quizu, seria dni i wybrany motyw są '
@@ -38,8 +38,14 @@ const _privacyText =
     'nie ma identyfikatora, więc nie wpisuj w komentarzu danych o sobie.\n\n'
     'Przypomnienia są planowane na tym urządzeniu i nie przechodzą przez '
     'żaden serwer.\n\n'
-    'Aplikacja nie ma reklam. Grafika trafia do innych aplikacji tylko '
-    'wtedy, gdy sam ją udostępnisz.\n\n'
+    'Pod niektórymi ciekawostkami jest link partnerski do produktu '
+    'związanego z tematem. Otwiera się w przeglądarce, poza aplikacją, a '
+    'sklep i sieć afiliacyjna (TradeTracker) mogą wtedy zapisać plik cookie, '
+    'żeby przypisać ewentualny zakup. Aplikacja nie przekazuje im żadnych '
+    'Twoich danych. Za zgodą na anonimowe statystyki liczymy tylko, przy '
+    'której ciekawostce link został otwarty.\n\n'
+    'Grafika trafia do innych aplikacji tylko wtedy, gdy sam ją '
+    'udostępnisz.\n\n'
     'Linki otwierają się poza aplikacją, na stronach z własnymi zasadami '
     'prywatności. Wersja internetowa pobiera czcionki z serwerów Google, '
     'które mogą przy tym zobaczyć adres IP.';

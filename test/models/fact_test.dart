@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -109,5 +110,64 @@ void main() {
     });
 
     expect(restored.sourceLabel, 'Encyklopedia');
+  });
+
+  group('offer', () {
+    const offer = FactOffer(
+      product: 'Atlas nieba',
+      shop: 'Księgarnia',
+      url: 'https://example.com/atlas',
+      until: '2026-11-30',
+    );
+
+    Map<String, dynamic> row({Object? offer, bool withOffer = true}) {
+      return {
+        'id': 'fact-1',
+        'title': 'Tytuł',
+        'category': 'Kosmos',
+        'short_text': 'Zajawka',
+        'long_text': 'Rozwinięcie',
+        'source_label': 'NASA',
+        'source_url': null,
+        'status': 'published',
+        'quiz': null,
+        if (withOffer) 'offer': offer,
+        'created_at': '2026-01-01T00:00:00Z',
+        'updated_at': '2026-01-01T00:00:00Z',
+      };
+    }
+
+    test('round-trips through JSON', () {
+      final restored = Fact.fromJson(fact.copyWith(offer: offer).toJson());
+
+      expect(restored.offer, offer);
+    });
+
+    test('is read from a database row', () {
+      expect(Fact.fromRow(row(offer: offer.toJson())).offer, offer);
+    });
+
+    test('a row from before the migration has none', () {
+      expect(Fact.fromRow(row(withOffer: false)).offer, isNull);
+    });
+
+    test('facts saved before offers have none', () {
+      final json = fact.toJson()..remove('offer');
+
+      expect(Fact.fromJson(json).offer, isNull);
+    });
+
+    test('ends after its last day', () {
+      final withOffer = fact.copyWith(offer: offer);
+
+      expect(withOffer.activeOfferOn(DateTime(2026, 11, 30, 20)), offer);
+      expect(withOffer.activeOfferOn(DateTime(2026, 12, 1, 8)), isNull);
+    });
+
+    test('survives a change of state', () {
+      final withOffer = fact.copyWith(offer: offer);
+
+      expect(withOffer.withState(const FactState()).offer, offer);
+    });
   });
 }

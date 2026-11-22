@@ -158,6 +158,7 @@ void main() {
       'shared',
       'quiz_correct',
       'quiz_wrong',
+      'offer_clicked',
     });
     expect(first['shown'], 2);
     expect(first['liked'], 1);
@@ -165,6 +166,19 @@ void main() {
     expect(first['shared'], 1);
     expect(first['quiz_correct'], 1);
     expect((factStats().last as Map<String, dynamic>)['quiz_wrong'], 1);
+  });
+
+  test('an offer tap counts by fact, without the link', () async {
+    await service.offerOpened('a');
+    await service.recordToday();
+
+    final stats = factStats().single as Map<String, dynamic>;
+    expect(stats['id'], 'a');
+    expect(stats['offer_clicked'], 1);
+    expect(
+      stats.values.whereType<String>().where((v) => v.contains('http')),
+      isEmpty,
+    );
   });
 
   test('fact results are sent only once', () async {

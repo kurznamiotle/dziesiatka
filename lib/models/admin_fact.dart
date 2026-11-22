@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 
 /// A fact as the admin panel sees it, with its publication status. A fact from
@@ -14,6 +15,8 @@ class AdminFact {
     this.sourceUrl,
     this.quiz,
     this.reviewNote,
+    this.offer,
+    this.hasOfferColumn = false,
   });
 
   factory AdminFact.fromRow(Map<String, dynamic> row) {
@@ -29,6 +32,8 @@ class AdminFact {
       status: row['status'] as String,
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       reviewNote: row['review_note'] as String?,
+      offer: FactOffer.tryParse(row['offer']),
+      hasOfferColumn: row.containsKey('offer'),
     );
   }
 
@@ -47,6 +52,34 @@ class AdminFact {
       status: json['status'] as String? ?? draft,
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       reviewNote: json['review_note'] as String?,
+      offer: offerFromColumns(json),
+    );
+  }
+
+  /// Reads the `offer_*` columns of an import or a CSV file. All empty or
+  /// missing means no offer. A partly filled one comes back with blanks, so
+  /// the check names what is missing.
+  static FactOffer? offerFromColumns(Map<String, dynamic> json) {
+    String? text(String key) {
+      final value = json[key];
+      if (value == null) return null;
+      if (value is! String) throw FormatException('$key nie jest tekstem.');
+      final trimmed = value.trim();
+      return trimmed.isEmpty ? null : trimmed;
+    }
+
+    final product = text('offer_product');
+    final shop = text('offer_shop');
+    final url = text('offer_url');
+    final until = text('offer_until');
+    if (product == null && shop == null && url == null && until == null) {
+      return null;
+    }
+    return FactOffer(
+      product: product ?? '',
+      shop: shop ?? '',
+      url: url ?? '',
+      until: until,
     );
   }
 
@@ -69,6 +102,17 @@ class AdminFact {
   final String status;
   final QuizQuestion? quiz;
   final String? reviewNote;
+  final FactOffer? offer;
+
+  /// The row came with an `offer` column, so `supabase/offers.sql` has run
+  /// and the offer can be saved or removed.
+  final bool hasOfferColumn;
+
+  /// Has an offer whose last day has passed.
+  bool hasEndedOfferOn(DateTime moment) {
+    final offer = this.offer;
+    return offer != null && !offer.isActiveOn(moment);
+  }
 
   /// The same rules as the database, so a mistake shows up before saving.
   /// [categories] are the names the database accepts.
@@ -91,6 +135,7 @@ class AdminFact {
       if (!categories.contains(category)) 'Nieznana kategoria: $category.',
       if (status != draft && status != published) 'Nieznany status: $status.',
       ..._quizErrors(),
+      ...?offer?.validationErrors(),
     ];
   }
 
@@ -129,6 +174,8 @@ class AdminFact {
       status: status ?? this.status,
       quiz: quiz,
       reviewNote: reviewNote ?? this.reviewNote,
+      offer: offer,
+      hasOfferColumn: hasOfferColumn,
     );
   }
 
@@ -143,6 +190,7 @@ class AdminFact {
     required String? sourceUrl,
     required QuizQuestion? quiz,
     required String? reviewNote,
+    required FactOffer? offer,
   }) {
     return AdminFact(
       id: id,
@@ -155,9 +203,13 @@ class AdminFact {
       status: status,
       quiz: quiz,
       reviewNote: reviewNote,
+      offer: offer,
+      hasOfferColumn: hasOfferColumn,
     );
   }
 
+  /// Leaves `offer` out when there is none to save and the database may not
+  /// have the column yet, so the panel works before `supabase/offers.sql`.
   Map<String, dynamic> toRow() {
     return {
       'id': id,
@@ -170,6 +222,7 @@ class AdminFact {
       'status': status,
       'quiz': quiz?.toJson(),
       'review_note': reviewNote,
+      if (offer != null || hasOfferColumn) 'offer': offer?.toJson(),
     };
   }
 }
