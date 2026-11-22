@@ -60,7 +60,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Dostęp do Supabase ustawia się w `lib/services/supabase_config.dart`, a strukturę bazy opisują `supabase/schema.sql` oraz `supabase/usage.sql` , `supabase/usage_02.sql` (anonimowe statystyki), `supabase/admin.sql` (panel), `supabase/reports.sql` (zgłoszenia błędów), `supabase/categories_02.sql` (kategorie Samorozwój oraz Inżynieria & Motoryzacja), `supabase/offers.sql` (polecenia partnerskie) i `supabase/offers_stats.sql` (liczba kliknięć w polecenia).
 - Kategorie w aplikacji biorą się z ciekawostek w obiegu, więc kategoria bez opublikowanej ciekawostki nie pojawia się do wyboru. Wygląd kategorii jest w `lib/views/category_style.dart`.
 - Polecenie partnerskie (`FactOffer`, kolumna `offer`) jest częścią ciekawostki. Po dacie `until` znika. W talii i w każdej rundzie „Jeszcze 5” jest najwyżej 1 karta z poleceniem. Link otwiera się w zewnętrznej przeglądarce. Aplikacja i panel działają także bez kolumny `offer`.
-- Zakupy (`PurchaseService`, wtyczka `in_app_purchase`, sklep za interfejsem `StoreGateway`): `dziesiatka_plus` (jednorazowy) oraz napiwki `napiwek_maly`, `napiwek_sredni`, `napiwek_duzy` (zużywalne). Produkt, którego sklep nie zwróci, jest ukryty. Dziesiątka+ ukrywa polecenia (`OfferScope`) i odblokowuje akcenty (`AppAccent`). Na Androidzie nie ma linków do płatności poza Google Play.
+- Aplikacja nie ma zakupów. Na Androidzie nie ma żadnego linku do płatności, a link wsparcia (`AppLinks.support`) jest tylko w wersji przeglądarkowej. Dziesiątka+ i napiwki przez Google Play czekają na gałęzi `platnosci`.
 
 ## Panel administratora
 

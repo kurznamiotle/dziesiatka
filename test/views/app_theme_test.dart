@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:dziesiatka/models/app_accent.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_style.dart';
 import 'package:flutter/material.dart';
@@ -107,44 +106,6 @@ void main() {
       });
     });
   }
-
-  for (final accent in AppAccent.values) {
-    for (final brightness in Brightness.values) {
-      final theme = AppTheme.of(accent, brightness);
-      final colors = theme.colorScheme;
-      final surfaces = theme.extension<AppSurfaces>()!;
-
-      test('${accent.name} accent is readable in ${brightness.name}', () {
-        const minimum = 4.5;
-        for (final surface in [surfaces.frame, surfaces.card]) {
-          expect(
-            contrast(colors.primary, surface),
-            greaterThanOrEqualTo(minimum),
-          );
-        }
-        expect(
-          contrast(colors.onPrimary, colors.primary),
-          greaterThanOrEqualTo(minimum),
-        );
-        expect(
-          contrast(colors.onPrimaryContainer, colors.primaryContainer),
-          greaterThanOrEqualTo(minimum),
-        );
-        expect(
-          contrast(colors.onSecondaryContainer, colors.secondaryContainer),
-          greaterThanOrEqualTo(minimum),
-        );
-      });
-    }
-  }
-
-  test('accents are different colors', () {
-    final primaries = {
-      for (final accent in AppAccent.values)
-        AppTheme.of(accent, Brightness.light).colorScheme.primary,
-    };
-    expect(primaries, hasLength(AppAccent.values.length));
-  });
 
   test('every category has its own icon and colors', () {
     final categories = CategoryStyle.styledCategories.toList();

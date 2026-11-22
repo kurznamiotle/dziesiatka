@@ -30,11 +30,7 @@ void main() {
     );
   }
 
-  Future<List<String>> pump(
-    WidgetTester tester,
-    Widget child, {
-    bool isHidden = false,
-  }) async {
+  Future<List<String>> pump(WidgetTester tester, Widget child) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.reset);
@@ -42,12 +38,8 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light,
-        builder: (context, app) => OfferScope(
-          isHidden: isHidden,
-          onOpened: opened.add,
-          now: () => now,
-          child: app!,
-        ),
+        builder: (context, app) =>
+            OfferScope(onOpened: opened.add, now: () => now, child: app!),
         home: Scaffold(body: child),
       ),
     );
@@ -76,13 +68,6 @@ void main() {
 
       expect(find.text('Partner'), findsNothing);
     });
-
-    testWidgets('Dziesiątka+ hides the badge', (tester) async {
-      await pump(tester, card(withOffer()), isHidden: true);
-
-      expect(find.text('Partner'), findsNothing);
-      expect(find.text(plain.title), findsOneWidget);
-    });
   });
 
   group('details', () {
@@ -105,16 +90,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(opened, ['fact-1']);
-    });
-
-    testWidgets('Dziesiątka+ hides the section and keeps the fact', (
-      tester,
-    ) async {
-      await pump(tester, FactDetailsSheet(fact: withOffer()), isHidden: true);
-
-      expect(find.text('Polecamy'), findsNothing);
-      expect(find.textContaining('Link partnerski'), findsNothing);
-      expect(find.text('Rozwinięcie'), findsOneWidget);
     });
 
     testWidgets('an ended offer shows nothing', (tester) async {

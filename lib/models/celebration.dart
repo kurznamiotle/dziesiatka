@@ -37,24 +37,6 @@ class Celebration {
     );
   }
 
-  /// A thank-you after buying Dziesiątka+.
-  factory Celebration.forPlus() {
-    return const Celebration(
-      headline: 'Dziękujemy!',
-      intensity: 2,
-      message: 'Masz Dziesiątkę+',
-    );
-  }
-
-  /// A thank-you after a tip.
-  factory Celebration.forTip() {
-    return const Celebration(
-      headline: 'Dziękujemy!',
-      intensity: 1,
-      message: 'Kawa dotarła ☕',
-    );
-  }
-
   static const maxIntensity = 3;
   static const streakMilestones = {5, 10, 25, 50, 100};
 

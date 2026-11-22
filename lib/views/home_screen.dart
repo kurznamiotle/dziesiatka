@@ -5,7 +5,6 @@ import 'package:dziesiatka/models/achievement.dart';
 import 'package:dziesiatka/models/celebration.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
-import 'package:dziesiatka/models/purchase_outcome.dart';
 import 'package:dziesiatka/models/user_stats.dart';
 import 'package:dziesiatka/services/achievement_progress_service.dart';
 import 'package:dziesiatka/services/achievements_service.dart';
@@ -14,14 +13,12 @@ import 'package:dziesiatka/services/daily_deck_service.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
-import 'package:dziesiatka/services/purchase_service.dart';
 import 'package:dziesiatka/services/quick_review_service.dart';
 import 'package:dziesiatka/services/quiz_history_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/stats_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
-import 'package:dziesiatka/services/tip_invite_service.dart';
 import 'package:dziesiatka/services/usage_service.dart';
 import 'package:dziesiatka/views/achievements_screen.dart';
 import 'package:dziesiatka/views/app_theme.dart';
@@ -34,7 +31,6 @@ import 'package:dziesiatka/views/fact_details_sheet.dart';
 import 'package:dziesiatka/views/favorites_screen.dart';
 import 'package:dziesiatka/views/quick_review_screen.dart';
 import 'package:dziesiatka/views/settings_screen.dart';
-import 'package:dziesiatka/views/tip_sheet.dart';
 import 'package:dziesiatka/views/user_stats_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +50,6 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.themeService,
-    this.purchaseService,
     this.factsService,
     this.reminderService,
     this.usageService,
@@ -66,7 +61,6 @@ class HomeScreen extends StatefulWidget {
   });
 
   final ThemeService themeService;
-  final PurchaseService? purchaseService;
   final FactsService? factsService;
   final ReminderService? reminderService;
   final UsageService? usageService;
@@ -124,74 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
   /// restart shows that screen again before the quiz.
   bool _isQuizStarted = false;
 
-  late final _tipInvite = TipInviteService(now: widget.now);
-  StreamSubscription<PurchaseOutcome>? _purchaseOutcomes;
-
-  /// The one-line invitation to tip on the finished day.
-  bool _showsTipInvite = false;
-
   @override
   void initState() {
     super.initState();
     _loadSession();
-    final purchases = widget.purchaseService;
-    _purchaseOutcomes = purchases?.outcomes.listen(_onPurchaseOutcome);
-    // Tips come from the store a moment after the start.
-    purchases?.addListener(_checkTipInvite);
-  }
-
-  @override
-  void dispose() {
-    _purchaseOutcomes?.cancel();
-    widget.purchaseService?.removeListener(_checkTipInvite);
-    super.dispose();
-  }
-
-  /// Thanks for a tip wherever it was bought. Dziesiątka+ thanks on its own
-  /// screen.
-  void _onPurchaseOutcome(PurchaseOutcome outcome) {
-    if (!mounted) return;
-    switch (outcome) {
-      case PurchaseOutcome.tipThanks:
-        unawaited(_tipInvite.close().catchError((Object _) {}));
-        const HapticsService().celebration();
-        setState(() {
-          _showsTipInvite = false;
-          _celebration = _ShownCelebration(Celebration.forTip(), const []);
-        });
-      case PurchaseOutcome.tipPending:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Płatność czeka na potwierdzenie w Google Play.'),
-          ),
-        );
-      default:
-        break;
-    }
-  }
-
-  Future<void> _checkTipInvite() async {
-    final session = _session;
-    if (session == null || !session.isDayFinished) return;
-    try {
-      final shows = await _tipInvite.claimForToday(
-        streak: session.streak,
-        hasTips: widget.purchaseService?.hasTips ?? false,
-      );
-      if (mounted && shows != _showsTipInvite) {
-        setState(() => _showsTipInvite = shows);
-      }
-    } catch (_) {}
-  }
-
-  void _openTips() {
-    final purchases = widget.purchaseService;
-    if (purchases != null) TipSheet.show(context, purchases);
-  }
-
-  void _closeTipInvite() {
-    setState(() => _showsTipInvite = false);
-    unawaited(_tipInvite.close().catchError((Object _) {}));
   }
 
   Future<void> _loadSession() async {
@@ -233,7 +163,6 @@ class _HomeScreenState extends State<HomeScreen> {
         _stats = stats;
         _reviewFacts = reviewFacts;
       });
-      await _checkTipInvite();
     } catch (_) {}
   }
 
@@ -417,7 +346,6 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute<void>(
         builder: (_) => SettingsScreen(
           themeService: widget.themeService,
-          purchaseService: widget.purchaseService,
           factsService: _factsService,
           reminderService: widget.reminderService,
           usageService: widget.usageService,
@@ -532,8 +460,6 @@ class _HomeScreenState extends State<HomeScreen> {
         quickReviewCount: _reviewFacts.length,
         onQuickReview: _openQuickReview,
         onDownloadApp: widget.offersAppDownload ? _downloadApp : null,
-        onTip: _showsTipInvite ? _openTips : null,
-        onCloseTipInvite: _closeTipInvite,
       );
     }
 
@@ -977,8 +903,6 @@ class _CompletionView extends StatelessWidget {
     required this.quickReviewCount,
     required this.onQuickReview,
     required this.onDownloadApp,
-    required this.onTip,
-    required this.onCloseTipInvite,
   });
 
   final int? quizCorrect;
@@ -993,10 +917,6 @@ class _CompletionView extends StatelessWidget {
   final int quickReviewCount;
   final VoidCallback onQuickReview;
   final VoidCallback? onDownloadApp;
-
-  /// Shows the invitation to tip when set.
-  final VoidCallback? onTip;
-  final VoidCallback onCloseTipInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -1102,10 +1022,6 @@ class _CompletionView extends StatelessWidget {
                 ),
               ],
             ),
-            if (onTip != null) ...[
-              const SizedBox(height: 16),
-              _TipInvite(onTip: onTip!, onClose: onCloseTipInvite),
-            ],
             if (onDownloadApp != null) ...[
               const SizedBox(height: 8),
               TextButton.icon(
@@ -1117,36 +1033,6 @@ class _CompletionView extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _TipInvite extends StatelessWidget {
-  const _TipInvite({required this.onTip, required this.onClose});
-
-  final VoidCallback onTip;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        const Icon(Icons.local_cafe_outlined, size: 20),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            'Tydzień z Dziesiątką! Postawisz kawę twórcy?',
-            style: theme.textTheme.bodyMedium,
-          ),
-        ),
-        TextButton(onPressed: onTip, child: const Text('Postaw')),
-        IconButton(
-          tooltip: 'Zamknij',
-          onPressed: onClose,
-          icon: const Icon(Icons.close_rounded, size: 20),
-        ),
-      ],
     );
   }
 }
