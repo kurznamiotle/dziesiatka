@@ -21,12 +21,8 @@ void main() {
 
     group('$name theme', () {
       test('category badges are readable on cards', () {
-        const categories = [
-          'Kosmos',
-          'Zwierzęta',
-          'Historia',
-          'Psychologia',
-          'Technologia',
+        final categories = [
+          ...CategoryStyle.styledCategories,
           'Moja kategoria',
         ];
 
@@ -43,12 +39,8 @@ void main() {
       });
 
       test('white text is readable on category gradients', () {
-        const categories = [
-          'Kosmos',
-          'Zwierzęta',
-          'Historia',
-          'Psychologia',
-          'Technologia',
+        final categories = [
+          ...CategoryStyle.styledCategories,
           'Moja kategoria',
         ];
 
@@ -114,6 +106,28 @@ void main() {
       });
     });
   }
+
+  test('every category has its own icon and colors', () {
+    final categories = CategoryStyle.styledCategories.toList();
+    for (final brightness in Brightness.values) {
+      final styles = [
+        for (final name in categories) CategoryStyle.of(name, brightness),
+      ];
+      expect(styles.map((style) => style.icon).toSet(), hasLength(14));
+      expect(styles.map((style) => style.color).toSet(), hasLength(14));
+      expect(styles.map((style) => style.gradient.last).toSet(), hasLength(14));
+    }
+  });
+
+  test('the new categories have their own look', () {
+    for (final name in ['Samorozwój', 'Inżynieria & Motoryzacja']) {
+      expect(CategoryStyle.styledCategories, contains(name));
+      expect(
+        CategoryStyle.of(name, Brightness.light).icon,
+        isNot(CategoryStyle.of('Moja kategoria', Brightness.light).icon),
+      );
+    }
+  });
 
   test('dark cards sit above the frame and the backdrop', () {
     final surfaces = AppTheme.dark.extension<AppSurfaces>()!;

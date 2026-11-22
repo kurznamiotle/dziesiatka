@@ -13,7 +13,7 @@ Włącz wyszukiwanie w sieci, dołącz plik CSV i wklej poniższy tekst.
 Przygotuj paczkę nowych ciekawostek do polskiej aplikacji Dziesiątka. Czytelnikami są dorośli, którzy czytają je w kilka minut dziennie. Wiarygodność jest ważniejsza od efektowności.
 
 ZADANIE
-Napisz 120 ciekawostek, dokładnie po 10 w każdej z tych 12 kategorii. Użyj nazw co do znaku:
+Napisz 140 ciekawostek, dokładnie po 10 w każdej z tych 14 kategorii. Użyj nazw co do znaku:
 Kosmos
 Technologia
 Psychologia
@@ -26,6 +26,8 @@ Ciało & Jedzenie
 Geografia & Miejsca
 Absurdy Prawa
 Język & Symbole
+Samorozwój
+Inżynieria & Motoryzacja
 
 BEZ POWTÓREK
 Dołączony plik CSV zawiera wszystkie ciekawostki z bazy. Przeczytaj go w całości przed pisaniem. Nowa ciekawostka nie może dotyczyć tego samego faktu co istniejąca, nawet innymi słowami. Żadne dwie nowe też nie mogą się pokrywać.
@@ -34,7 +36,7 @@ PRAWDZIWOŚĆ
 Sprawdź każdy fakt w internecie przed zapisaniem, a podany adres otwórz i upewnij się, że strona potwierdza fakt. Nie podawaj adresów z pamięci. Jeśli fakt jest wyjątkowo zaskakujący, potwierdź go w drugim, niezależnym źródle. Jeśli popularna historia jest sporna, napisz o tym wprost w tekście.
 
 ŹRÓDŁA
-Sięgaj po źródła pierwotne i specjalistyczne, po polsku lub angielsku. Wikipedii używaj tylko do znalezienia tropu: podawaj ją jako źródło najwyżej przy 10 ze 120 ciekawostek i nigdy przy więcej niż 1 w kategorii. Staraj się, by jedna domena nie pojawiała się więcej niż 5 razy w całej paczce.
+Sięgaj po źródła pierwotne i specjalistyczne, po polsku lub angielsku. Wikipedii używaj tylko do znalezienia tropu: podawaj ją jako źródło najwyżej przy 12 ze 140 ciekawostek i nigdy przy więcej niż 1 w kategorii. Staraj się, by jedna domena nie pojawiała się więcej niż 5 razy w całej paczce.
 Przykłady dobrych źródeł:
 - Kosmos: NASA, ESA, ESO, Polska Agencja Kosmiczna
 - Technologia: IEEE Spectrum, Computer History Museum, Ars Technica, dokumentacja twórców
@@ -48,7 +50,20 @@ Przykłady dobrych źródeł:
 - Geografia & Miejsca: National Geographic, NOAA, USGS, UNESCO, GUS, oficjalne strony państw i parków
 - Absurdy Prawa: oryginalne teksty ustaw (legislation.gov.uk, ISAP, EUR-Lex, Fedlex), sądy, urzędy, BBC, Reuters
 - Język & Symbole: Rada Języka Polskiego, Poradnia Językowa PWN, Oxford English Dictionary, Merriam-Webster, Unicode Consortium
+- Samorozwój: badania w recenzowanych czasopismach, przeglądy systematyczne i metaanalizy (PubMed, Cochrane, Annual Reviews, Psychological Bulletin), uczelnie opisujące własne badania
+- Inżynieria & Motoryzacja: IEEE Spectrum, ASME, muzea techniki i motoryzacji, Encyclopaedia Britannica, Guinness World Records, strony producentów o historii konstrukcji
 Nie używaj blogów bez autora, serwisów z ciekawostkami, list typu „dziwne prawa”, forów ani treści generowanych przez AI, bo często powielają mity.
+
+SAMOROZWÓJ
+- Źródłem każdej ciekawostki musi być badanie naukowe, przegląd systematyczny lub metaanaliza. Nie poradniki, blogi, podcasty ani książki motywacyjne, nawet znanych autorów.
+- Około 1/3 kart ma formę „mit czy prawda”: tytuł nazywa popularny mit, a tekst pokazuje, co mówią badania. Przykłady: „21 dni na nawyk”, „reguła 10 000 godzin”, „multitasking zwiększa wydajność”, „style uczenia się”.
+- Pisz o tym, co badania wykazały, z ostrożnością, na jaką pozwalają: „w badaniu”, „średnio”, „u części osób”. Bez obietnic typu „zmienisz życie” i bez rad, co czytelnik ma robić.
+- Bez porad medycznych, dietetycznych i terapeutycznych. Tematy zdrowia ciała zostają w kategorii Ciało & Jedzenie.
+
+INŻYNIERIA & MOTORYZACJA
+- Jak działają silniki, maszyny, mosty, konstrukcje i rozwiązania techniczne, historia wynalazków i konstruktorów, rekordy (prędkości, rozmiaru, wytrzymałości).
+- Treści ponadczasowe. Bez nowinek, premier modeli, cen ani zapowiedzi, które szybko się dezaktualizują.
+- Granica z kategorią Technologia: komputery, internet, oprogramowanie i elektronika użytkowa (telefony, konsole) zostają w Technologii. Tutaj trafia mechanika, energetyka, transport i budownictwo.
 
 FORMAT POLA
 - title: do 60 znaków, chwytliwy, bez kropki
@@ -84,9 +99,25 @@ Zwróć jeden plik .json: listę obiektów, bez żadnego tekstu przed nią ani p
   }
 ]
 
-Przed oddaniem pliku sprawdź: poprawny JSON, 120 pozycji, po 10 w kategorii, limity 60 i 120 znaków, 3 różne odpowiedzi, brak powtórek z CSV, limity źródeł. Pod plikiem podaj liczbę pozycji "published" i "draft", liczbę źródeł z Wikipedii i najczęściej użyte domeny.
+Przed oddaniem pliku sprawdź: poprawny JSON, 140 pozycji, po 10 w kategorii, limity 60 i 120 znaków, 3 różne odpowiedzi, brak powtórek z CSV, limity źródeł. Pod plikiem podaj liczbę pozycji "published" i "draft", liczbę źródeł z Wikipedii i najczęściej użyte domeny.
 
 Jeśli limit odpowiedzi nie pozwala oddać całości naraz, pracuj kategoria po kategorii i na końcu złącz wszystko w jeden plik.
+```
+
+### Wariant: paczka startowa nowych kategorii
+
+Nowe kategorie potrzebują na start więcej kart niż 10, żeby talie nie
+powtarzały się po kilku dniach. Użyj tego samego promptu, ale sekcję ZADANIE
+zastąp poniższym tekstem, a w sekcji ŹRÓDŁA limit Wikipedii zmień na
+„najwyżej 5 z 70 ciekawostek”. W liście kontrolnej na końcu wpisz 70 pozycji
+i po 35 w kategorii.
+
+```text
+ZADANIE
+Napisz 70 ciekawostek, dokładnie po 35 w każdej z tych 2 kategorii. Użyj nazw co do znaku:
+Samorozwój
+Inżynieria & Motoryzacja
+W każdej kategorii rozłóż tematy szeroko, żeby żadne dwie karty nie dotyczyły tego samego zjawiska, wynalazku ani badania. W Samorozwoju około 12 kart ma formę „mit czy prawda”.
 ```
 
 ## Krok 3: zaimportuj wynik w panelu

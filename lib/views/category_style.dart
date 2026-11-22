@@ -100,7 +100,23 @@ class CategoryStyle {
       darkColor: Color(0xFFC4B5FD),
       gradient: [Color(0xFF4C1D95), Color(0xFF7C3AED)],
     ),
+    'Samorozwój': _CategoryPalette(
+      icon: Icons.self_improvement_rounded,
+      lightColor: Color(0xFF047857),
+      darkColor: Color(0xFF6EE7B7),
+      gradient: [Color(0xFF064E3B), Color(0xFF047857)],
+    ),
+    'Inżynieria & Motoryzacja': _CategoryPalette(
+      icon: Icons.precision_manufacturing_rounded,
+      lightColor: Color(0xFF1D4ED8),
+      darkColor: Color(0xFF93C5FD),
+      gradient: [Color(0xFF1E3A8A), Color(0xFF1D4ED8)],
+    ),
   };
+
+  /// The categories with their own look, for checking them all in tests.
+  @visibleForTesting
+  static Iterable<String> get styledCategories => _palettes.keys;
 
   final IconData icon;
   final Color color;

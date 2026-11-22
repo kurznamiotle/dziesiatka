@@ -176,4 +176,27 @@ void main() {
     expect(stats.accuracyPercent, 50);
     expect(stats.favoriteCategory, 'Nauka');
   });
+
+  test('a category with only withdrawn facts does not count', () {
+    final stats = service.summarize(
+      facts: [
+        fact(1, isRead: true),
+        Fact(
+          id: 'fact-2',
+          title: 'Wycofany',
+          category: 'Samorozwój',
+          shortText: 'Zajawka',
+          longText: 'Rozwinięcie',
+          sourceLabel: 'Źródło',
+          isWithdrawn: true,
+          createdAt: DateTime.utc(2026),
+        ),
+      ],
+      records: const {},
+      completedDays: const [],
+    );
+
+    expect(stats.categoriesTotal, 1);
+    expect(stats.categoriesRead, 1);
+  });
 }

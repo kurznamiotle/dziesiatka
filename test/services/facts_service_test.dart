@@ -405,6 +405,46 @@ void main() {
     });
   });
 
+  group('getCategories', () {
+    Fact fact(String id, String category, {bool isWithdrawn = false}) {
+      return Fact(
+        id: id,
+        title: id,
+        category: category,
+        shortText: 'Zajawka',
+        longText: 'Rozwinięcie',
+        sourceLabel: 'Źródło',
+        isWithdrawn: isWithdrawn,
+        createdAt: DateTime.utc(2026),
+      );
+    }
+
+    test('lists only categories that have facts in circulation', () async {
+      givenStored([
+        fact('a', 'Kosmos'),
+        fact('b', 'Samorozwój', isWithdrawn: true),
+        fact('c', 'Inżynieria & Motoryzacja'),
+      ]);
+
+      expect(await FactsService().getCategories(), [
+        'Inżynieria & Motoryzacja',
+        'Kosmos',
+      ]);
+    });
+
+    test('a new category appears once a fact in it arrives', () async {
+      givenStored([fact('a', 'Kosmos')]);
+      expect(await FactsService().getCategories(), ['Kosmos']);
+
+      await FactsService(
+        seed: _FakeSource([]),
+        remote: _FakeSource([fact('b', 'Samorozwój')]),
+      ).syncWithRemote();
+
+      expect(await FactsService().getCategories(), ['Kosmos', 'Samorozwój']);
+    });
+  });
+
   test('old facts in storage still load', () async {
     SharedPreferences.setMockInitialValues({
       'facts':
