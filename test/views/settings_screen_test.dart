@@ -1,6 +1,8 @@
 import 'package:dziesiatka/main.dart';
 import 'package:dziesiatka/services/app_info_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/rating_service.dart';
+import 'package:dziesiatka/services/streak_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/settings_screen.dart';
@@ -48,6 +50,7 @@ void main() {
     AppInfoService appInfoService = const _FakeAppInfoService(),
     String? supportUrl,
     ThemeService? themeService,
+    RatingService? ratingService,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 1000);
@@ -60,6 +63,7 @@ void main() {
           linkService: linkService,
           appInfoService: appInfoService,
           supportUrl: supportUrl,
+          ratingService: ratingService,
         ),
       ),
     );
@@ -184,6 +188,48 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Nie udało się otworzyć linku.'), findsOneWidget);
+  });
+
+  group('rating in Google Play', () {
+    const title = 'Oceń Dziesiątkę w Google Play';
+
+    RatingService rating({
+      required bool isSupported,
+      required List<String> calls,
+    }) {
+      return RatingService(
+        StreakService(),
+        isSupported: isSupported,
+        isAvailable: () async => true,
+        requestReview: () async => calls.add('review'),
+        openStoreListing: () async => calls.add('listing'),
+      );
+    }
+
+    testWidgets('opens the store listing from the about section', (
+      tester,
+    ) async {
+      final calls = <String>[];
+      await pumpSettings(
+        tester,
+        ratingService: rating(isSupported: true, calls: calls),
+      );
+
+      await tester.scrollUntilVisible(find.text(title), 100);
+      await tester.tap(find.text(title));
+      await tester.pumpAndSettle();
+
+      expect(calls, ['listing']);
+    });
+
+    testWidgets('is hidden on the web', (tester) async {
+      await pumpSettings(
+        tester,
+        ratingService: rating(isSupported: false, calls: []),
+      );
+
+      expect(find.text(title), findsNothing);
+    });
   });
 
   testWidgets('shows the app version', (tester) async {

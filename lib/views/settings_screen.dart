@@ -2,6 +2,7 @@ import 'package:dziesiatka/services/app_info_service.dart';
 import 'package:dziesiatka/services/app_links.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
+import 'package:dziesiatka/services/rating_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/theme_service.dart';
 import 'package:dziesiatka/services/usage_service.dart';
@@ -57,6 +58,7 @@ class SettingsScreen extends StatefulWidget {
     this.factsService,
     this.reminderService,
     this.usageService,
+    this.ratingService,
     this.linkService = const LinkService(),
     this.appInfoService = const AppInfoService(),
     this.supportUrl = AppLinks.supportInApp,
@@ -66,6 +68,9 @@ class SettingsScreen extends StatefulWidget {
   final FactsService? factsService;
   final ReminderService? reminderService;
   final UsageService? usageService;
+
+  /// Without it, or on the web, the rating button is hidden.
+  final RatingService? ratingService;
   final LinkService linkService;
   final AppInfoService appInfoService;
 
@@ -137,6 +142,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Future<void> _openStoreListing() async {
+    final opened = await widget.ratingService!.openStoreListing();
+    if (opened || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Nie udało się otworzyć Google Play.')),
+    );
+  }
+
   void _openCategories() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -186,6 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final remindersEnabled = _remindersEnabled;
     final usageEnabled = _usageEnabled;
     final supportUrl = widget.supportUrl;
+    final canRate = widget.ratingService?.isSupported ?? false;
     return Scaffold(
       appBar: AppBar(title: const Text('Ustawienia')),
       body: SafeArea(
@@ -223,6 +238,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: const Text('Instrukcja'),
               onTap: _openInstructions,
             ),
+            if (canRate)
+              ListTile(
+                leading: const Icon(Icons.star_outline_rounded),
+                title: const Text('Oceń Dziesiątkę w Google Play'),
+                trailing: const Icon(Icons.open_in_new_rounded),
+                onTap: _openStoreListing,
+              ),
             ListTile(
               leading: const Icon(Icons.info_outline_rounded),
               title: const Text('Wersja'),

@@ -15,6 +15,7 @@ import 'package:dziesiatka/services/haptics_service.dart';
 import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/services/quick_review_service.dart';
 import 'package:dziesiatka/services/quiz_history_service.dart';
+import 'package:dziesiatka/services/rating_service.dart';
 import 'package:dziesiatka/services/reminder_service.dart';
 import 'package:dziesiatka/services/stats_service.dart';
 import 'package:dziesiatka/services/streak_service.dart';
@@ -55,6 +56,7 @@ class HomeScreen extends StatefulWidget {
     this.usageService,
     this.achievementsService = const AchievementsService(),
     this.linkService = const LinkService(),
+    this.ratingService,
     this.offersAppDownload = kIsWeb,
     this.now,
     this.random,
@@ -66,6 +68,9 @@ class HomeScreen extends StatefulWidget {
   final UsageService? usageService;
   final AchievementsService achievementsService;
   final LinkService linkService;
+
+  /// Defaults to the Google Play review flow, which only Android supports.
+  final RatingService? ratingService;
 
   /// The web demo points to the app after a finished deck.
   final bool offersAppDownload;
@@ -96,6 +101,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _streakService,
     widget.achievementsService,
   );
+  late final _rating =
+      widget.ratingService ?? RatingService(_streakService, now: widget.now);
   late final _quickReview = QuickReviewService(
     _factsService,
     _quizHistory,
@@ -129,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _factsService.syncWithSeed();
       final session = await _deckService.loadToday();
       if (mounted) setState(() => _showSession(session));
+      unawaited(_rating.recordAppStart());
       unawaited(_loadStats());
       unawaited(_checkAchievements());
       unawaited(_downloadNewFacts());
@@ -199,7 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {
       return;
     }
-    if (unlocked.isEmpty || !mounted) return;
+    if (unlocked.isEmpty) return;
+    unawaited(_rating.recordOtherPrompt());
+    if (!mounted) return;
 
     const HapticsService().celebration();
     setState(() {
@@ -267,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {
       // A lost achievement comes back with the next check.
     }
+    if (unlocked.isNotEmpty) await _rating.recordOtherPrompt();
     unawaited(
       widget.usageService?.dayFinished(
         streak: session.streak,
@@ -282,7 +293,29 @@ class _HomeScreenState extends State<HomeScreen> {
       streak: session.streak,
     );
     if (celebration.intensity > 0) const HapticsService().celebration();
-    setState(() => _celebration = _ShownCelebration(celebration, unlocked));
+    setState(
+      () => _celebration = _ShownCelebration(
+        celebration,
+        unlocked,
+        finishedDay: session,
+      ),
+    );
+  }
+
+  /// Runs after the day's celebration, so the review flow never covers it.
+  void _onCelebrationFinished(_ShownCelebration shown) {
+    setState(() => _celebration = null);
+    final day = shown.finishedDay;
+    final session = _session;
+    // Only on the end screen, never over bonus cards.
+    if (day == null || session == null) return;
+    if (!session.isDayFinished || session.remaining.isNotEmpty) return;
+    unawaited(
+      _rating.requestReviewIfDue(
+        quizCorrect: day.deck.quizCorrect,
+        quizTotal: day.quizQuestions.length,
+      ),
+    );
   }
 
   Future<void> _completeCard(Fact fact, {required bool liked}) async {
@@ -349,6 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
           factsService: _factsService,
           reminderService: widget.reminderService,
           usageService: widget.usageService,
+          ratingService: _rating,
         ),
       ),
     );
@@ -391,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
             CelebrationOverlay(
               celebration: shown.celebration,
               unlocked: shown.unlocked,
-              onFinished: () => setState(() => _celebration = null),
+              onFinished: () => _onCelebrationFinished(shown),
             ),
         ],
       ),
@@ -478,10 +512,13 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _ShownCelebration {
-  const _ShownCelebration(this.celebration, this.unlocked);
+  const _ShownCelebration(this.celebration, this.unlocked, {this.finishedDay});
 
   final Celebration celebration;
   final List<Achievement> unlocked;
+
+  /// Set for the celebration of a finished day.
+  final DailySession? finishedDay;
 }
 
 class _ProgressHeader extends StatelessWidget {
