@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/facts_csv_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -101,5 +102,23 @@ void main() {
     test('rejects an unclosed quote', () {
       expect(() => service.decode('id\n"fact-1'), throwsFormatException);
     });
+  });
+
+  test('partner facts stay out of the file for the chat', () {
+    final partner = AdminFact(
+      id: 'partner-001',
+      title: 'Partnerska',
+      category: FactKind.partnerCategory,
+      shortText: 'Krótki',
+      longText: 'Długi',
+      sourceLabel: 'NASA',
+      status: AdminFact.published,
+      kind: FactKind.partner,
+    );
+
+    final csv = service.encode([fact('Zwykła'), partner]);
+
+    expect(csv, contains('Zwykła'));
+    expect(csv, isNot(contains('Partnerska')));
   });
 }

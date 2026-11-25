@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_report.dart';
 import 'package:dziesiatka/models/fact_usage.dart';
 import 'package:dziesiatka/models/usage_row.dart';
@@ -7,6 +8,7 @@ import 'package:dziesiatka/views/admin/dashboard_page.dart';
 import 'package:dziesiatka/views/admin/facts_page.dart';
 import 'package:dziesiatka/views/admin/import_page.dart';
 import 'package:dziesiatka/views/admin/insights_page.dart';
+import 'package:dziesiatka/views/admin/offers_page.dart';
 import 'package:dziesiatka/views/admin/reports_page.dart';
 import 'package:flutter/material.dart';
 
@@ -16,6 +18,7 @@ const _wideLayoutWidth = 800.0;
 const _destinations = [
   (icon: Icons.dashboard_outlined, label: 'Pulpit'),
   (icon: Icons.list_alt_rounded, label: 'Ciekawostki'),
+  (icon: Icons.handshake_outlined, label: 'Polecenia'),
   (icon: Icons.upload_file_rounded, label: 'Import'),
   (icon: Icons.leaderboard_outlined, label: 'Ranking'),
   (icon: Icons.flag_outlined, label: 'Zgłoszenia'),
@@ -66,7 +69,8 @@ class _AdminShellState extends State<AdminShell> {
       if (!mounted) return;
       setState(() {
         _facts = facts;
-        _categories = categories;
+        // Partner facts have a fixed category that no regular fact may take.
+        _categories = categories.difference({FactKind.partnerCategory});
         _usage = usage;
         _factUsage = factUsage;
         _reports = reports;
@@ -100,27 +104,36 @@ class _AdminShellState extends State<AdminShell> {
       );
     }
 
+    // Partner facts live on the offers page only, so they stay out of the
+    // fact list, its CSV for the chat, imports and the statistics.
+    final regular = _facts.where((fact) => !fact.isPartner).toList();
     return switch (_page) {
       0 => DashboardPage(
-        facts: _facts,
+        facts: regular,
         categories: _categories,
         usage: _usage,
         factUsage: _factUsage,
       ),
       1 => FactsPage(
-        facts: _facts,
+        facts: regular,
         categories: _categories,
         adminService: widget.adminService,
         onChanged: _load,
       ),
-      2 => ImportPage(
+      2 => OffersPage(
         facts: _facts,
+        factUsage: _factUsage,
+        adminService: widget.adminService,
+        onChanged: _load,
+      ),
+      3 => ImportPage(
+        facts: regular,
         categories: _categories,
         adminService: widget.adminService,
         onSaved: _load,
       ),
-      3 => InsightsPage(
-        facts: _facts,
+      4 => InsightsPage(
+        facts: regular,
         categories: _categories,
         factUsage: _factUsage,
       ),

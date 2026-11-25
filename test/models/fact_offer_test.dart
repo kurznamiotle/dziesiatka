@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/fact_offer.dart';
+import 'package:dziesiatka/models/offer_status.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -78,6 +79,48 @@ void main() {
       );
 
       expect(longest.validationErrors(), isEmpty);
+    });
+  });
+
+  group('status', () {
+    test('an offer without an end is active', () {
+      const open = FactOffer(product: 'A', shop: 'B', url: 'https://a.pl');
+
+      expect(open.statusOn(DateTime(2030)), OfferStatus.active);
+    });
+
+    test('the last 7 days are ending soon', () {
+      expect(offer.statusOn(DateTime(2026, 11, 22)), OfferStatus.active);
+      expect(offer.statusOn(DateTime(2026, 11, 23)), OfferStatus.endingSoon);
+      expect(
+        offer.statusOn(DateTime(2026, 11, 30, 23)),
+        OfferStatus.endingSoon,
+      );
+      expect(offer.statusOn(DateTime(2026, 12, 1)), OfferStatus.ended);
+    });
+  });
+
+  group('extendedOn', () {
+    test('adds 30 days to the current end', () {
+      expect(offer.extendedOn(DateTime(2026, 11, 25)).until, '2026-12-30');
+    });
+
+    test('an ended offer runs 30 days from today', () {
+      expect(offer.extendedOn(DateTime(2027, 1, 10)).until, '2027-02-09');
+    });
+
+    test('an offer without an end stays without one', () {
+      const open = FactOffer(product: 'A', shop: 'B', url: 'https://a.pl');
+
+      expect(open.extendedOn(DateTime(2026)), open);
+    });
+
+    test('keeps the product, shop and link', () {
+      final extended = offer.extendedOn(DateTime(2026, 11, 25));
+
+      expect(extended.product, offer.product);
+      expect(extended.shop, offer.shop);
+      expect(extended.url, offer.url);
     });
   });
 }

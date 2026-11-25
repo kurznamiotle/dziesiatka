@@ -14,11 +14,13 @@ Map<String, dynamic> _row(
   String status = 'published',
   String? note,
   Map<String, dynamic>? offer,
+  String kind = 'regular',
 }) {
   return {
     'id': id,
     'title': title,
-    'category': 'Kosmos',
+    'kind': kind,
+    'category': kind == 'partner' ? 'Ciekawostka partnerska' : 'Kosmos',
     'short_text': 'Krótki tekst o $title.',
     'long_text': 'Długi tekst.',
     'source_label': 'NASA',
@@ -89,8 +91,20 @@ void main() {
             'until': '2020-01-01',
           },
         ),
+        _row(
+          'partner-001',
+          'Książka o Wenus',
+          kind: 'partner',
+          offer: {
+            'product': 'Wenus z bliska',
+            'shop': 'Księgarnia',
+            'url': 'https://example.com/wenus',
+            'until': '2099-12-31',
+          },
+        ),
       ],
       '/rest/v1/categories' => [
+        {'name': 'Ciekawostka partnerska'},
         {'name': 'Kosmos'},
       ],
       '/rest/v1/usage_days' => [
@@ -385,6 +399,207 @@ void main() {
         'url': 'https://example.com/mapa',
         'until': '2026-12-31',
       },
+    });
+  });
+
+  group('offers page', () {
+    Future<void> openOffers(WidgetTester tester) async {
+      await pumpPanel(tester);
+      await signIn(tester);
+      await openPage(tester, 'Polecenia');
+    }
+
+    Map<String, dynamic> lastBody(String method) {
+      final request = requests.lastWhere((item) => item.method == method);
+      return jsonDecode(request.body) is List
+          ? (jsonDecode(request.body) as List).single as Map<String, dynamic>
+          : jsonDecode(request.body) as Map<String, dynamic>;
+    }
+
+    testWidgets('lists partner and regular offers with counts', (tester) async {
+      await openOffers(tester);
+
+      expect(find.text('Książka o Wenus'), findsOneWidget);
+      expect(find.text('Z poleceniem'), findsOneWidget);
+      expect(find.text('Po terminie'), findsOneWidget);
+      expect(find.text('Opublikowana'), findsNothing);
+      expect(find.text('partnerska'), findsOneWidget);
+      expect(find.text('zwykła'), findsNWidgets(2));
+      expect(
+        find.descendant(
+          of: find.byType(DataTable),
+          matching: find.text('wygasłe'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text('Kliknięcia łącznie'), findsOneWidget);
+      // fact_stats is empty in this test, so the column is unknown.
+      expect(find.text('brak danych'), findsWidgets);
+    });
+
+    testWidgets('filters by kind', (tester) async {
+      await openOffers(tester);
+
+      await tester.tap(find.text('Wszystkie rodzaje').hitTestable().first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Ciekawostki partnerskie').hitTestable().last);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Książka o Wenus'), findsOneWidget);
+      expect(find.text('Z poleceniem'), findsNothing);
+    });
+
+    testWidgets('a partner fact stays off the fact list', (tester) async {
+      await pumpPanel(tester);
+      await signIn(tester);
+      await openPage(tester, 'Ciekawostki');
+      await tester.tap(find.text('Z poleceniem'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Książka o Wenus'), findsNothing);
+      expect(find.text('Ciekawostka partnerska'), findsNothing);
+    });
+
+    testWidgets('a new partner fact is previewed and saved', (tester) async {
+      await openOffers(tester);
+
+      await tester.tap(find.text('Nowa ciekawostka partnerska'));
+      await tester.pumpAndSettle();
+      expect(find.text('Pytanie quizowe'), findsNothing);
+      expect(find.text('Kategoria'), findsNothing);
+
+      Future<void> type(String label, String text) async {
+        await tester.enterText(find.widgetWithText(TextField, label), text);
+        await tester.pump();
+      }
+
+      await type('Tytuł', 'Doba na Wenus');
+      await type('Krótki tekst', 'Doba trwa dłużej niż rok.');
+      await type('Długi tekst', 'Wenus obraca się bardzo wolno.');
+      await type('Źródło faktu', 'NASA');
+      await type('Produkt', 'Atlas nieba');
+      await type('Sklep', 'Księgarnia');
+      await type('Link (https)', 'https://example.com/atlas');
+      await type('Ważne do (opcjonalnie)', '2099-01-31');
+
+      expect(find.text('Ciekawostka partnerska'), findsOneWidget);
+      expect(find.text('Atlas nieba · Księgarnia ›'), findsOneWidget);
+
+      await tester.tap(find.text('Zapisz i opublikuj'));
+      await tester.pumpAndSettle();
+
+      final body = lastBody('POST');
+      expect(body['id'], 'partner-002');
+      expect(body['kind'], 'partner');
+      expect(body['category'], 'Ciekawostka partnerska');
+      expect(body['status'], 'published');
+      expect(body['quiz'], isNull);
+      expect(body['offer'], {
+        'product': 'Atlas nieba',
+        'shop': 'Księgarnia',
+        'url': 'https://example.com/atlas',
+        'until': '2099-01-31',
+      });
+    });
+
+    testWidgets('a partner fact without a product is not saved', (
+      tester,
+    ) async {
+      await openOffers(tester);
+      await tester.tap(find.text('Nowa ciekawostka partnerska'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Zapisz i opublikuj'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Podaj produkt, sklep i link.'), findsOneWidget);
+      expect(
+        requests
+            .where((request) => request.url.path == '/rest/v1/facts')
+            .where((request) => request.method == 'POST'),
+        isEmpty,
+      );
+    });
+
+    testWidgets('+30 days moves the end date', (tester) async {
+      await openOffers(tester);
+
+      await tester.tap(find.byTooltip('Działania').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('+30 dni'));
+      await tester.pumpAndSettle();
+
+      final patch = requests.lastWhere((request) => request.method == 'PATCH');
+      expect(patch.url.queryParameters['id'], 'eq.partner-001');
+      expect(lastBody('PATCH')['offer']['until'], '2100-01-30');
+    });
+
+    testWidgets('deleting a partner fact withdraws it after asking', (
+      tester,
+    ) async {
+      await openOffers(tester);
+
+      await tester.tap(find.byTooltip('Działania').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Usuń'));
+      await tester.pumpAndSettle();
+      expect(find.text('Usunąć polecenie?'), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, 'Usuń'));
+      await tester.pumpAndSettle();
+
+      expect(lastBody('PATCH'), {'status': 'withdrawn'});
+    });
+
+    testWidgets('deleting a regular offer keeps the fact', (tester) async {
+      await openOffers(tester);
+
+      await tester.tap(find.byTooltip('Działania').at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Usuń'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Anuluj'));
+      await tester.pumpAndSettle();
+      expect(requests.where((request) => request.method == 'PATCH'), isEmpty);
+
+      await tester.tap(find.byTooltip('Działania').at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Usuń'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Usuń'));
+      await tester.pumpAndSettle();
+
+      expect(lastBody('PATCH'), {'offer': null});
+    });
+
+    testWidgets('an offer is added to an existing fact', (tester) async {
+      await openOffers(tester);
+
+      await tester.tap(find.text('Dodaj polecenie do istniejącej ciekawostki'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField).first, 'opubl');
+      await tester.pumpAndSettle();
+      expect(find.text('Szkic'), findsNothing);
+      await tester.tap(find.text('Opublikowana'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.widgetWithText(TextField, 'Produkt'), 'Mapa');
+      await tester.enterText(find.widgetWithText(TextField, 'Sklep'), 'Sklep');
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Link (https)'),
+        'https://example.com/mapa',
+      );
+      await tester.tap(find.text('Zapisz'));
+      await tester.pumpAndSettle();
+
+      final patch = requests.lastWhere((request) => request.method == 'PATCH');
+      expect(patch.url.queryParameters['id'], 'eq.fact-1');
+      expect(lastBody('PATCH'), {
+        'offer': {
+          'product': 'Mapa',
+          'shop': 'Sklep',
+          'url': 'https://example.com/mapa',
+        },
+      });
     });
   });
 }

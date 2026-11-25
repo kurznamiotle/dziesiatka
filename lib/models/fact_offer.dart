@@ -1,3 +1,5 @@
+import 'package:dziesiatka/models/offer_status.dart';
+
 /// A partner product recommended under a fact, such as a book about space
 /// under a fact about Venus. The link earns a commission, so the app marks it
 /// as a partner link. See `supabase/offers.sql`.
@@ -57,6 +59,37 @@ class FactOffer {
     final local = moment.toLocal();
     final today = DateTime(local.year, local.month, local.day);
     return !today.isAfter(last);
+  }
+
+  OfferStatus statusOn(DateTime moment) {
+    if (!isActiveOn(moment)) return OfferStatus.ended;
+    final last = untilDate;
+    if (last == null) return OfferStatus.active;
+    final daysLeft = last.difference(_dayOf(moment)).inDays;
+    return daysLeft <= OfferStatus.endingSoonDays
+        ? OfferStatus.endingSoon
+        : OfferStatus.active;
+  }
+
+  /// Moves the end [days] further: from the current end, or from today if
+  /// that has passed, so an ended offer comes back for the full time. An
+  /// offer without an end stays as it is.
+  FactOffer extendedOn(DateTime moment, {int days = 30}) {
+    final last = untilDate;
+    if (until == null) return this;
+    final today = _dayOf(moment);
+    final from = last == null || last.isBefore(today) ? today : last;
+    return FactOffer(
+      product: product,
+      shop: shop,
+      url: url,
+      until: _dateKey(DateTime(from.year, from.month, from.day + days)),
+    );
+  }
+
+  static DateTime _dayOf(DateTime moment) {
+    final local = moment.toLocal();
+    return DateTime(local.year, local.month, local.day);
   }
 
   /// The same rules as the database check in `supabase/offers.sql`.

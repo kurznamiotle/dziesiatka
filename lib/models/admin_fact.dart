@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 
@@ -17,7 +18,38 @@ class AdminFact {
     this.reviewNote,
     this.offer,
     this.hasOfferColumn = false,
+    this.kind = FactKind.regular,
+    this.hasKindColumn = false,
   });
+
+  /// A partner fact, published right away, as the panel shows a preview
+  /// before saving. It has no quiz and its category is fixed. The [offer] is
+  /// required to save, which [validationErrors] checks.
+  factory AdminFact.partner({
+    required String id,
+    required String title,
+    required String shortText,
+    required String longText,
+    required String sourceLabel,
+    required String? sourceUrl,
+    required FactOffer? offer,
+    String status = published,
+  }) {
+    return AdminFact(
+      id: id,
+      title: title,
+      category: FactKind.partnerCategory,
+      shortText: shortText,
+      longText: longText,
+      sourceLabel: sourceLabel,
+      sourceUrl: sourceUrl,
+      status: status,
+      offer: offer,
+      hasOfferColumn: true,
+      kind: FactKind.partner,
+      hasKindColumn: true,
+    );
+  }
 
   factory AdminFact.fromRow(Map<String, dynamic> row) {
     final quiz = row['quiz'] as Map<String, dynamic>?;
@@ -34,6 +66,8 @@ class AdminFact {
       reviewNote: row['review_note'] as String?,
       offer: FactOffer.tryParse(row['offer']),
       hasOfferColumn: row.containsKey('offer'),
+      kind: FactKind.fromName(row['kind']),
+      hasKindColumn: row.containsKey('kind'),
     );
   }
 
@@ -108,6 +142,14 @@ class AdminFact {
   /// and the offer can be saved or removed.
   final bool hasOfferColumn;
 
+  final FactKind kind;
+
+  /// The row came with a `kind` column, so `supabase/partner_facts.sql` has
+  /// run and partner facts can be saved.
+  final bool hasKindColumn;
+
+  bool get isPartner => kind == FactKind.partner;
+
   /// Has an offer whose last day has passed.
   bool hasEndedOfferOn(DateTime moment) {
     final offer = this.offer;
@@ -132,8 +174,13 @@ class AdminFact {
       if (sourceLabel.trim().isEmpty) 'Brak nazwy źródła.',
       if (sourceUrl != null && !RegExp(r'^https?://').hasMatch(sourceUrl))
         'Adres źródła musi zaczynać się od https://.',
-      if (!categories.contains(category)) 'Nieznana kategoria: $category.',
+      if (!isPartner && !categories.contains(category))
+        'Nieznana kategoria: $category.',
       if (status != draft && status != published) 'Nieznany status: $status.',
+      if (isPartner && offer == null)
+        'Ciekawostka partnerska musi mieć produkt, sklep i link.',
+      if (isPartner && quiz != null)
+        'Ciekawostka partnerska nie ma pytania quizowego.',
       ..._quizErrors(),
       ...?offer?.validationErrors(),
     ];
@@ -176,6 +223,8 @@ class AdminFact {
       reviewNote: reviewNote ?? this.reviewNote,
       offer: offer,
       hasOfferColumn: hasOfferColumn,
+      kind: kind,
+      hasKindColumn: hasKindColumn,
     );
   }
 
@@ -205,11 +254,14 @@ class AdminFact {
       reviewNote: reviewNote,
       offer: offer,
       hasOfferColumn: hasOfferColumn,
+      kind: kind,
+      hasKindColumn: hasKindColumn,
     );
   }
 
-  /// Leaves `offer` out when there is none to save and the database may not
-  /// have the column yet, so the panel works before `supabase/offers.sql`.
+  /// Leaves `offer` and `kind` out when there is nothing to save and the
+  /// database may not have the column yet, so the panel works before
+  /// `supabase/offers.sql` and `supabase/partner_facts.sql`.
   Map<String, dynamic> toRow() {
     return {
       'id': id,
@@ -223,6 +275,7 @@ class AdminFact {
       'quiz': quiz?.toJson(),
       'review_note': reviewNote,
       if (offer != null || hasOfferColumn) 'offer': offer?.toJson(),
+      if (isPartner || hasKindColumn) 'kind': kind.name,
     };
   }
 }

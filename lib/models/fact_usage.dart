@@ -9,6 +9,7 @@ class FactUsage {
     this.quizCorrect = 0,
     this.quizWrong = 0,
     this.offerClicked = 0,
+    this.hasOfferClicks = false,
   });
 
   factory FactUsage.fromJson(Map<String, dynamic> json) {
@@ -21,6 +22,7 @@ class FactUsage {
       quizWrong: json['quiz_wrong'] as int,
       // Missing until `supabase/offers_stats.sql` runs.
       offerClicked: json['offer_clicked'] as int? ?? 0,
+      hasOfferClicks: json.containsKey('offer_clicked'),
     );
   }
 
@@ -33,6 +35,10 @@ class FactUsage {
 
   /// Taps on the partner offer under the fact. The link itself is not kept.
   final int offerClicked;
+
+  /// The server row had [offerClicked], so `supabase/offers_stats.sql` has
+  /// run and 0 means no taps rather than no data.
+  final bool hasOfferClicks;
 
   FactUsage operator +(FactUsage other) {
     return FactUsage(

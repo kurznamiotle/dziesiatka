@@ -71,6 +71,7 @@ Zależności idą tylko w tę stronę. Warstwy niższe nie znają wyższych.
 - Kod zależny od przeglądarki jest w `lib/services/browser_files_web.dart`.
 - GitHub Pages publikuje stronę o aplikacji z `website/`, panel pod `/panel/`, a aplikację jako demo pod `/app/`. Na komputerze `website/demo.js` otwiera demo w ramce po kliknięciu, a na telefonie link prowadzi do pełnego ekranu. Na Web statystyki ruszają dopiero po zgodzie. Tekst polityki prywatności jest w `website/privacy.html` i `lib/views/settings_screen.dart`, więc zmieniaj oba.
 - Nowe ciekawostki powstają w czacie według `supabase/prompt_ciekawostki.md` i trafiają do bazy przez Import w panelu.
+- Zakładka „Polecenia” (`OffersPage`, logika w `AdminOffersService`) zbiera ciekawostki partnerskie i zwykłe karty z poleceniem. Tam powstają ciekawostki partnerskie (id `partner-NNN`), których nie ma na liście ciekawostek, w imporcie ani w CSV dla czatu. Usunięcie karty partnerskiej to wycofanie (`withdrawn`), bo aplikacja widzi tylko zmienione wiersze.
 
 ## Polecenia
 

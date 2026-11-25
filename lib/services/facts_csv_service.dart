@@ -15,10 +15,11 @@ class FactsCsvService {
     'offer_until',
   ];
 
+  /// Partner facts are left out, as a chat writes only regular ones.
   String encode(List<AdminFact> facts) {
     final rows = [
       ['id', 'status', 'category', 'title', 'short_text', ...offerColumns],
-      for (final fact in facts)
+      for (final fact in facts.where((fact) => !fact.isPartner))
         [
           fact.id,
           fact.status,

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_report.dart';
 import 'package:dziesiatka/models/fact_usage.dart';
@@ -117,6 +118,11 @@ class AdminService {
         row.putIfAbsent('offer', () => null);
       }
     }
+    if (rows.any((row) => row.containsKey('kind'))) {
+      for (final row in rows) {
+        row.putIfAbsent('kind', () => FactKind.regular.name);
+      }
+    }
     final response = await _client
         .post(
           _uri('facts'),
@@ -151,6 +157,18 @@ class AdminService {
           .timeout(_timeout);
       _check(response);
     }
+  }
+
+  /// Takes the offer off a regular fact and leaves the rest as it is.
+  Future<void> removeOffer(String id) async {
+    final response = await _client
+        .patch(
+          _uri('facts', {'id': 'eq.$id'}),
+          headers: {...await _headers(), 'Prefer': 'return=minimal'},
+          body: jsonEncode({'offer': null}),
+        )
+        .timeout(_timeout);
+    _check(response);
   }
 
   /// Publishing clears the review note, because the app can read published

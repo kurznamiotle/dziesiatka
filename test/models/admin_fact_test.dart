@@ -1,4 +1,6 @@
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -100,5 +102,70 @@ void main() {
 
     expect(edited.sourceUrl, isNull);
     expect(edited.reviewNote, isNull);
+  });
+
+  group('partner fact', () {
+    const offer = FactOffer(
+      product: 'Atlas',
+      shop: 'Sklep',
+      url: 'https://example.com',
+    );
+
+    AdminFact partner({FactOffer? offer = offer}) {
+      return AdminFact.partner(
+        id: 'partner-001',
+        title: 'Tytuł',
+        shortText: 'Krótki tekst.',
+        longText: 'Długi tekst.',
+        sourceLabel: 'NASA',
+        sourceUrl: null,
+        offer: offer,
+      );
+    }
+
+    test('needs no category from the list', () {
+      expect(partner().validationErrors(categories), isEmpty);
+      expect(partner().category, FactKind.partnerCategory);
+      expect(partner().status, AdminFact.published);
+    });
+
+    test('needs an offer', () {
+      expect(
+        partner(offer: null).validationErrors(categories),
+        contains('Ciekawostka partnerska musi mieć produkt, sklep i link.'),
+      );
+    });
+
+    test('saves its kind and offer', () {
+      final row = partner().toRow();
+
+      expect(row['kind'], 'partner');
+      expect(row['category'], FactKind.partnerCategory);
+      expect(row['offer'], offer.toJson());
+      expect(row['quiz'], isNull);
+    });
+
+    test('a regular fact leaves kind out before the migration', () {
+      expect(fact().toRow().containsKey('kind'), isFalse);
+    });
+
+    test('reads kind from a row', () {
+      final row = {...partner().toRow(), 'status': 'published'};
+
+      final read = AdminFact.fromRow(row);
+
+      expect(read.isPartner, isTrue);
+      expect(read.hasKindColumn, isTrue);
+      expect(read.copyWith(title: 'Nowy').isPartner, isTrue);
+    });
+
+    test('a row without kind is regular', () {
+      final row = fact().toRow()..remove('kind');
+
+      final read = AdminFact.fromRow(row);
+
+      expect(read.isPartner, isFalse);
+      expect(read.hasKindColumn, isFalse);
+    });
   });
 }
