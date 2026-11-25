@@ -2237,5 +2237,405 @@
       "correctIndex": 0
     },
     "createdAt": "2026-11-01T00:00:00.000Z"
+  },
+  {
+    "id": "fact-821",
+    "title": "Mit 21 dni na wyrobienie nawyku",
+    "category": "Samorozwój",
+    "shortText": "W badaniu z 2010 roku wyrobienie nawyku zajmowało średnio 66 dni, a nie słynne trzy tygodnie.",
+    "longText": "W eksperymencie Phillippy Lally i zespołu uczestnicy codziennie powtarzali wybraną prostą czynność, a czas do osiągnięcia automatyzmu wahał się od 18 do aż 254 dni. Pojedyncze pominięcie dnia nie niweczyło jednak dotychczasowego postępu.\n\nPopularna liczba 21 dni pochodzi prawdopodobnie z książki chirurga plastycznego Maxwella Maltza z 1960 roku, który pisał o adaptacji do zmiany wyglądu, a nie o badaniach nawyków.",
+    "sourceLabel": "European Journal of Social Psychology, „How are habits formed: Modelling habit formation in the real world”",
+    "sourceUrl": "https://doi.org/10.1002/ejsp.674",
+    "quiz": {
+      "options": [
+        "Od 14 do 90 dni",
+        "Od 18 do 254 dni",
+        "Od 30 do 180 dni"
+      ],
+      "question": "Ile wynosił zakres czasu potrzebnego do ukształtowania nawyku w badaniu Lally i zespołu?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-822",
+    "title": "Mit wzrokowców, słuchowców i kinestetyków",
+    "category": "Samorozwój",
+    "shortText": "Przegląd badań z 2008 roku nie znalazł dowodów, że nauka dopasowana do „stylu uczenia się” daje lepsze wyniki.",
+    "longText": "Zespół Harolda Pashlera sprawdził tzw. hipotezę dopasowania, według której wzrokowcy powinni uczyć się najlepiej z obrazów, a słuchowcy ze słuchu. Niemal żadne z analizowanych badań nie spełniało podstawowych wymogów eksperymentalnych, a te rzetelne nie potwierdziły zakładanej przewagi.\n\nBadacze podkreślili, że ludzie mają różne preferencje, ale skuteczność metody zależy raczej od rodzaju materiału niż od deklarowanego stylu.",
+    "sourceLabel": "Psychological Science in the Public Interest, „Learning Styles: Concepts and Evidence”",
+    "sourceUrl": "https://doi.org/10.1111/j.1539-6053.2009.01038.x",
+    "quiz": {
+      "options": [
+        "Hipotezą dopasowania",
+        "Zasadą modalności",
+        "Regułą kodowania"
+      ],
+      "question": "Jak badacze nazwali sprawdzane założenie, że dopasowanie metody do stylu ucznia poprawia wyniki?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-823",
+    "title": "Mit wydajnego multitaskingu",
+    "category": "Samorozwój",
+    "shortText": "W badaniu ze Stanfordu osoby często robiące wiele rzeczy naraz gorzej radziły sobie z przełączaniem zadań.",
+    "longText": "Eyal Ophir, Clifford Nass i Anthony Wagner porównali w 2009 roku osoby intensywnie korzystające z wielu mediów jednocześnie z tymi, które robiły to rzadko. Pierwsi okazali się bardziej podatni na rozpraszające bodźce z otoczenia i wolniej przełączali uwagę między regułami.\n\nZamiast trenować podzielność uwagi, częste przeskakiwanie między ekranami wiązało się w testach z gorszym filtrowaniem zbędnych informacji.",
+    "sourceLabel": "PNAS, „Cognitive control in media multitaskers”",
+    "sourceUrl": "https://www.pnas.org/doi/10.1073/pnas.0903620106",
+    "quiz": {
+      "options": [
+        "Z zapamiętywaniem twarzy",
+        "Z szybkością czytania na głos",
+        "Z filtrowaniem zbędnych bodźców"
+      ],
+      "question": "Z czym gorzej radziły sobie osoby często praktykujące multitasking w badaniu z 2009 roku?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-824",
+    "title": "Mit reguły 10 000 godzin",
+    "category": "Samorozwój",
+    "shortText": "Metaanaliza z 2014 roku wykazała, że celowa praktyka wyjaśnia tylko część różnic w poziomie mistrzostwa.",
+    "longText": "Brooke Macnamara, David Hambrick i Frederick Oswald przeanalizowali badania z pięciu dziedzin i stwierdzili, że celowy trening tłumaczył 26% różnic wyników w grach, 21% w muzyce i 18% w sporcie. W edukacji było to już tylko 4%, a w pracy zawodowej mniej niż 1%.\n\nChoć regularny trening pozostaje ważny, wyniki pokazują, że na poziom biegłości mocno wpływają też inne czynniki, w tym wiek startu i predyspozycje.",
+    "sourceLabel": "Psychological Science, „Deliberate practice and performance in music, games, sports, education, and professions: a meta-analysis”",
+    "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/24986855/",
+    "quiz": {
+      "options": [
+        "W grach",
+        "W pracy zawodowej",
+        "W edukacji"
+      ],
+      "question": "W której dziedzinie celowa praktyka wyjaśniała największy odsetek różnic wyników w metaanalizie z 2014 roku?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-825",
+    "title": "Mit „pozycji mocy” zmieniającej hormony",
+    "category": "Samorozwój",
+    "shortText": "Duża replikacja z 2015 roku nie potwierdziła, by przyjmowanie otwartej pozy zmieniało poziom hormonów.",
+    "longText": "Głośne badanie z 2010 roku sugerowało, że dwie minuty w tzw. pozycji mocy podnoszą testosteron i obniżają kortyzol. Gdy zespół Evy Ranehill powtórzył eksperyment na próbie 200 osób, nie wykrył żadnego istotnego wpływu ani na hormony, ani na skłonność do ryzyka.\n\nUczestnicy zgłaszali wprawdzie nieco silniejsze subiektywne poczucie mocy, lecz nie przekładało się ono na mierzalne zmiany w zachowaniu.",
+    "sourceLabel": "Psychological Science, „Assessing the Robustness of Power Posing: No Effect on Hormones and Risk Tolerance in a Large Sample of Men and Women”",
+    "sourceUrl": "https://faculty.haas.berkeley.edu/dana_carney/ranehill.pdf",
+    "quiz": {
+      "options": [
+        "60 osób",
+        "200 osób",
+        "500 osób"
+      ],
+      "question": "Ilu uczestników objęło badanie replikacyjne zespołu Evy Ranehill z 2015 roku?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-826",
+    "title": "Mit wyczerpującej się siły woli",
+    "category": "Samorozwój",
+    "shortText": "Wieloośrodkowe badanie z 2016 roku podważyło tezę, że samokontrola działa jak wyczerpywalny mięsień.",
+    "longText": "Przez lata popularna była teoria wyczerpania ego, według której wysiłek włożony w samokontrolę automatycznie osłabia ją w kolejnym zadaniu. W preregistrowanej replikacji prowadzonej w 23 laboratoriach z udziałem 2141 osób średni efekt okazał się bliski zeru.\n\nWynik stał się jednym z głośniejszych przykładów kryzysu replikacji w psychologii i skłonił badaczy do rewizji prostego modelu „baterii” woli.",
+    "sourceLabel": "Perspectives on Psychological Science, „A Multilab Preregistered Replication of the Ego-Depletion Effect”",
+    "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/27474142/",
+    "quiz": {
+      "options": [
+        "7 laboratoriów",
+        "12 laboratoriów",
+        "23 laboratoria"
+      ],
+      "question": "Ile laboratoriów wzięło udział w preregistrowanej replikacji efektu wyczerpania ego z 2016 roku?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-827",
+    "title": "Mit zakreślacza jako świetnej metody nauki",
+    "category": "Samorozwój",
+    "shortText": "Przegląd dziesięciu technik nauki z 2013 roku ocenił zakreślanie i ponowne czytanie jako mało skuteczne.",
+    "longText": "Zespół Johna Dunlosky’ego przeanalizował setki badań z psychologii poznawczej i edukacyjnej. Najwyższą użyteczność uzyskały testy próbne oraz rozkładanie nauki w czasie, podczas gdy zakreślanie tekstu, streszczanie i wielokrotne czytanie trafiły do kategorii niskiej skuteczności.\n\nBierne techniki często budują złudne poczucie znajomości materiału, choć słabo przekładają się na trwałe zapamiętanie.",
+    "sourceLabel": "Psychological Science in the Public Interest, „Improving Students’ Learning With Effective Learning Techniques”",
+    "sourceUrl": "https://doi.org/10.1177/1529100612453266",
+    "quiz": {
+      "options": [
+        "Testy próbne i nauka rozłożona w czasie",
+        "Zakreślanie i tworzenie map myśli",
+        "Streszczanie i głośne czytanie"
+      ],
+      "question": "Które dwie techniki uzyskały najwyższą ocenę użyteczności w przeglądzie Dunlosky’ego z 2013 roku?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-828",
+    "title": "Mit szybkiego czytania bez strat",
+    "category": "Samorozwój",
+    "shortText": "Przegląd badań z 2016 roku pokazuje, że drastyczne przyspieszenie czytania zwykle odbywa się kosztem zrozumienia.",
+    "longText": "Zespół Keitha Raynera przeanalizował fizjologię wzroku i procesy językowe podczas lektury. Ostrość widzenia poza samym centrum pola widzenia gwałtownie spada, dlatego biologicznie nie da się jednym spojrzeniem odczytywać całych akapitów ani stron.\n\nWykształceni dorośli czytają zazwyczaj od 200 do 400 słów na minutę, a głównym ograniczeniem prędkości jest tempo przetwarzania języka, nie ruchy oczu.",
+    "sourceLabel": "Psychological Science in the Public Interest, „So Much to Read, So Little Time: How Do We Read, and Can Speed Reading Help?”",
+    "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/26769745/",
+    "quiz": {
+      "options": [
+        "Od 80 do 150 słów na minutę",
+        "Od 200 do 400 słów na minutę",
+        "Od 600 do 800 słów na minutę"
+      ],
+      "question": "W jakim przedziale mieści się typowe tempo cichego czytania wykształconych dorosłych według przeglądu z 2016 roku?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-829",
+    "title": "Mit burzy mózgów lepszej od pracy solo",
+    "category": "Samorozwój",
+    "shortText": "Metaanaliza wykazała, że grupy podczas burzy mózgów generują średnio mniej pomysłów niż te same osoby osobno.",
+    "longText": "W 1991 roku Brian Mullen, Craig Johnson i Eduardo Salas podsumowali badania porównujące prawdziwe grupy dyskusyjne z tzw. grupami nominalnymi, których członkowie zapisywali pomysły samotnie. Strata produktywności w grupie była wyraźna zarówno pod względem liczby, jak i jakości propozycji.\n\nWinne są między innymi wzajemne blokowanie wypowiedzi, czekanie na swoją kolej oraz obawa przed oceną pozostałych uczestników.",
+    "sourceLabel": "Basic and Applied Social Psychology, „Productivity Loss in Brainstorming Groups: A Meta-Analytic Integration”",
+    "sourceUrl": "https://www.tandfonline.com/doi/pdf/10.1207/s15324834basp1201_1",
+    "quiz": {
+      "options": [
+        "Z parami moderowanymi przez eksperta",
+        "Z zespołami pracującymi na czas",
+        "Z grupami nominalnymi pracującymi osobno"
+      ],
+      "question": "Z czym porównywano klasyczne grupy burzy mózgów w metaanalizie Mullena, Johnsona i Salasa?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-830",
+    "title": "Sprawdzian uczy lepiej niż powtarzanie",
+    "category": "Samorozwój",
+    "shortText": "W badaniu z 2006 roku samo odtwarzanie tekstu z pamięci utrwalało go po tygodniu lepiej niż wielokrotne czytanie.",
+    "longText": "Henry Roediger i Jeffrey Karpicke sprawdzili pamięć studentów po pięciu minutach oraz po tygodniu. Tuż po nauce przewagę mieli czytający materiał wielokrotnie, ale po siedmiu dniach wyraźnie wygrywała grupa, która zamiast czytać, próbowała przywołać treść z pamięci.\n\nCo ciekawe, osoby jedynie czytające były bardziej pewne swojej wiedzy, mimo że na odroczonym teście wypadały słabiej.",
+    "sourceLabel": "Psychological Science, „Test-enhanced learning: taking memory tests improves long-term retention”",
+    "sourceUrl": "https://pubmed.ncbi.nlm.nih.gov/16507066/",
+    "quiz": {
+      "options": [
+        "Na teście po pięciu minutach",
+        "Na teście po tygodniu",
+        "Na obu testach w równym stopniu"
+      ],
+      "question": "Kiedy grupa wielokrotnie czytająca tekst miała w badaniu z 2006 roku przewagę nad grupą testującą pamięć?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-871",
+    "title": "Silnik Wankla pracuje bez zwykłych tłoków",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "W silniku Wankla zamiast posuwistych tłoków obraca się mimośrodowo wirnik w kształcie trójkąta o łukowatych bokach.",
+    "longText": "Konstrukcja opracowana przez Felixa Wankla zamienia ruch obrotowy wirnika o profilu trójkąta Reuleaux bezpośrednio w obrót wału, eliminując korbowody i zawory. Pierwszym seryjnym autem z takim napędem był NSU Spider z 1964 roku, a później rozwiązanie rozsławiła Mazda.\n\nJednostka jest lekka i ma mało części ruchomych, lecz uszczelnienie wierzchołków wirnika oraz wyższe zużycie paliwa ograniczyły jej upowszechnienie.",
+    "sourceLabel": "Wikipedia, „Wankel engine”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Wankel_engine",
+    "quiz": {
+      "options": [
+        "Mazda Cosmo Sport z 1967 roku",
+        "NSU Spider z 1964 roku",
+        "Citroën GS Birotor z 1973 roku"
+      ],
+      "question": "Jaki samochód był pierwszym seryjnie produkowanym autem z silnikiem Wankla?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-872",
+    "title": "Most pod Łowiczem był pierwszym spawanym na świecie",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Oddany w 1929 roku most na rzece Słudwi w Maurzycach zaprojektował polski inżynier Stefan Bryła.",
+    "longText": "Zastąpienie tradycyjnych nitów spawaniem łukowym pozwoliło obniżyć masę stalowej konstrukcji z 70 do 55 ton. Przeprawa o długości 28 metrów przetrwała próbę czasu i do dziś stoi jako zabytek techniki obok nowej trasy.\n\nMost wykonała firma „K. Rudzki i S-ka”, a do użytku oddano go 12 sierpnia 1929 roku — dla tej inwestycji opracowano też pierwsze na świecie przepisy spawania elektrycznego konstrukcji stalowych.",
+    "sourceLabel": "Narodowy Instytut Dziedzictwa (Zabytek.pl), „Most spawany na rzece Słudwi”",
+    "sourceUrl": "https://zabytek.pl/pl/obiekty/maurzyce-spawany-most-stalowy-na-rzece-sludwi",
+    "quiz": {
+      "options": [
+        "Z 70 do 55 ton",
+        "Z 120 do 95 ton",
+        "Z 45 do 30 ton"
+      ],
+      "question": "Z ilu ton do ilu spadła masa mostu w Maurzycach dzięki zastosowaniu spawania zamiast nitowania?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-873",
+    "title": "Winda Falkirk Wheel zużywa prąd jak osiem czajników",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Szkocka winda dla łodzi podnosi jednostki na 24 metry, zużywając zaledwie około 1,5 kWh na półobrót.",
+    "longText": "Oddana w 2002 roku konstrukcja łączy kanały Forth and Clyde oraz Union. Dzięki prawu Archimedesa gondola z wodą i pływającą łodzią waży dokładnie tyle samo co gondola z samą wodą, więc całość pozostaje w idealnej równowadze.\n\nSilniki elektryczne o łącznej mocy 22,5 kW muszą pokonać niemal wyłącznie opory tarcia w łożyskach.",
+    "sourceLabel": "Wikipedia, „Falkirk Wheel”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Falkirk_Wheel",
+    "quiz": {
+      "options": [
+        "Ponieważ łódź wypiera wodę o masie równej jej własnej",
+        "Ponieważ przeciwwagi z ołowiu przesuwają się automatycznie",
+        "Ponieważ poziom wody w dolnej gondoli jest odpompowywany"
+      ],
+      "question": "Dlaczego obie gondole koła Falkirk Wheel ważą tyle samo niezależnie od tego, czy wpływa do nich łódź?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-874",
+    "title": "Dyferencjał pozwala kołom na jednej osi kręcić się różnie",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Mechanizm różnicowy rozdziela moment obrotowy, by zewnętrzne koło na zakręcie mogło obracać się szybciej.",
+    "longText": "Podczas pokonywania łuku koło jadące po zewnętrznej stronie zakrętu ma do przebycia dłuższą drogę niż koło wewnętrzne. Przekładnia planetarna w dyferencjale umożliwia zmianę ich prędkości obrotowych przy jednoczesnym przekazywaniu napędu.\n\nWadą klasycznego otwartego dyferencjału jest to, że gdy jedno koło trafi na lód, niemal cały moment trafia na ślizgającą się oponę.",
+    "sourceLabel": "Encyclopaedia Britannica, „Differential”",
+    "sourceUrl": "https://www.britannica.com/technology/differential-gear",
+    "quiz": {
+      "options": [
+        "Cały moment obrotowy przechodzi na koło stojące na asfalcie",
+        "Oba koła blokują się automatycznie do czasu ruszenia",
+        "Większość momentu trafia na koło obracające się bez oporu"
+      ],
+      "question": "Co dzieje się w klasycznym otwartym mechanizmie różnicowym, gdy jedno koło napędowe straci przyczepność na lodzie?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-876",
+    "title": "Pierwszą stacją paliw była apteka w Wiesloch",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "W 1888 roku Bertha Benz podczas pierwszej dalekiej jazdy autem kupiła paliwo w miejskiej aptece.",
+    "longText": "Podczas słynnej wyprawy z Mannheim do Pforzheim w 1888 roku Bertha Benz wraz z synami Eugenem i Richardem podróżowała pojazdem Benz Patent-Motorwagen. Po drodze uzupełniła zapas ligroiny w aptece miejskiej w Wiesloch, która przeszła do historii jako pierwsza stacja paliw.\n\nWyprawa miała udowodnić, że samochód zaprojektowany przez Carla Benza nadaje się do codziennych podróży na dłuższe dystanse.",
+    "sourceLabel": "Mercedes-Benz Museum, „The “33 Extras” at the Mercedes-Benz Museum”",
+    "sourceUrl": "https://www.mercedes-benz.com/en/art-and-culture/museum/exhibition/33-extras/",
+    "quiz": {
+      "options": [
+        "Ligroina",
+        "Nafta oświetleniowa",
+        "Spirytus drzewny"
+      ],
+      "question": "Jaki środek chemiczny posłużył jako paliwo kupione przez Berthę Benz w aptece w Wiesloch?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-877",
+    "title": "Katalizator w aucie działa dopiero po rozgrzaniu",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Reaktor katalityczny skutecznie oczyszcza spaliny dopiero po osiągnięciu wysokiej temperatury roboczej.",
+    "longText": "Ceramiczny rdzeń katalizatora o strukturze plastra miodu pokrywają cienkie warstwy platyny, palladu i rodu. Metale te przyspieszają utlenianie tlenku węgla i węglowodorów oraz redukcję tlenków azotu bez zużywania samych pierwiastków.\n\nZanim układ wydechowy osiągnie temperaturę roboczą, na krótkich zimnych odcinkach większość spalin opuszcza rurę niemal nieoczyszczona.",
+    "sourceLabel": "Encyclopaedia Britannica, „Catalytic converter”",
+    "sourceUrl": "https://www.britannica.com/technology/catalytic-converter",
+    "quiz": {
+      "options": [
+        "Złoto, srebro i tytan",
+        "Platyna, iryd i wolfram",
+        "Platyna, pallad i rod"
+      ],
+      "question": "Jakie trzy metale szlachetne tworzą najczęściej warstwę aktywną w trójfunkcyjnym katalizatorze?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-878",
+    "title": "Strefy zgniotu powstały z myślą o rozpraszaniu energii",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Inżynier Béla Barényi podzielił nadwozie na sztywną klatkę kabiny oraz odkształcalne końce auta.",
+    "longText": "Dawniej sądzono, że najbezpieczniejszy samochód musi być jak najbardziej sztywny od zderzaka do zderzaka. Barényi wykazał, że kontrolowane zgniatanie przodu i tyłu wydłuża czas trwania zderzenia i zmniejsza przeciążenia działające na ludzi.\n\nPierwszym seryjnym samochodem z takim nadwoziem był Mercedes-Benz W111 wprowadzony na rynek w 1959 roku.",
+    "sourceLabel": "Mercedes-Benz, „The journey begins with an “S””",
+    "sourceUrl": "https://www.mercedes-benz.com/en/vehicles/mercedes-benz-classic/classic-cars/s-class/",
+    "quiz": {
+      "options": [
+        "Volvo PV544",
+        "Mercedes-Benz W111",
+        "Citroën DS"
+      ],
+      "question": "Który model samochodu wprowadził w 1959 roku jako pierwszy seryjne strefy zgniotu?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-879",
+    "title": "System ABS trafił do samochodów prosto z lotnictwa",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Układy zapobiegające blokowaniu kół opracowano najpierw dla samolotów lądujących na mokrych pasach.",
+    "longText": "Zablokowane koło traci przyczepność kierunkową i wydłuża drogę hamowania na śliskiej nawierzchni. Pierwsze mechaniczne układy przeciwpoślizgowe, takie jak lotniczy Dunlop Maxaret z lat 50., szybko pulsowały ciśnieniem w hamulcach.\n\nDo seryjnej motoryzacji wielokanałowy elektroniczny ABS wszedł w 1978 roku za sprawą firm Bosch i Mercedes-Benz.",
+    "sourceLabel": "Wikipedia, „Maxaret”",
+    "sourceUrl": "https://en.wikipedia.org/wiki/Maxaret",
+    "quiz": {
+      "options": [
+        "1978",
+        "1966",
+        "1985"
+      ],
+      "question": "W którym roku elektroniczny ABS trafił do seryjnej produkcji w Mercedesie klasy S?",
+      "correctIndex": 0
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-880",
+    "title": "Opony zimowe wgryzają się w śnieg dzięki lamelom",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Tysiące drobnych nacięć w bieżniku opony zimowej otwierają się pod ciężarem auta i chwytają śnieg.",
+    "longText": "Zwykła guma z opon letnich sztywnieje w temperaturach poniżej około 7°C, tracąc zdolność dopasowania się do mikroskopijnych nierówności asfaltu. Mieszanka zimowa zawiera więcej kauczuku naturalnego i krzemionki, dzięki czemu pozostaje miękka na mrozie.\n\nDodatkowe zygzakowate szczeliny w klockach bieżnika, zwane lamelami, tworzą setki dodatkowych krawędzi tnących na śniegu i błocie.",
+    "sourceLabel": "Continental Tires, „Buying winter tires”",
+    "sourceUrl": "https://www.continental-tires.com/tire-knowledge/buying-winter-tires/",
+    "quiz": {
+      "options": [
+        "Kordy",
+        "Rowki obwodowe",
+        "Lamele"
+      ],
+      "question": "Jak nazywają się drobne nacięcia w klockach bieżnika poprawiające przyczepność opony zimowej na śniegu?",
+      "correctIndex": 2
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
+  },
+  {
+    "id": "fact-881",
+    "title": "W wieżowcu Taipei 101 wisi 660-tonowa stalowa kula",
+    "category": "Inżynieria & Motoryzacja",
+    "shortText": "Ogromne wahadło zawieszone między 87. a 92. piętrem tłumi kołysanie wieżowca podczas tajfunów.",
+    "longText": "Stalowe wahadło zawieszone między 87. a 92. piętrem wieżowca waży 660 ton. Gdy silny wiatr lub wstrząs sejsmiczny przechyla budynek, bezwładność kuli działa w przeciwną stronę.\n\nTaki dostrojony tłumik masowy ogranicza kołysanie konstrukcji i poprawia komfort osób przebywających na najwyższych kondygnacjach.",
+    "sourceLabel": "Encyclopaedia Britannica, „Taipei 101”",
+    "sourceUrl": "https://www.britannica.com/place/Taipei-101",
+    "quiz": {
+      "options": [
+        "Między 50. a 55. piętrem",
+        "Między 87. a 92. piętrem",
+        "Między 98. a 101. piętrem"
+      ],
+      "question": "Między którymi piętrami wieżowca Taipei 101 zawieszono 660-tonowy tłumik drgań?",
+      "correctIndex": 1
+    },
+    "createdAt": "2026-11-23T15:21:47.555681+00:00",
+    "updatedAt": "2026-11-23T15:21:47.555681+00:00"
   }
 ]

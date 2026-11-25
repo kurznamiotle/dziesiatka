@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dziesiatka/services/category_preferences_service.dart';
@@ -7,6 +8,9 @@ import 'package:dziesiatka/views/category_style.dart';
 import 'package:flutter/material.dart';
 
 const _tileAspectRatio = 2.1;
+
+/// How long the screen keeps listening for categories from the server.
+const _remoteTimeout = Duration(seconds: 10);
 
 /// Lets a new user choose their favorite categories before the first deck.
 class FavoriteCategoriesScreen extends StatefulWidget {
@@ -51,9 +55,25 @@ class _FavoriteCategoriesScreenState extends State<FavoriteCategoriesScreen> {
       // An update brings new bundled facts, which only the deck adds otherwise.
       await widget.factsService.syncWithSeed();
       final categories = await widget.factsService.getCategories();
-      if (mounted) setState(() => _categories = categories);
+      if (!mounted) return;
+      setState(() => _categories = categories);
     } catch (_) {
       if (mounted) widget.onFinished();
+      return;
+    }
+    unawaited(_loadFromServer());
+  }
+
+  /// Categories newer than the bundled facts exist only on the server, so
+  /// the list grows once they arrive. The bundled ones show at once, and
+  /// without a network the list simply stays as it is.
+  Future<void> _loadFromServer() async {
+    try {
+      await widget.factsService.syncWithRemote().timeout(_remoteTimeout);
+      final categories = await widget.factsService.getCategories();
+      if (mounted) setState(() => _categories = categories);
+    } catch (_) {
+      // The deck downloads the rest later.
     }
   }
 

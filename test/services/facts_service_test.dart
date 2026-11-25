@@ -6,6 +6,7 @@ import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/fact_source.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/partner_fact_source.dart';
+import 'package:dziesiatka/views/category_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -39,7 +40,7 @@ class _FakePartnerSource extends _FakeSource implements PartnerFactSource {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const seedSize = 120;
+  const seedSize = 140;
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -57,7 +58,7 @@ void main() {
       seed = (jsonDecode(source) as List<dynamic>).cast<Map<String, dynamic>>();
     });
 
-    test('has 120 facts with unique ids and titles', () {
+    test('has 140 facts with unique ids and titles', () {
       expect(seed, hasLength(seedSize));
       expect(seed.map((fact) => fact['id']).toSet(), hasLength(seedSize));
       expect(seed.map((fact) => fact['title']).toSet(), hasLength(seedSize));
@@ -85,7 +86,7 @@ void main() {
     test('source links are web addresses', () {
       final links = seed.map((fact) => fact['sourceUrl']).nonNulls;
 
-      expect(links, hasLength(79));
+      expect(links, hasLength(99));
       expect(links.every((url) => '$url'.startsWith('https://')), isTrue);
     });
 
@@ -103,8 +104,17 @@ void main() {
         counts[category] = (counts[category] ?? 0) + 1;
       }
 
-      expect(counts, hasLength(12));
+      expect(counts, hasLength(14));
       expect(counts.values.every((count) => count == 10), isTrue);
+    });
+
+    test('has every category with its own look', () {
+      final categories = {for (final fact in seed) fact['category'] as String};
+
+      expect(categories, containsAll(CategoryStyle.styledCategories));
+      expect(categories, contains('Samorozwój'));
+      expect(categories, contains('Inżynieria & Motoryzacja'));
+      expect(categories, isNot(contains(FactKind.partnerCategory)));
     });
 
     test('short texts fit a card', () {

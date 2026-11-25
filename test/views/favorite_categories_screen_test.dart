@@ -1,7 +1,10 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/services/category_preferences_service.dart';
+import 'package:dziesiatka/services/fact_source.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
+import 'package:dziesiatka/views/category_style.dart';
 import 'package:dziesiatka/views/favorite_categories_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,6 +42,7 @@ void main() {
   Future<void> pumpScreen(
     WidgetTester tester, {
     Size size = const Size(390, 1400),
+    FactsService? factsService,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
@@ -47,7 +51,7 @@ void main() {
       MaterialApp(
         theme: AppTheme.light,
         home: FavoriteCategoriesScreen(
-          factsService: FactsService(),
+          factsService: factsService ?? FactsService(),
           onFinished: () => finished++,
         ),
       ),
@@ -144,4 +148,84 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Wybierz jeszcze 3'), findsOneWidget);
   });
+
+  group('categories from the server', () {
+    Future<void> pumpWithServer(WidgetTester tester, List<Fact> remote) {
+      return pumpScreen(
+        tester,
+        size: const Size(390, 2400),
+        factsService: FactsService(remote: _FakeSource(remote)),
+      );
+    }
+
+    testWidgets('a fresh install lists both new categories', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+
+      await pumpScreen(tester, size: const Size(390, 2400));
+
+      expect(find.text('Samorozwój'), findsOneWidget);
+      expect(find.text('Inżynieria & Motoryzacja'), findsOneWidget);
+    });
+
+    testWidgets('a category known only to the server appears', (tester) async {
+      await pumpWithServer(tester, [fact('z', 'Nowa kategoria')]);
+
+      expect(find.text('Nowa kategoria'), findsOneWidget);
+    });
+
+    testWidgets('a category without its own look gets the default icon', (
+      tester,
+    ) async {
+      await pumpWithServer(tester, [fact('z', 'Nowa kategoria')]);
+
+      final fallback = CategoryStyle.of('Nowa kategoria', Brightness.light);
+      expect(
+        fallback.icon,
+        CategoryStyle.of('Inna nowa', Brightness.light).icon,
+      );
+      expect(
+        find.descendant(
+          of: find.ancestor(
+            of: find.text('Nowa kategoria'),
+            matching: find.byType(InkWell),
+          ),
+          matching: find.byIcon(fallback.icon),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('partner cards never become a category', (tester) async {
+      await pumpWithServer(tester, [
+        fact('p', FactKind.partnerCategory).copyWith(kind: FactKind.partner),
+      ]);
+
+      expect(find.text(FactKind.partnerCategory), findsNothing);
+    });
+
+    testWidgets('without a network the bundled list stays', (tester) async {
+      await pumpScreen(
+        tester,
+        factsService: FactsService(
+          remote: _FakeSource(const [], error: StateError('offline')),
+        ),
+      );
+
+      expect(find.text('Kosmos'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+}
+
+class _FakeSource implements FactSource {
+  _FakeSource(this.facts, {this.error});
+
+  final List<Fact> facts;
+  final Object? error;
+
+  @override
+  Future<List<Fact>> loadFacts({DateTime? changedSince}) async {
+    if (error != null) throw error!;
+    return facts;
+  }
 }
