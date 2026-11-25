@@ -4,6 +4,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/fact_state.dart';
 import 'package:dziesiatka/services/asset_fact_source.dart';
 import 'package:dziesiatka/services/fact_source.dart';
+import 'package:dziesiatka/services/partner_fact_source.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Keeps facts' content and the user's state under separate keys. Content can
@@ -38,8 +39,9 @@ class FactsService {
     return _withStates(merged, _readStates(prefs));
   }
 
-  /// Downloads what changed since the last download. It does nothing without a
-  /// remote source and throws if the download fails.
+  /// Downloads what changed since the last download, and the whole current
+  /// list of partner facts when the source has one. It does nothing without a
+  /// remote source and throws if a download fails, saving nothing.
   Future<void> syncWithRemote() async {
     final remote = _remote;
     if (remote == null) return;
@@ -49,12 +51,16 @@ class FactsService {
     final changed = await remote.loadFacts(
       changedSince: syncedAt == null ? null : DateTime.parse(syncedAt),
     );
+    final partners = remote is PartnerFactSource
+        ? await (remote as PartnerFactSource).loadPartnerFacts()
+        : null;
+    if (changed.isEmpty && partners == null) return;
+
+    var content = _merged(_readContent(prefs) ?? const [], changed);
+    if (partners != null) content = _withPartners(content, partners);
+    await _saveContent(prefs, content);
     if (changed.isEmpty) return;
 
-    await _saveContent(
-      prefs,
-      _merged(_readContent(prefs) ?? const [], changed),
-    );
     final latest = changed
         .map((fact) => fact.updatedAt)
         .reduce((first, second) => first.isAfter(second) ? first : second);
@@ -120,6 +126,20 @@ class FactsService {
       }
     }
     return byId.values.toList();
+  }
+
+  /// [partners] is the full list, so a stored partner fact missing from it is
+  /// withdrawn. It stays stored, as today's deck or the favorites may hold it.
+  List<Fact> _withPartners(List<Fact> stored, List<Fact> partners) {
+    final current = {for (final fact in partners) fact.id: fact};
+    final result = [
+      for (final fact in stored)
+        if (!fact.isPartner)
+          fact
+        else
+          current.remove(fact.id) ?? fact.copyWith(isWithdrawn: true),
+    ];
+    return [...result, ...current.values];
   }
 
   List<Fact> _withStates(List<Fact> content, Map<String, FactState> states) {

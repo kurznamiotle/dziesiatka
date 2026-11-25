@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/models/fact_kind.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/fact_source.dart';
 import 'package:dziesiatka/services/facts_service.dart';
+import 'package:dziesiatka/services/partner_fact_source.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,6 +25,15 @@ class _FakeSource implements FactSource {
     if (error != null) throw error!;
     return facts;
   }
+}
+
+class _FakePartnerSource extends _FakeSource implements PartnerFactSource {
+  _FakePartnerSource(super.facts, this.partners);
+
+  List<Fact>? partners;
+
+  @override
+  Future<List<Fact>?> loadPartnerFacts() async => partners;
 }
 
 void main() {
@@ -467,5 +478,94 @@ void main() {
 
     expect(facts.single.shortText, 'Treść');
     expect(facts.single.isRead, isTrue);
+  });
+
+  group('partner facts from the server', () {
+    Fact partner(String id, {String title = 'Partnerska'}) {
+      return Fact(
+        id: id,
+        title: title,
+        category: FactKind.partnerCategory,
+        kind: FactKind.partner,
+        shortText: 'Zajawka',
+        longText: 'Rozwinięcie',
+        sourceLabel: 'Źródło',
+        offer: const FactOffer(
+          product: 'Atlas',
+          shop: 'Sklep',
+          url: 'https://example.com',
+        ),
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026, 11, 2),
+      );
+    }
+
+    Future<Fact?> stored(String id) async {
+      final facts = await FactsService().getFacts();
+      return facts.where((fact) => fact.id == id).firstOrNull;
+    }
+
+    test('arrive even when no regular fact changed', () async {
+      await FactsService(
+        remote: _FakePartnerSource([], [partner('partner-1')]),
+      ).syncWithRemote();
+
+      final fact = await stored('partner-1');
+      expect(fact!.isPartner, isTrue);
+      expect(fact.isWithdrawn, isFalse);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('factsSyncedAt'), isNull);
+    });
+
+    test('one missing from the list is withdrawn, with its state', () async {
+      final source = _FakePartnerSource([], [
+        partner('partner-1'),
+        partner('partner-2'),
+      ]);
+      await FactsService(remote: source).syncWithRemote();
+      await FactsService().toggleFavorite('partner-1');
+
+      source.partners = [partner('partner-2', title: 'Nowy tytuł')];
+      await FactsService(remote: source).syncWithRemote();
+
+      final gone = await stored('partner-1');
+      expect(gone!.isWithdrawn, isTrue);
+      expect(gone.isFavorite, isTrue);
+      expect((await stored('partner-2'))!.title, 'Nowy tytuł');
+    });
+
+    test('one back on the list returns', () async {
+      final source = _FakePartnerSource([], [partner('partner-1')]);
+      await FactsService(remote: source).syncWithRemote();
+      source.partners = [];
+      await FactsService(remote: source).syncWithRemote();
+
+      source.partners = [partner('partner-1')];
+      await FactsService(remote: source).syncWithRemote();
+
+      expect((await stored('partner-1'))!.isWithdrawn, isFalse);
+    });
+
+    test('without the function the stored ones stay', () async {
+      final source = _FakePartnerSource([], [partner('partner-1')]);
+      await FactsService(remote: source).syncWithRemote();
+
+      source.partners = null;
+      await FactsService(remote: source).syncWithRemote();
+
+      expect((await stored('partner-1'))!.isWithdrawn, isFalse);
+    });
+
+    test('a failed download saves nothing', () async {
+      final source = _FakePartnerSource([partner('x')], [partner('partner-1')])
+        ..error = StateError('offline');
+
+      await expectLater(
+        FactsService(remote: source).syncWithRemote(),
+        throwsStateError,
+      );
+
+      expect(await stored('partner-1'), isNull);
+    });
   });
 }

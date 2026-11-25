@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/fact_source.dart';
+import 'package:dziesiatka/services/partner_fact_source.dart';
 import 'package:dziesiatka/services/supabase_config.dart';
 import 'package:http/http.dart' as http;
 
-/// Reads the `facts` table through Supabase's REST API.
-class SupabaseFactSource implements FactSource {
+/// Reads the `facts` table through Supabase's REST API, and partner facts
+/// through the `partner_facts` function, as the table hides them.
+class SupabaseFactSource implements FactSource, PartnerFactSource {
   SupabaseFactSource({
     required String url,
     required String publishableKey,
@@ -38,6 +40,33 @@ class SupabaseFactSource implements FactSource {
       facts.addAll(page);
       if (page.length < _pageSize) return facts;
     }
+  }
+
+  /// Supabase answers 404 for a function that does not exist yet.
+  @override
+  Future<List<Fact>?> loadPartnerFacts() async {
+    final response = await _client
+        .post(
+          Uri.parse('$_url/rest/v1/rpc/partner_facts'),
+          headers: {
+            'apikey': _publishableKey,
+            'Content-Type': 'application/json',
+          },
+          body: '{}',
+        )
+        .timeout(_timeout);
+    if (response.statusCode == 404) return null;
+    if (response.statusCode != 200) {
+      throw StateError('Supabase answered ${response.statusCode}.');
+    }
+
+    final rows = jsonDecode(utf8.decode(response.bodyBytes)) as List<dynamic>;
+    return [
+      for (final row in rows)
+        if (Fact.fromRow(row as Map<String, dynamic>) case final fact
+            when fact.isPartner)
+          fact,
+    ];
   }
 
   Future<List<Fact>> _loadPage(

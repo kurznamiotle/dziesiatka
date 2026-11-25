@@ -111,4 +111,59 @@ void main() {
       throwsStateError,
     );
   });
+
+  group('partner facts', () {
+    Map<String, dynamic> partnerRow(int number) {
+      return {
+        ...row(number),
+        'id': 'partner-$number',
+        'kind': 'partner',
+        'category': 'Ciekawostka partnerska',
+        'quiz': null,
+        'offer': {
+          'product': 'Atlas',
+          'shop': 'Sklep',
+          'url': 'https://example.com',
+        },
+      };
+    }
+
+    test('come from their own function', () async {
+      late http.Request request;
+      final facts = await source((sent) async {
+        request = sent;
+        return json([partnerRow(1)]);
+      }).loadPartnerFacts();
+
+      expect(request.method, 'POST');
+      expect(request.url.path, '/rest/v1/rpc/partner_facts');
+      expect(request.headers['apikey'], 'sb_publishable_test');
+      expect(facts!.single.id, 'partner-1');
+      expect(facts.single.isPartner, isTrue);
+      expect(facts.single.offer!.product, 'Atlas');
+    });
+
+    test('a regular row from the function is ignored', () async {
+      final facts = await source(
+        (_) async => json([row(1), partnerRow(2)]),
+      ).loadPartnerFacts();
+
+      expect(facts!.map((fact) => fact.id), ['partner-2']);
+    });
+
+    test('a missing function means no partner facts', () async {
+      final facts = await source(
+        (_) async => json({'code': 'PGRST202'}, status: 404),
+      ).loadPartnerFacts();
+
+      expect(facts, isNull);
+    });
+
+    test('a server error throws', () async {
+      await expectLater(
+        source((_) async => json({}, status: 500)).loadPartnerFacts(),
+        throwsStateError,
+      );
+    });
+  });
 }
