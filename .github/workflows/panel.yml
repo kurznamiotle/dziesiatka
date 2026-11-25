@@ -7,21 +7,18 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# One deployment at a time. A running deployment is never cancelled, so a
+# newer push waits for it instead of leaving Pages half-updated.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.9
@@ -35,8 +32,23 @@ jobs:
       # The panel stays out of search results, and only the login protects it.
       - run: sed -i 's#<head>#<head><meta name="robots" content="noindex">#' public/panel/index.html
       - run: cp -r website/. public/
-      - uses: actions/upload-pages-artifact@v3
+      # The only upload in the workflow. Its default name, github-pages, is
+      # the one deploy-pages looks for.
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: public
+
+  # A separate job starts only after the artifact is fully stored, which a
+  # deploy step in the same job did not always wait for.
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
