@@ -258,6 +258,17 @@ void main() {
     expect(find.textContaining('nie ma kont użytkowników'), findsOneWidget);
   });
 
+  testWidgets('the privacy policy explains partner cards', (tester) async {
+    await pumpSettings(tester);
+
+    await tester.tap(find.text('Polityka prywatności'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('ciekawostka partnerska'), findsOneWidget);
+    expect(find.textContaining('TradeTracker'), findsOneWidget);
+    expect(find.textContaining('reklam'), findsNothing);
+  });
+
   testWidgets('opens the license page', (tester) async {
     await pumpSettings(tester);
 
