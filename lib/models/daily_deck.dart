@@ -75,6 +75,12 @@ class DailyDeck {
 
   DailyDeck withQuizResult(int correct) => _copyWith(quizCorrect: correct);
 
+  /// Puts [factId] just before [beforeId], which must be in [factIds].
+  DailyDeck withInserted(String factId, {required String beforeId}) {
+    final ids = [...factIds]..insert(factIds.indexOf(beforeId), factId);
+    return _copyWith(factIds: ids);
+  }
+
   DailyDeck withBonus(List<String> bonusFactIds) {
     return _copyWith(
       factIds: [...factIds, ...bonusFactIds],

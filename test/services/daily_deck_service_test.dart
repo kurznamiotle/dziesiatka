@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:dziesiatka/models/daily_deck.dart';
@@ -980,6 +981,88 @@ void main() {
       }
 
       expect((await service.finishQuiz(1)).bonusCount, 0);
+    });
+
+    Future<DailySession> withLateDownload(
+      List<Fact> deckPool, {
+      required List<Fact> downloaded,
+      int finish = 0,
+      FactOffer? offerInDeck,
+    }) async {
+      givenPool(deckPool);
+      var session = await service.loadToday();
+      for (final card in session.remaining.take(finish)) {
+        session = await service.completeCard(card.id, liked: false);
+      }
+      final stored = await facts.getFacts();
+      SharedPreferences.setMockInitialValues({
+        ...storedFacts([...stored, ...downloaded]),
+        'dailyDeck': jsonEncode(session.deck.toJson()),
+      });
+      return service.addDownloadedPartner();
+    }
+
+    test('a late partner card joins the cards ahead', () async {
+      final session = await withLateDownload(
+        [for (var i = 0; i < 12; i++) fact(i)],
+        downloaded: [partner(99)],
+        finish: 3,
+      );
+
+      expect(session.facts, hasLength(11));
+      expect(session.remaining, hasLength(8));
+      expect(session.remaining.first.isPartner, isFalse);
+      expect(session.remaining.last.isPartner, isFalse);
+      expect(session.completedCount, 3);
+    });
+
+    test('a late partner card skips a finished day', () async {
+      final session = await withLateDownload(
+        [for (var i = 0; i < 12; i++) fact(i, hasQuiz: false)],
+        downloaded: [partner(99)],
+        finish: 10,
+      );
+
+      expect(session.isDayFinished, isTrue);
+      expect(session.facts.where((fact) => fact.isPartner), isEmpty);
+    });
+
+    test('a late partner card needs two cards left', () async {
+      final session = await withLateDownload(
+        [for (var i = 0; i < 12; i++) fact(i)],
+        downloaded: [partner(99)],
+        finish: 9,
+      );
+
+      expect(session.facts.where((fact) => fact.isPartner), isEmpty);
+    });
+
+    test('a late partner card skips a deck with an offer', () async {
+      final session = await withLateDownload(
+        [for (var i = 0; i < 12; i++) fact(i).copyWith(offer: offer)],
+        downloaded: [partner(99)],
+      );
+
+      expect(session.facts.where((fact) => fact.isPartner), isEmpty);
+    });
+
+    test('a card finished during a download is kept', () async {
+      givenPool([for (var i = 0; i < 12; i++) fact(i)]);
+      final first = await service.loadToday();
+      SharedPreferences.setMockInitialValues({
+        ...storedFacts([...await facts.getFacts(), partner(99)]),
+        'dailyDeck': jsonEncode(first.deck.toJson()),
+      });
+
+      final results = await Future.wait([
+        service.completeCard(first.remaining.first.id, liked: true),
+        service.addDownloadedPartner(),
+        service.completeCard(first.remaining[1].id, liked: false),
+      ]);
+
+      final session = results.last;
+      expect(session.completedCount, 2);
+      expect(session.facts.where((fact) => fact.isPartner), hasLength(1));
     });
 
     test('a read partner card does not count as read', () async {

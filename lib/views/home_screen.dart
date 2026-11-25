@@ -149,9 +149,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// Runs behind the scenes, so the deck never waits for the network. New facts
   /// reach the next deck, and a failed download is retried on the next start.
+  /// Only a partner card can still join today's deck, behind the current card.
   Future<void> _downloadNewFacts() async {
     try {
       await _factsService.syncWithRemote();
+      final session = await _deckService.addDownloadedPartner();
+      final shown = _session;
+      if (!mounted || shown == null) return;
+      if (session.deck.factIds.length != shown.deck.factIds.length) {
+        setState(() => _showSession(session));
+      }
     } catch (_) {}
   }
 

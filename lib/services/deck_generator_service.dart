@@ -1,11 +1,18 @@
 import 'dart:math';
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:flutter/foundation.dart';
 
 /// Chooses the cards of a daily deck: mostly the user's favorite categories,
 /// [discoveryCount] from the others to keep the deck varied, and one review.
 class DeckGeneratorService {
-  const DeckGeneratorService({required this.now});
+  const DeckGeneratorService({required this.now, this.log = debugLog});
+
+  /// Says in debug builds why a partner card did or did not go in. Release
+  /// builds print nothing.
+  static void debugLog(String message) {
+    if (kDebugMode) debugPrint('[Dziesiątka] $message');
+  }
 
   static const deckSize = 10;
   static const discoveryCount = 2;
@@ -20,6 +27,7 @@ class DeckGeneratorService {
   static const maxSameCategoryInDeck = 7;
 
   final DateTime Function() now;
+  final void Function(String message) log;
 
   /// Takes the review first, as it is the only card that needs a due fact.
   /// Without one its place goes to a favorite. New facts fill any gap before
@@ -88,28 +96,58 @@ class DeckGeneratorService {
     List<Fact> Function(List<Fact>) arrange = _keepOrder,
   }) {
     final moment = now();
-    final candidates = partners
-        .where(
-          (fact) =>
-              fact.isPartner &&
-              !fact.isRead &&
-              !fact.isWithdrawn &&
-              fact.isShownOn(moment),
-        )
-        .toList();
-    if (candidates.isEmpty || cards.length < 2) {
+    if (cards.length < 2) {
+      log(
+        'Karta partnerska pominięta: runda ma ${cards.length} kart, a '
+        'karta partnerska musi stać między dwiema.',
+      );
       return arrange(limitOffers(cards, spares));
     }
+    final partner = pickPartner(partners, random);
+    if (partner == null) return arrange(limitOffers(cards, spares));
 
-    final partner = candidates[random.nextInt(candidates.length)];
     final withoutOffers = limitOffers(cards, spares, maxOffers: 0);
     if (withoutOffers.any((fact) => fact.activeOfferOn(moment) != null)) {
+      log(
+        'Karta partnerska ${partner.id} pominięta: w rundzie zostaje karta '
+        'z poleceniem, której nie da się wymienić.',
+      );
       return arrange(limitOffers(cards, spares));
     }
 
     final arranged = arrange(withoutOffers);
     final position = 1 + random.nextInt(arranged.length - 1);
+    log(
+      'Karta partnerska ${partner.id} wstawiona na pozycję ${position + 1} '
+      'z ${arranged.length + 1}.',
+    );
     return [...arranged]..insert(position, partner);
+  }
+
+  /// One unread partner fact still in circulation and with an active offer,
+  /// or null with the reason in [log].
+  Fact? pickPartner(Iterable<Fact> partners, Random random) {
+    final moment = now();
+    final all = partners.where((fact) => fact.isPartner).toList();
+    final candidates = all
+        .where(
+          (fact) => !fact.isRead && !fact.isWithdrawn && fact.isShownOn(moment),
+        )
+        .toList();
+    if (candidates.isEmpty) {
+      log(
+        all.isEmpty
+            ? 'Karta partnerska pominięta: brak kart partnerskich na '
+                  'urządzeniu. Pobierają się w tle, po wyborze talii.'
+            : 'Karta partnerska pominięta: z ${all.length} kart '
+                  '${all.where((fact) => fact.isRead).length} przeczytane, '
+                  '${all.where((fact) => fact.isWithdrawn).length} wycofane, '
+                  '${all.where((fact) => !fact.isShownOn(moment)).length} '
+                  'po terminie.',
+      );
+      return null;
+    }
+    return candidates[random.nextInt(candidates.length)];
   }
 
   static List<Fact> _keepOrder(List<Fact> cards) => cards;
