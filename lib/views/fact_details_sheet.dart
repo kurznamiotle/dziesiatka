@@ -117,7 +117,7 @@ class FactDetailsSheet extends StatelessWidget {
           if (offer != null) ...[
             const SizedBox(height: 24),
             Text(
-              'Polecamy',
+              fact.isPartner ? 'Produkt partnera' : 'Polecamy',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: colors.onSurfaceVariant,
               ),

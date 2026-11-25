@@ -2,6 +2,7 @@ import 'package:dziesiatka/models/fact.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/views/category_style.dart';
 import 'package:dziesiatka/views/fact_details_sheet.dart';
+import 'package:dziesiatka/views/offer_scope.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +56,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildContent() {
-    final favorites = _favorites;
+    final favorites = _favorites
+        ?.where((fact) => OfferScope.isShown(context, fact))
+        .toList();
     if (favorites == null) {
       return const Center(child: CircularProgressIndicator());
     }

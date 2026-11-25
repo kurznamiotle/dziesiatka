@@ -27,6 +27,13 @@ class OfferScope extends InheritedWidget {
     return fact.activeOfferOn((scope?.now ?? DateTime.now)());
   }
 
+  /// False for a partner card whose offer has ended, which then disappears
+  /// everywhere, liked or not.
+  static bool isShown(BuildContext context, Fact fact) {
+    final scope = _of(context);
+    return fact.isShownOn((scope?.now ?? DateTime.now)());
+  }
+
   static void reportOpened(BuildContext context, Fact fact) {
     context.getInheritedWidgetOfExactType<OfferScope>()?.onOpened?.call(
       fact.id,

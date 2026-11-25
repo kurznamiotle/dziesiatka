@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_style.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,33 @@ void main() {
             );
           }
         }
+      });
+
+      test('the partner look is readable', () {
+        final style = CategoryStyle.of(
+          FactKind.partnerCategory,
+          theme.brightness,
+        );
+        final badge = Color.alphaBlend(style.background, surfaces.card);
+
+        expect(
+          contrast(style.color, badge),
+          greaterThanOrEqualTo(minimumTextContrast),
+        );
+        expect(
+          contrast(style.color, surfaces.card),
+          greaterThanOrEqualTo(minimumTextContrast),
+        );
+        for (final color in style.gradient) {
+          expect(
+            contrast(Colors.white, color),
+            greaterThanOrEqualTo(minimumTextContrast),
+          );
+          // A large decorative shape only needs 3:1.
+          expect(contrast(style.iconColor, color), greaterThanOrEqualTo(3));
+        }
+        expect(style.border, isNotNull);
+        expect(contrast(style.border!, surfaces.card), greaterThanOrEqualTo(2));
       });
 
       test('category badges are readable on banners', () {
@@ -116,6 +144,25 @@ void main() {
       expect(styles.map((style) => style.icon).toSet(), hasLength(14));
       expect(styles.map((style) => style.color).toSet(), hasLength(14));
       expect(styles.map((style) => style.gradient.last).toSet(), hasLength(14));
+    }
+  });
+
+  test('partner cards look like no category', () {
+    for (final brightness in Brightness.values) {
+      final partner = CategoryStyle.of(FactKind.partnerCategory, brightness);
+      final styles = [
+        for (final name in CategoryStyle.styledCategories)
+          CategoryStyle.of(name, brightness),
+        CategoryStyle.of('Moja kategoria', brightness),
+      ];
+
+      for (final style in styles) {
+        expect(partner.icon, isNot(style.icon));
+        expect(partner.color, isNot(style.color));
+        expect(partner.gradient.first, isNot(style.gradient.first));
+        expect(partner.gradient.last, isNot(style.gradient.last));
+        expect(style.border, isNull);
+      }
     }
   });
 

@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:flutter/material.dart';
 
 class CategoryStyle {
@@ -6,17 +7,38 @@ class CategoryStyle {
     required this.color,
     required this.background,
     required this.gradient,
+    this.iconColor = Colors.white,
+    this.border,
   });
 
   factory CategoryStyle.of(String category, Brightness brightness) {
-    final palette = _palettes[category] ?? _customCategoryPalette;
     final isDark = brightness == Brightness.dark;
+    if (category == FactKind.partnerCategory) {
+      return CategoryStyle.partner(brightness);
+    }
+
+    final palette = _palettes[category] ?? _customCategoryPalette;
     final color = isDark ? palette.darkColor : palette.lightColor;
     return CategoryStyle._(
       icon: palette.icon,
       color: color,
       background: color.withValues(alpha: isDark ? 0.16 : 0.12),
       gradient: palette.gradient,
+    );
+  }
+
+  /// Partner cards: warm gold on a dark stone gradient, with a gold frame, so
+  /// they never pass for one of the categories.
+  factory CategoryStyle.partner(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final color = isDark ? const Color(0xFFFFC94D) : const Color(0xFF7A4A00);
+    return CategoryStyle._(
+      icon: Icons.handshake_rounded,
+      color: color,
+      background: color.withValues(alpha: isDark ? 0.16 : 0.12),
+      gradient: const [Color(0xFF1C1917), Color(0xFF6B3F05)],
+      iconColor: const Color(0xFFFBBF24),
+      border: isDark ? const Color(0xFFB7791F) : const Color(0xFFE0A526),
     );
   }
 
@@ -125,6 +147,12 @@ class CategoryStyle {
   /// Dark enough for white text, and the same in both themes, so a shared
   /// image looks identical whichever theme it was made in.
   final List<Color> gradient;
+
+  /// The large icon on [gradient], drawn faded.
+  final Color iconColor;
+
+  /// A frame around the whole card, or null for none.
+  final Color? border;
 }
 
 class _CategoryPalette {

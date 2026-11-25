@@ -51,7 +51,7 @@ class CategoryArtwork extends StatelessWidget {
                 child: Icon(
                   style.icon,
                   size: iconSize,
-                  color: Colors.white.withValues(alpha: iconOpacity),
+                  color: style.iconColor.withValues(alpha: iconOpacity),
                 ),
               ),
             ),

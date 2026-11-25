@@ -1,9 +1,12 @@
 import 'dart:math';
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_offer.dart';
+import 'package:dziesiatka/services/link_service.dart';
 import 'package:dziesiatka/views/app_theme.dart';
 import 'package:dziesiatka/views/category_artwork.dart';
 import 'package:dziesiatka/views/category_badge.dart';
+import 'package:dziesiatka/views/category_style.dart';
 import 'package:dziesiatka/views/offer_scope.dart';
 import 'package:dziesiatka/views/pill_badge.dart';
 import 'package:dziesiatka/views/share_card_sheet.dart';
@@ -22,6 +25,10 @@ const _textRoom = 270.0;
 const _iconShare = 1.05;
 const _iconOpacity = 0.42;
 const _radius = 28.0;
+const _partnerBorderWidth = 2.0;
+
+/// Big enough for a finger, as Apple and Google both ask.
+const _minTapHeight = 44.0;
 
 class FactCard extends StatelessWidget {
   const FactCard({
@@ -39,12 +46,18 @@ class FactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final surfaces = Theme.of(context).extension<AppSurfaces>()!;
+    final theme = Theme.of(context);
+    final surfaces = theme.extension<AppSurfaces>()!;
+    final frame = fact.isPartner
+        ? CategoryStyle.of(fact.category, theme.brightness).border
+        : null;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: surfaces.card,
         borderRadius: BorderRadius.circular(_radius),
-        border: Border.all(color: surfaces.border),
+        border: frame == null
+            ? Border.all(color: surfaces.border)
+            : Border.all(color: frame, width: _partnerBorderWidth),
         boxShadow: [
           BoxShadow(
             color: surfaces.shadow,
@@ -75,7 +88,9 @@ class FactCard extends StatelessWidget {
   Widget _buildBanner(BuildContext context, double cardHeight, bool isCompact) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final hasOffer = OfferScope.offerFor(context, fact) != null;
+    // A partner card says so in place of its category.
+    final hasOffer =
+        !fact.isPartner && OfferScope.offerFor(context, fact) != null;
     final height = isCompact
         ? _compactBannerHeight
         : [
@@ -160,10 +175,53 @@ class FactCard extends StatelessWidget {
                   height: 1.6,
                 ),
               ),
+              ?_buildPartnerOffer(context),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// A button of its own and not a link in the text, so a swipe across the
+  /// card cannot open it by accident. A drag that starts on it still moves
+  /// the card, because the deck's drag wins over a tap once the finger moves.
+  Widget? _buildPartnerOffer(BuildContext context) {
+    if (!fact.isPartner) return null;
+    final offer = OfferScope.offerFor(context, fact);
+    if (offer == null) return null;
+
+    final style = CategoryStyle.of(fact.category, Theme.of(context).brightness);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: FilledButton(
+        onPressed: () => _openOffer(context, offer),
+        style: FilledButton.styleFrom(
+          backgroundColor: style.background,
+          foregroundColor: style.color,
+          minimumSize: const Size(0, _minTapHeight),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          side: BorderSide(color: style.border ?? style.color),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+        child: Text(
+          '${offer.product} · ${offer.shop} ›',
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  /// Opens in the browser, outside the app, so the partner can save the
+  /// visit in its cookie.
+  Future<void> _openOffer(BuildContext context, FactOffer offer) async {
+    OfferScope.reportOpened(context, fact);
+    final opened = await const LinkService().open(offer.url);
+    if (opened || !context.mounted) return;
+
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      const SnackBar(content: Text('Nie udało się otworzyć linku.')),
     );
   }
 
