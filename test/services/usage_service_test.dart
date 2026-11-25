@@ -69,6 +69,17 @@ void main() {
     expect(report['cards_completed'], 0);
   });
 
+  test('each report says which day it was sent on', () async {
+    await service.cardCompleted('a', liked: false);
+
+    now = now.add(const Duration(days: 2));
+    await service.recordToday();
+
+    final byDay = {for (final report in reports()) report['day']: report};
+    expect(byDay['2026-11-02']!['sent_on'], '2026-11-04');
+    expect(byDay['2026-11-04']!['sent_on'], '2026-11-04');
+  });
+
   test('an unchanged day is sent only once', () async {
     await service.recordToday();
     await service.recordToday();

@@ -18,7 +18,10 @@ class AdminStatsService {
   static const _tooHardPercent = 35;
   static const _tooEasyPercent = 100;
 
-  UsageSummary summarize(List<UsageRow> rows, {required DateTime today}) {
+  /// Counts each installation once a day, even when a device in another time
+  /// zone sent two of its own days within one Polish day.
+  UsageSummary summarize(List<UsageRow> allRows, {required DateTime today}) {
+    final rows = _onePerInstallAndDay(allRows);
     final firstDays = <String, DateTime>{};
     for (final row in rows) {
       final first = firstDays[row.installId];
@@ -63,6 +66,18 @@ class AdminStatsService {
 
   int _count(Iterable<UsageRow> rows, bool Function(UsageRow row) test) {
     return rows.where(test).length;
+  }
+
+  List<UsageRow> _onePerInstallAndDay(List<UsageRow> rows) {
+    final merged = <String, UsageRow>{};
+    for (final row in rows) {
+      merged.update(
+        _key(row.installId, row.day),
+        (known) => known.mergedWith(row),
+        ifAbsent: () => row,
+      );
+    }
+    return merged.values.toList();
   }
 
   String _key(String installId, DateTime day) {

@@ -198,4 +198,45 @@ void main() {
       expect(result.single.likedPercent, isNull);
     });
   });
+
+  group('Polish days', () {
+    test('a row is dated by the server\'s Polish day', () {
+      final read = UsageRow.fromRow({
+        'day': '2026-11-26',
+        'warsaw_day': '2026-11-25',
+        'install_id': 'a' * 32,
+        'cards_completed': 3,
+        'deck_finished': false,
+        'bonus_rounds': 0,
+      });
+
+      expect(read.day, DateTime.utc(2026, 11, 25));
+    });
+
+    test('before usage_03.sql the device day is used', () {
+      final read = UsageRow.fromRow({
+        'day': '2026-11-24',
+        'install_id': 'a' * 32,
+        'cards_completed': 3,
+        'deck_finished': false,
+        'bonus_rounds': 0,
+      });
+
+      expect(read.day, DateTime.utc(2026, 11, 24));
+    });
+
+    test('two device days in one Polish day count as one user', () {
+      final summary = service.summarize([
+        row('a', 0, cards: 4, quizCorrect: 1, quizTotal: 2),
+        row('a', 0, cards: 6, deckFinished: true),
+        row('b', 0, cards: 10, deckFinished: true),
+      ], today: today);
+
+      final day = summary.days.single;
+      expect(day.activeUsers, 2);
+      expect(day.finishedDeck, 2);
+      expect(day.averageCards, 10);
+      expect(summary.installs, 2);
+    });
+  });
 }

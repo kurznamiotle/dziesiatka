@@ -314,6 +314,9 @@ class UsageService {
       final isSaved = await _post('record_usage_day', {
         'p_report': {
           ...day.toRow(),
+          // The device's day when sending, so the server can tell a late
+          // report from today's and date it in Polish time.
+          'sent_on': today,
           'install_id': await _installId(prefs),
           'platform': kIsWeb ? 'web' : defaultTargetPlatform.name,
           'app_version': await _appInfoService.getVersion(),
