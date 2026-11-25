@@ -287,6 +287,53 @@ void main() {
     expect(saved['status'], 'draft');
   });
 
+  testWidgets('a partner fact is imported with its offer', (tester) async {
+    await pumpPanel(tester);
+    await signIn(tester);
+    await openPage(tester, 'Import');
+
+    await tester.enterText(
+      find.byType(TextField).first,
+      jsonEncode([
+        {
+          'kind': 'partner',
+          'title': 'Ptaki planują',
+          'short_text': 'Kruki potrafią odłożyć nagrodę na później.',
+          'long_text': 'Rozwinięcie.',
+          'source_label': 'Jennifer Ackerman',
+          'status': 'published',
+          'offer_product': 'Geniusz ptaków',
+          'offer_shop': 'Znak',
+          'offer_url': 'https://www.znak.com.pl/geniusz-ptakow',
+          'offer_until': '2099-01-31',
+        },
+      ]),
+    );
+    await tester.tap(find.text('Sprawdź'));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Do zapisania: 1'), findsOneWidget);
+    await tester.tap(find.text('Zapisz (1)'));
+    await tester.pumpAndSettle();
+
+    final insert = requests.lastWhere(
+      (request) =>
+          request.method == 'POST' && request.url.path == '/rest/v1/facts',
+    );
+    final saved = (jsonDecode(insert.body) as List).single as Map;
+    // partner-001 is already in the database.
+    expect(saved['id'], 'partner-002');
+    expect(saved['kind'], 'partner');
+    expect(saved['category'], 'Ciekawostka partnerska');
+    expect(saved['quiz'], isNull);
+    expect(saved['offer'], {
+      'product': 'Geniusz ptaków',
+      'shop': 'Znak',
+      'url': 'https://www.znak.com.pl/geniusz-ptakow',
+      'until': '2099-01-31',
+    });
+  });
+
   testWidgets('an invalid file shows a message', (tester) async {
     await pumpPanel(tester);
     await signIn(tester);

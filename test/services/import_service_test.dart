@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/import_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -355,6 +356,166 @@ void main() {
         () => service.checkOffers('title\nA\n', existing: existing),
         throwsFormatException,
       );
+    });
+  });
+
+  group('partner facts in an import', () {
+    // Rows read after supabase/partner_facts.sql, so the database knows kind.
+    final withKind = [
+      for (final fact in existing)
+        AdminFact.fromRow({...fact.toRow(), 'kind': 'regular'}),
+    ];
+
+    Map<String, dynamic> partner({
+      String title = 'Ośmiornica myśli ramionami',
+      Map<String, dynamic>? quiz,
+      bool withOffer = true,
+      String status = 'published',
+    }) {
+      return {
+        'kind': 'partner',
+        'title': title,
+        'short_text': 'Większość neuronów ośmiornicy siedzi w ramionach.',
+        'long_text': 'Rozwinięcie.',
+        'source_label': 'Peter Godfrey-Smith',
+        'status': status,
+        'quiz': ?quiz,
+        if (withOffer) ...{
+          'offer_product': 'Inne umysły',
+          'offer_shop': 'Znak',
+          'offer_url': 'https://www.znak.com.pl/inne-umysly',
+          'offer_until': '2026-12-31',
+        },
+      };
+    }
+
+    test('needs neither a category nor a quiz', () {
+      final checked = service.check(
+        jsonEncode([partner()]),
+        existing: withKind,
+        categories: categories,
+      );
+
+      final item = checked.single;
+      expect(item.errors, isEmpty);
+      expect(item.fact.isPartner, isTrue);
+      expect(item.fact.category, FactKind.partnerCategory);
+      expect(item.fact.quiz, isNull);
+      expect(
+        item.fact.offer,
+        const FactOffer(
+          product: 'Inne umysły',
+          shop: 'Znak',
+          url: 'https://www.znak.com.pl/inne-umysly',
+          until: '2026-12-31',
+        ),
+      );
+    });
+
+    test('a category in the file is ignored', () {
+      final checked = service.check(
+        jsonEncode([
+          {...partner(), 'category': 'Kosmos'},
+        ]),
+        existing: withKind,
+        categories: const {},
+      );
+
+      expect(checked.single.errors, isEmpty);
+      expect(checked.single.fact.category, FactKind.partnerCategory);
+    });
+
+    test('needs an offer and no quiz', () {
+      final checked = service.check(
+        jsonEncode([
+          partner(withOffer: false, title: 'Bez polecenia'),
+          partner(
+            title: 'Z quizem',
+            quiz: {
+              'question': 'Pytanie?',
+              'options': ['A', 'B', 'C'],
+              'correctIndex': 0,
+            },
+          ),
+        ]),
+        existing: withKind,
+        categories: categories,
+      );
+
+      expect(
+        checked[0].errors,
+        contains('Ciekawostka partnerska musi mieć produkt, sklep i link.'),
+      );
+      expect(
+        checked[1].errors,
+        contains('Ciekawostka partnerska nie ma pytania quizowego.'),
+      );
+    });
+
+    test('an unknown kind is a wrong shape', () {
+      final checked = service.check(
+        jsonEncode([
+          {...partner(), 'kind': 'reklama'},
+        ]),
+        existing: withKind,
+        categories: categories,
+      );
+
+      expect(checked.single.errors, ['Pozycja ma niepoprawny układ pól.']);
+    });
+
+    test('a database without kind gets a clear error', () {
+      final checked = service.check(
+        jsonEncode([partner()]),
+        existing: existing,
+        categories: categories,
+      );
+
+      expect(
+        checked.single.errors.single,
+        contains('supabase/partner_facts.sql'),
+      );
+    });
+
+    test('get partner numbers apart from regular ones', () {
+      final known = [
+        ...withKind,
+        AdminFact.partner(
+          id: 'partner-002',
+          title: 'Stara partnerska',
+          shortText: 'Krótki.',
+          longText: 'Długi.',
+          sourceLabel: 'NASA',
+          sourceUrl: null,
+          offer: const FactOffer(
+            product: 'A',
+            shop: 'B',
+            url: 'https://example.com',
+          ),
+        ),
+      ];
+      final checked = service.check(
+        jsonEncode([partner(), item(), partner(title: 'Ptaki są sprytne')]),
+        existing: known,
+        categories: categories,
+      );
+
+      final saved = service.prepareToSave(
+        checked,
+        existing: known,
+        publishConfident: true,
+      );
+
+      expect(saved.map((fact) => fact.id), [
+        'partner-003',
+        'fact-221',
+        'partner-004',
+      ]);
+      final row = saved.first.toRow();
+      expect(row['kind'], 'partner');
+      expect(row['category'], FactKind.partnerCategory);
+      expect(row['status'], AdminFact.published);
+      expect((row['offer'] as Map)['shop'], 'Znak');
     });
   });
 }

@@ -17,7 +17,7 @@ const _statusLabels = {
 
 enum _KindFilter { all, partner, regular }
 
-enum _Action { edit, extend, delete }
+enum _Action { edit, publish, extend, delete }
 
 /// All offers in one place: partner facts and regular facts with an offer.
 class OffersPage extends StatefulWidget {
@@ -306,7 +306,10 @@ class _OffersPageState extends State<OffersPage> {
         DataCell(Text(entry.offer.until ?? 'bez końca')),
         DataCell(
           Text(
-            _statusLabels[entry.status]!,
+            // A draft from an import is not in the app yet, whatever its date.
+            entry.fact.status == AdminFact.draft
+                ? 'szkic'
+                : _statusLabels[entry.status]!,
             style: TextStyle(color: statusColor, fontWeight: FontWeight.w600),
           ),
         ),
@@ -321,11 +324,18 @@ class _OffersPageState extends State<OffersPage> {
       enabled: !_isBusy,
       onSelected: (action) => switch (action) {
         _Action.edit => _edit(entry),
+        _Action.publish => _run(
+          () => widget.adminService.setStatus([
+            entry.fact.id,
+          ], AdminFact.published),
+        ),
         _Action.extend => _extend(entry),
         _Action.delete => _delete(entry),
       },
       itemBuilder: (context) => [
         const PopupMenuItem(value: _Action.edit, child: Text('Edytuj')),
+        if (entry.fact.status == AdminFact.draft)
+          const PopupMenuItem(value: _Action.publish, child: Text('Opublikuj')),
         if (entry.offer.until != null)
           const PopupMenuItem(value: _Action.extend, child: Text('+30 dni')),
         const PopupMenuItem(value: _Action.delete, child: Text('Usuń')),

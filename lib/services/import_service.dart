@@ -2,15 +2,20 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:dziesiatka/models/admin_fact.dart';
+import 'package:dziesiatka/services/admin_offers_service.dart';
 import 'package:dziesiatka/models/import_item.dart';
 import 'package:dziesiatka/models/offer_import_item.dart';
 import 'package:dziesiatka/services/facts_csv_service.dart';
 
 /// Checks a file prepared by a chat and turns it into facts ready to save.
 class ImportService {
-  const ImportService({this.csvService = const FactsCsvService()});
+  const ImportService({
+    this.csvService = const FactsCsvService(),
+    this.offersService = const AdminOffersService(),
+  });
 
   final FactsCsvService csvService;
+  final AdminOffersService offersService;
 
   static const _similarityLimit = 0.6;
   static const _shortestWord = 4;
@@ -29,6 +34,9 @@ class ImportService {
     final seen = [
       for (final fact in existing) (title: fact.title, words: _wordsOf(fact)),
     ];
+    // Unknown without any fact, so the first import can still try.
+    final hasKindColumn =
+        existing.isEmpty || existing.any((fact) => fact.hasKindColumn);
 
     final checked = <ImportItem>[];
     for (final item in items) {
@@ -57,7 +65,12 @@ class ImportService {
       checked.add(
         ImportItem(
           fact: fact,
-          errors: fact.validationErrors(categories),
+          errors: [
+            ...fact.validationErrors(categories),
+            if (fact.isPartner && !hasKindColumn)
+              'Baza nie zna jeszcze ciekawostek partnerskich. Uruchom '
+                  'supabase/partner_facts.sql.',
+          ],
           duplicateOf: _similarTo(fact, words, seen),
         ),
       );
@@ -117,23 +130,32 @@ class ImportService {
     return items;
   }
 
-  /// Gives each valid item the next free id. Items are saved as drafts unless
+  /// Gives each valid item the next free id, `partner-NNN` for partner facts
+  /// and `fact-NNN` for the rest. Items are saved as drafts unless
   /// [publishConfident] is on and nothing raised a doubt about them.
+  /// [existing] must hold partner facts too, so their numbers stay unique.
   List<AdminFact> prepareToSave(
     List<ImportItem> items, {
     required List<AdminFact> existing,
     required bool publishConfident,
   }) {
     var number = _lastNumber(existing);
-    return [
-      for (final item in items.where((item) => item.isValid))
-        _prepared(item, ++number, publishConfident: publishConfident),
-    ];
+    final known = [...existing];
+    final prepared = <AdminFact>[];
+    for (final item in items.where((item) => item.isValid)) {
+      final id = item.fact.isPartner
+          ? offersService.nextPartnerId(known)
+          : 'fact-${(++number).toString().padLeft(3, '0')}';
+      final fact = _prepared(item, id, publishConfident: publishConfident);
+      known.add(fact);
+      prepared.add(fact);
+    }
+    return prepared;
   }
 
   AdminFact _prepared(
     ImportItem item,
-    int number, {
+    String id, {
     required bool publishConfident,
   }) {
     final fact = item.fact;
@@ -148,7 +170,7 @@ class ImportService {
       if (duplicateOf != null) 'Możliwy duplikat: „$duplicateOf”.',
     ];
     return fact.copyWith(
-      id: 'fact-${number.toString().padLeft(3, '0')}',
+      id: id,
       status: isConfident ? AdminFact.published : AdminFact.draft,
       reviewNote: notes.isEmpty ? null : notes.join(' '),
     );

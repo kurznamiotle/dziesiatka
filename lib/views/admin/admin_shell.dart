@@ -126,8 +126,9 @@ class _AdminShellState extends State<AdminShell> {
         adminService: widget.adminService,
         onChanged: _load,
       ),
+      // All facts, so imported partner facts get free partner numbers.
       3 => ImportPage(
-        facts: regular,
+        facts: _facts,
         categories: _categories,
         adminService: widget.adminService,
         onSaved: _load,

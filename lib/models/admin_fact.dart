@@ -72,13 +72,23 @@ class AdminFact {
   }
 
   /// Reads one item of a file prepared by a chat. Throws on a wrong shape,
-  /// such as a number in place of text.
+  /// such as a number in place of text or an unknown `kind`. An item with
+  /// `kind: "partner"` needs no category, which is fixed, and its `offer_*`
+  /// fields become its offer.
   factory AdminFact.fromImport(Map<String, dynamic> json) {
     final quiz = json['quiz'] as Map<String, dynamic>?;
+    final kindName = json['kind'] as String? ?? FactKind.regular.name;
+    if (!FactKind.values.any((kind) => kind.name == kindName)) {
+      throw FormatException('Nieznany rodzaj: $kindName.');
+    }
+    final kind = FactKind.fromName(kindName);
+    final isPartner = kind == FactKind.partner;
     return AdminFact(
       id: '',
       title: json['title'] as String? ?? '',
-      category: json['category'] as String? ?? '',
+      category: isPartner
+          ? FactKind.partnerCategory
+          : json['category'] as String? ?? '',
       shortText: json['short_text'] as String? ?? '',
       longText: json['long_text'] as String? ?? '',
       sourceLabel: json['source_label'] as String? ?? '',
@@ -87,6 +97,9 @@ class AdminFact {
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       reviewNote: json['review_note'] as String?,
       offer: offerFromColumns(json),
+      kind: kind,
+      hasOfferColumn: isPartner,
+      hasKindColumn: isPartner,
     );
   }
 

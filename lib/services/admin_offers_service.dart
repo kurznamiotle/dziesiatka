@@ -43,13 +43,15 @@ class AdminOffersService {
     return result;
   }
 
+  /// Drafts are not in the app, so they count as neither active nor ending.
   OffersSummary summarize(List<OfferEntry> entries) {
     final known = entries.where((entry) => entry.clicks != null);
+    final shown = entries.where(
+      (entry) => entry.fact.status == AdminFact.published,
+    );
     return OffersSummary(
-      active: entries
-          .where((entry) => entry.status != OfferStatus.ended)
-          .length,
-      endingSoon: entries
+      active: shown.where((entry) => entry.status != OfferStatus.ended).length,
+      endingSoon: shown
           .where((entry) => entry.status == OfferStatus.endingSoon)
           .length,
       clicks: entries.isNotEmpty && known.length == entries.length

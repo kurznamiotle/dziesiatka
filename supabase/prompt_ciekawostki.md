@@ -102,6 +102,26 @@ Zwróć jeden plik .json: listę obiektów, bez żadnego tekstu przed nią ani p
 Przed oddaniem pliku sprawdź: poprawny JSON, 140 pozycji, po 10 w kategorii, limity 60 i 120 znaków, 3 różne odpowiedzi, brak powtórek z CSV, limity źródeł. Pod plikiem podaj liczbę pozycji "published" i "draft", liczbę źródeł z Wikipedii i najczęściej użyte domeny.
 
 Jeśli limit odpowiedzi nie pozwala oddać całości naraz, pracuj kategoria po kategorii i na końcu złącz wszystko w jeden plik.
+
+CIEKAWOSTKI PARTNERSKIE (tylko gdy o nie poproszę)
+Osobna karta napisana pod konkretny produkt, np. książkę, ale nadal z prawdziwym faktem i źródłem jak każda inna. Ma "kind": "partner", nie ma pól category ani quiz (kategorię „Ciekawostka partnerska” nada panel), a produkt podajesz w polach offer_product (do 80 znaków), offer_shop (do 40 znaków), offer_url (link https, który ode mnie dostaniesz) i opcjonalnie offer_until (RRRR-MM-DD). Fakt ma wynikać z tematu produktu, a nie go reklamować: bez zachęt do zakupu i bez ocen typu „świetna książka”.
+
+[
+  {
+    "kind": "partner",
+    "title": "Tytuł",
+    "short_text": "Krótki tekst.",
+    "long_text": "Pierwszy akapit.\n\nDrugi akapit.",
+    "source_label": "Autor, „Tytuł książki”",
+    "source_url": null,
+    "status": "published",
+    "review_note": null,
+    "offer_product": "Tytuł – Autor",
+    "offer_shop": "Znak",
+    "offer_url": "https://…",
+    "offer_until": "2026-12-31"
+  }
+]
 ```
 
 ### Wariant: paczka startowa nowych kategorii
