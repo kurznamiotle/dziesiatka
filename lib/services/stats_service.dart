@@ -26,12 +26,14 @@ class StatsService {
   }
 
   /// Records of facts that are gone are left out, so every number refers to
-  /// facts the user can still see.
+  /// facts the user can still see. Partner cards count toward nothing, and so
+  /// toward no achievement either.
   UserStats summarize({
     required List<Fact> facts,
     required Map<String, QuizRecord> records,
     required List<String> completedDays,
   }) {
+    facts = facts.where((fact) => !fact.isPartner).toList();
     final known = [for (final fact in facts) ?records[fact.id]];
     final categories = {
       for (final fact in facts)

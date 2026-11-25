@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_state.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -168,6 +169,78 @@ void main() {
       final withOffer = fact.copyWith(offer: offer);
 
       expect(withOffer.withState(const FactState()).offer, offer);
+    });
+  });
+
+  group('kind', () {
+    final row = {
+      'id': 'fact-1',
+      'title': 'Tytuł',
+      'category': 'Kosmos',
+      'short_text': 'Zajawka',
+      'long_text': 'Rozwinięcie',
+      'source_label': 'NASA',
+      'source_url': null,
+      'status': 'published',
+      'created_at': '2026-11-01T00:00:00Z',
+      'updated_at': '2026-11-01T00:00:00Z',
+    };
+    const offer = FactOffer(
+      product: 'Atlas nieba',
+      shop: 'Księgarnia',
+      url: 'https://example.com/atlas',
+      until: '2026-11-30',
+    );
+
+    test('a row without kind is regular', () {
+      expect(Fact.fromRow(row).kind, FactKind.regular);
+      expect(Fact.fromRow(row).isPartner, isFalse);
+    });
+
+    test('a partner row is a partner fact', () {
+      final fact = Fact.fromRow({
+        ...row,
+        'kind': 'partner',
+        'category': FactKind.partnerCategory,
+        'offer': offer.toJson(),
+      });
+
+      expect(fact.isPartner, isTrue);
+      expect(fact.offer, offer);
+    });
+
+    test('an unknown kind is regular', () {
+      expect(Fact.fromRow({...row, 'kind': 'inny'}).kind, FactKind.regular);
+    });
+
+    test('kind round-trips through JSON', () {
+      final partner = fact.copyWith(kind: FactKind.partner);
+
+      expect(Fact.fromJson(partner.toJson()).kind, FactKind.partner);
+      expect(Fact.fromJson(fact.toJson()).kind, FactKind.regular);
+    });
+
+    test('a partner fact saved without kind is still a partner', () {
+      final json = fact.copyWith(category: FactKind.partnerCategory).toJson()
+        ..remove('kind');
+
+      expect(Fact.fromJson(json).kind, FactKind.partner);
+    });
+
+    test('withState keeps the kind', () {
+      final partner = fact.copyWith(kind: FactKind.partner);
+
+      expect(partner.withState(const FactState()).kind, FactKind.partner);
+    });
+
+    test('a partner fact is shown only while its offer lasts', () {
+      final partner = fact.copyWith(kind: FactKind.partner, offer: offer);
+      final withoutOffer = fact.copyWith(kind: FactKind.partner);
+
+      expect(partner.isShownOn(DateTime(2026, 11, 30, 23)), isTrue);
+      expect(partner.isShownOn(DateTime(2026, 12, 1)), isFalse);
+      expect(withoutOffer.isShownOn(DateTime(2026)), isFalse);
+      expect(fact.isShownOn(DateTime(2030)), isTrue);
     });
   });
 }

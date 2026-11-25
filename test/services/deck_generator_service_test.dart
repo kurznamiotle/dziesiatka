@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/services/deck_generator_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -275,6 +276,138 @@ void main() {
       ]);
 
       expect(limited, [cards[0], spare, cards[2]]);
+    });
+  });
+
+  group('partner cards', () {
+    const offer = FactOffer(
+      product: 'Atlas nieba',
+      shop: 'Księgarnia',
+      url: 'https://example.com/atlas',
+    );
+
+    Fact partner({String? until, bool isRead = false}) {
+      return fact(FactKind.partnerCategory, isRead: isRead).copyWith(
+        kind: FactKind.partner,
+        offer: FactOffer(
+          product: offer.product,
+          shop: offer.shop,
+          url: offer.url,
+          until: until,
+        ),
+      );
+    }
+
+    List<Fact> regularIn(List<Fact> deck) {
+      return deck.where((card) => !card.isPartner).toList();
+    }
+
+    test('one comes on top of 7-2-1, never first or last', () {
+      final partners = [partner(), partner(), partner()];
+      final positions = <int>{};
+      for (var seed = 0; seed < 40; seed++) {
+        final review = fact('Kosmos', lastReadAt: DateTime(2026, 11, 7));
+        final deck = generate(
+          [...balancedPool(), review, ...partners],
+          disabled: others,
+          seed: seed,
+        );
+        final regular = regularIn(deck);
+
+        expect(deck, hasLength(11), reason: 'seed $seed');
+        expect(deck.where((card) => card.isPartner), hasLength(1));
+        expect(deck.first.isPartner, isFalse, reason: 'seed $seed');
+        expect(deck.last.isPartner, isFalse, reason: 'seed $seed');
+        // 7 favorites and the review, which is from a favorite category.
+        expect(countIn(regular, favorites), 8, reason: 'seed $seed');
+        expect(countIn(regular, others), 2, reason: 'seed $seed');
+        expect(regular.where((card) => card.isRead), hasLength(1));
+        expect(longestRun(regular), lessThanOrEqualTo(2), reason: 'seed $seed');
+        expect(longestRun(deck), lessThanOrEqualTo(2), reason: 'seed $seed');
+        positions.add(deck.indexWhere((card) => card.isPartner));
+      }
+      expect(positions.length, greaterThan(3));
+    });
+
+    test('a read partner fact leaves the deck as it was', () {
+      final pool = balancedPool();
+      final plain = generate(pool, disabled: others, seed: 7);
+      final withRead = generate(
+        [...pool, partner(isRead: true)],
+        disabled: others,
+        seed: 7,
+      );
+
+      expect(withRead, plain);
+    });
+
+    test('takes the place of the deck\'s one offer', () {
+      for (var seed = 0; seed < 30; seed++) {
+        final pool = [
+          for (final (index, fact) in balancedPool().indexed)
+            index.isEven ? fact.copyWith(offer: offer) : fact,
+          partner(),
+        ];
+        final deck = generate(pool, disabled: others, seed: seed);
+
+        expect(deck.where((card) => card.isPartner), hasLength(1));
+        expect(
+          regularIn(deck).where((card) => card.activeOfferOn(now) != null),
+          isEmpty,
+          reason: 'seed $seed',
+        );
+      }
+    });
+
+    test('waits when an offer card cannot be replaced', () {
+      final pool = [
+        for (final fact in many(10, 'Kosmos')) fact.copyWith(offer: offer),
+        partner(),
+      ];
+      final deck = generate(pool, seed: 3);
+
+      expect(deck, hasLength(10));
+      expect(deck.where((card) => card.isPartner), isEmpty);
+    });
+
+    test('an ended, read or withdrawn partner card is not used', () {
+      final pool = [
+        ...balancedPool(),
+        partner(until: '2026-11-09'),
+        partner(isRead: true),
+        partner().copyWith(isWithdrawn: true),
+      ];
+
+      for (var seed = 0; seed < 10; seed++) {
+        final deck = generate(pool, disabled: others, seed: seed);
+
+        expect(deck.where((card) => card.isPartner), isEmpty);
+        expect(deck, hasLength(10));
+      }
+    });
+
+    test('a partner card is never a replacement for an offer', () {
+      final cards = [
+        fact('Kosmos').copyWith(offer: offer),
+        fact('Kosmos').copyWith(offer: offer),
+      ];
+
+      final limited = generator.limitOffers(cards, [partner()]);
+
+      expect(limited.where((card) => card.isPartner), isEmpty);
+    });
+
+    test('a round needs two other cards to sit between', () {
+      final single = [fact('Kosmos')];
+
+      final round = generator.withPartner(
+        single,
+        const [],
+        partners: [partner()],
+        random: Random(1),
+      );
+
+      expect(round, single);
     });
   });
 }

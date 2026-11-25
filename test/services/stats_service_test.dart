@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/quiz_record.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:dziesiatka/services/quiz_history_service.dart';
@@ -196,6 +197,31 @@ void main() {
       completedDays: const [],
     );
 
+    expect(stats.categoriesTotal, 1);
+    expect(stats.categoriesRead, 1);
+  });
+
+  test('partner cards count toward no number', () {
+    final partner = fact(
+      9,
+      category: FactKind.partnerCategory,
+      isRead: true,
+      isFavorite: true,
+    ).copyWith(kind: FactKind.partner);
+
+    final stats = service.summarize(
+      facts: [fact(1, isRead: true), partner],
+      records: {
+        'fact-9': record(answered: 1, correct: 1, wasLastCorrect: true),
+      },
+      completedDays: const [],
+    );
+
+    expect(stats.factsRead, 1);
+    expect(stats.factsRemembered, 0);
+    expect(stats.answersGiven, 0);
+    expect(stats.factsLiked, 0);
+    expect(stats.favoriteCategory, isNull);
     expect(stats.categoriesTotal, 1);
     expect(stats.categoriesRead, 1);
   });

@@ -41,6 +41,7 @@ class QuickReviewService {
     final candidates = facts.where((fact) {
       final readAt = fact.lastReadAt;
       return fact.quiz != null &&
+          !fact.isPartner &&
           fact.isRead &&
           !fact.isWithdrawn &&
           (readAt == null || readAt.isBefore(today));

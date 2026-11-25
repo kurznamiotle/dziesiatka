@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dziesiatka/models/daily_deck.dart';
 import 'package:dziesiatka/models/daily_session.dart';
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/services/daily_deck_service.dart';
@@ -914,6 +915,80 @@ void main() {
 
       expect(session.remaining, hasLength(5));
       expect(session.canUndo, isFalse);
+    });
+  });
+
+  group('partner cards', () {
+    const offer = FactOffer(
+      product: 'Atlas',
+      shop: 'Sklep',
+      url: 'https://example.com',
+    );
+
+    Fact partner(int number) {
+      return fact(number).copyWith(
+        kind: FactKind.partner,
+        category: FactKind.partnerCategory,
+        offer: offer,
+      );
+    }
+
+    test('stay out of the quiz and the reviews', () async {
+      givenPool([
+        for (var i = 0; i < 3; i++) fact(i),
+        for (var i = 3; i < 13; i++) fact(i, hasQuiz: false),
+        partner(99),
+      ]);
+
+      final session = await service.loadToday();
+
+      expect(session.facts.where((fact) => fact.isPartner), hasLength(1));
+      expect(session.deck.quizFactIds, isNot(contains('fact-99')));
+      expect(session.deck.quizFactIds, hasLength(3));
+      expect(session.deck.reviewFactIds, isNot(contains('fact-99')));
+    });
+
+    test('a bonus round has at most one and never makes a round', () async {
+      givenPool([
+        for (var i = 0; i < 30; i++) fact(i),
+        for (var i = 100; i < 105; i++) partner(i),
+      ]);
+      var session = await service.loadToday();
+      for (final card in session.remaining) {
+        session = await service.completeCard(card.id, liked: false);
+      }
+      final finished = await service.finishQuiz(1);
+      expect(finished.facts.where((fact) => fact.isPartner), hasLength(1));
+      expect(finished.bonusCount, 5);
+
+      final bonus = await service.addBonusCards();
+
+      expect(bonus.remaining, hasLength(6));
+      expect(bonus.remaining.where((fact) => fact.isPartner), hasLength(1));
+      expect(bonus.remaining.first.isPartner, isFalse);
+      expect(bonus.remaining.last.isPartner, isFalse);
+    });
+
+    test('only partner cards left give no bonus round', () async {
+      givenPool([
+        for (var i = 0; i < 10; i++) fact(i),
+        for (var i = 100; i < 103; i++) partner(i),
+      ]);
+      var session = await service.loadToday();
+      for (final card in session.remaining) {
+        session = await service.completeCard(card.id, liked: false);
+      }
+
+      expect((await service.finishQuiz(1)).bonusCount, 0);
+    });
+
+    test('a read partner card does not count as read', () async {
+      givenPool([
+        for (var i = 0; i < 10; i++) fact(i),
+        partner(99).copyWith(isRead: true),
+      ]);
+
+      expect((await service.loadToday()).factsRead, 0);
     });
   });
 }

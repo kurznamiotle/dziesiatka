@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/services/fact_source.dart';
 import 'package:dziesiatka/services/facts_service.dart';
 import 'package:flutter/services.dart';
@@ -430,6 +431,15 @@ void main() {
         'Inżynieria & Motoryzacja',
         'Kosmos',
       ]);
+    });
+
+    test('partner cards have no category to choose', () async {
+      givenStored([
+        fact('a', 'Kosmos'),
+        fact('b', FactKind.partnerCategory).copyWith(kind: FactKind.partner),
+      ]);
+
+      expect(await FactsService().getCategories(), ['Kosmos']);
     });
 
     test('a new category appears once a fact in it arrives', () async {

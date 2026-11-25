@@ -71,10 +71,11 @@ class FactsService {
   }
 
   /// The categories of facts still in circulation, in alphabetical order.
+  /// Partner cards have no category to choose.
   Future<List<String>> getCategories() async {
     final facts = await getFacts();
     final categories = facts
-        .where((fact) => !fact.isWithdrawn)
+        .where((fact) => !fact.isWithdrawn && !fact.isPartner)
         .map((fact) => fact.category)
         .toSet();
     return categories.toList()..sort();

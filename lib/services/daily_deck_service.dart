@@ -81,7 +81,7 @@ class DailyDeckService {
       factIds: chosen.map((fact) => fact.id).toList(),
       quizFactIds: _chooseQuizFactIds(chosen, random),
       reviewFactIds: chosen
-          .where((fact) => fact.isRead)
+          .where((fact) => fact.isRead && !fact.isPartner)
           .map((fact) => fact.id)
           .toList(),
     );
@@ -96,20 +96,22 @@ class DailyDeckService {
     final session = await loadToday();
     if (!session.isDayFinished || session.remaining.isNotEmpty) return session;
 
+    final facts = await _factsService.getFacts();
     final bonus = _bonusFacts(
-      await _factsService.getFacts(),
+      facts,
       session.deck,
       await _categoryPreferences.getDisabled(),
     );
-    bonus.shuffle(
-      await _randomFor(
-        prefs,
-        '${session.deck.date}:bonus:${session.deck.factIds.length}',
-      ),
+    final random = await _randomFor(
+      prefs,
+      '${session.deck.date}:bonus:${session.deck.factIds.length}',
     );
-    final chosen = _generator.limitOffers(
+    bonus.shuffle(random);
+    final chosen = _generator.withPartner(
       bonus.take(bonusSize).toList(),
       bonus.skip(bonusSize),
+      partners: facts.where((fact) => !session.deck.factIds.contains(fact.id)),
+      random: random,
     );
     await _saveDeck(
       prefs,
@@ -118,13 +120,15 @@ class DailyDeckService {
     return loadToday();
   }
 
+  /// The regular facts a bonus round can take. A partner card only comes on
+  /// top of them, so it never makes a round on its own.
   List<Fact> _bonusFacts(
     List<Fact> facts,
     DailyDeck deck,
     Set<String> disabledCategories,
   ) {
     return facts
-        .where((fact) => !fact.isRead && !fact.isWithdrawn)
+        .where((fact) => !fact.isRead && !fact.isWithdrawn && !fact.isPartner)
         .where((fact) => !disabledCategories.contains(fact.category))
         .where((fact) => !deck.factIds.contains(fact.id))
         .toList();
@@ -224,8 +228,9 @@ class DailyDeckService {
   }
 
   List<String> _chooseQuizFactIds(List<Fact> deckFacts, Random random) {
-    final withQuestions = deckFacts.where((fact) => fact.quiz != null).toList()
-      ..shuffle(random);
+    final withQuestions =
+        deckFacts.where((fact) => fact.quiz != null && !fact.isPartner).toList()
+          ..shuffle(random);
     return withQuestions
         .take(quizQuestionCount)
         .map((fact) => fact.id)

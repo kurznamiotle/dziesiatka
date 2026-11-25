@@ -24,12 +24,16 @@ class DeckGeneratorService {
   /// Takes the review first, as it is the only card that needs a due fact.
   /// Without one its place goes to a favorite. New facts fill any gap before
   /// read ones do, so the deck stays full and repeats only when it must.
+  ///
+  /// Partner facts in [allFacts] never take one of these places. One of them
+  /// can come on top of the deck, see [withPartner].
   List<Fact> generate(
-    List<Fact> facts, {
+    List<Fact> allFacts, {
     required Set<String> disabledCategories,
     required Random random,
   }) {
     bool isFavorite(Fact fact) => !disabledCategories.contains(fact.category);
+    final facts = allFacts.where((fact) => !fact.isPartner).toList();
 
     final unread = facts.where((fact) => !fact.isRead).toList()
       ..shuffle(random);
@@ -58,23 +62,79 @@ class DeckGeneratorService {
     final chosen = [...rest.take(deckSize - reviews.length), ...reviews]
       ..shuffle(random);
     final spares = [...unread, ...read].where((fact) => !chosen.contains(fact));
-    return _withoutLongRuns(limitOffers(chosen, spares));
+    return withPartner(
+      chosen,
+      spares,
+      partners: allFacts,
+      random: random,
+      arrange: _withoutLongRuns,
+    );
   }
 
-  /// Keeps the first [maxOffersPerRound] cards with an active offer. Each one
-  /// past that gives its place to a card without an offer from [spares], from
-  /// the same category and in the same read state when there is one, so the
-  /// mix of favorites, discoveries and reviews stays as chosen. A card that
-  /// has no fitting replacement stays, because a full deck matters more.
-  List<Fact> limitOffers(List<Fact> cards, Iterable<Fact> spares) {
+  /// Limits offers in [cards] and adds one partner fact when it can. The
+  /// partner card counts as the round's one offer, so a card with an offer
+  /// first gives its place to one from [spares]. If none can, the partner
+  /// card waits for another day.
+  ///
+  /// [partners] may hold any facts: only unread partner facts still in
+  /// circulation and with an active offer are taken. [arrange] orders the
+  /// cards before the partner card goes in, never first and never last, so
+  /// it takes no category's place and breaks no run.
+  List<Fact> withPartner(
+    List<Fact> cards,
+    Iterable<Fact> spares, {
+    required Iterable<Fact> partners,
+    required Random random,
+    List<Fact> Function(List<Fact>) arrange = _keepOrder,
+  }) {
+    final moment = now();
+    final candidates = partners
+        .where(
+          (fact) =>
+              fact.isPartner &&
+              !fact.isRead &&
+              !fact.isWithdrawn &&
+              fact.isShownOn(moment),
+        )
+        .toList();
+    if (candidates.isEmpty || cards.length < 2) {
+      return arrange(limitOffers(cards, spares));
+    }
+
+    final partner = candidates[random.nextInt(candidates.length)];
+    final withoutOffers = limitOffers(cards, spares, maxOffers: 0);
+    if (withoutOffers.any((fact) => fact.activeOfferOn(moment) != null)) {
+      return arrange(limitOffers(cards, spares));
+    }
+
+    final arranged = arrange(withoutOffers);
+    final position = 1 + random.nextInt(arranged.length - 1);
+    return [...arranged]..insert(position, partner);
+  }
+
+  static List<Fact> _keepOrder(List<Fact> cards) => cards;
+
+  /// Keeps the first [maxOffers] cards with an active offer. Each one past
+  /// that gives its place to a card without an offer from [spares], from the
+  /// same category and in the same read state when there is one, so the mix
+  /// of favorites, discoveries and reviews stays as chosen. A card that has
+  /// no fitting replacement stays, because a full deck matters more. Partner
+  /// facts in [spares] are never used.
+  List<Fact> limitOffers(
+    List<Fact> cards,
+    Iterable<Fact> spares, {
+    int maxOffers = maxOffersPerRound,
+  }) {
     final moment = now();
     bool hasOffer(Fact fact) => fact.activeOfferOn(moment) != null;
 
-    final free = spares.where((fact) => !hasOffer(fact)).toList();
+    final free = spares
+        .where((fact) => !hasOffer(fact) && !fact.isPartner)
+        .toList();
     final result = <Fact>[];
     var offers = 0;
     for (final (index, card) in cards.indexed) {
-      if (!hasOffer(card) || offers < maxOffersPerRound) {
+      if (!hasOffer(card) || offers < maxOffers) {
         if (hasOffer(card)) offers++;
         result.add(card);
         continue;

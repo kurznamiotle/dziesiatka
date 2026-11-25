@@ -1,4 +1,5 @@
 import 'package:dziesiatka/models/fact.dart';
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
 import 'package:dziesiatka/models/quiz_record.dart';
 import 'package:dziesiatka/services/facts_service.dart';
@@ -146,5 +147,16 @@ void main() {
     await service.recordAnswer('fact-2', isCorrect: false);
 
     expect(ids(await service.chooseFacts()), ['fact-2', 'fact-1']);
+  });
+
+  test('never asks about a partner card', () {
+    final partner = fact(
+      1,
+      lastReadAt: daysAgo(5),
+    ).copyWith(kind: FactKind.partner);
+
+    expect(service.choose([partner, fact(2, lastReadAt: daysAgo(1))], {}), [
+      isA<Fact>().having((fact) => fact.id, 'id', 'fact-2'),
+    ]);
   });
 }

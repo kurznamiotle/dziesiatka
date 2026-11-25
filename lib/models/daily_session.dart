@@ -13,7 +13,7 @@ class DailySession {
          for (final id in deck.factIds)
            pool.firstWhere((fact) => fact.id == id),
        ],
-       factsRead = pool.where((fact) => fact.isRead).length;
+       factsRead = pool.where((fact) => fact.isRead && !fact.isPartner).length;
 
   final DailyDeck deck;
   final List<Fact> facts;
@@ -22,7 +22,8 @@ class DailySession {
   /// How many extra cards the next "Jeszcze" round would bring.
   final int bonusCount;
 
-  /// All facts this user has read, not only those in today's deck.
+  /// All facts this user has read, not only those in today's deck. Partner
+  /// cards do not count.
   final int factsRead;
 
   List<Fact> get remaining {

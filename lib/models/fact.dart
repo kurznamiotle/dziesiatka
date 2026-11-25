@@ -1,3 +1,4 @@
+import 'package:dziesiatka/models/fact_kind.dart';
 import 'package:dziesiatka/models/fact_offer.dart';
 import 'package:dziesiatka/models/fact_state.dart';
 import 'package:dziesiatka/models/quiz_question.dart';
@@ -21,6 +22,7 @@ class Fact {
     this.lastReadAt,
     this.quiz,
     this.offer,
+    this.kind = FactKind.regular,
   }) : updatedAt = updatedAt ?? createdAt;
 
   /// Reads the app's own format. Facts saved before the split into [shortText]
@@ -42,13 +44,18 @@ class Fact {
       isWithdrawn: json['isWithdrawn'] as bool? ?? false,
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       offer: FactOffer.tryParse(json['offer']),
+      // Saved by 1.4.0+7, which kept partner facts without their kind.
+      kind: json['kind'] == null && json['category'] == FactKind.partnerCategory
+          ? FactKind.partner
+          : FactKind.fromName(json['kind']),
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: updatedAt == null ? null : DateTime.parse(updatedAt),
     );
   }
 
   /// Reads a row of the `facts` table from Supabase. Before
-  /// `supabase/offers.sql` runs, rows have no `offer` and so no offer.
+  /// `supabase/offers.sql` runs, rows have no `offer` and so no offer, and
+  /// before `supabase/partner_facts.sql` they have no `kind` and are regular.
   factory Fact.fromRow(Map<String, dynamic> row) {
     final quiz = row['quiz'] as Map<String, dynamic>?;
     return Fact(
@@ -62,6 +69,7 @@ class Fact {
       isWithdrawn: row['status'] == 'withdrawn',
       quiz: quiz == null ? null : QuizQuestion.fromJson(quiz),
       offer: FactOffer.tryParse(row['offer']),
+      kind: FactKind.fromName(row['kind']),
       createdAt: DateTime.parse(row['created_at'] as String),
       updatedAt: DateTime.parse(row['updated_at'] as String),
     );
@@ -90,6 +98,10 @@ class Fact {
   /// A partner product under the fact. Use [activeOfferOn], which leaves out
   /// an offer past its end date.
   final FactOffer? offer;
+
+  /// A partner fact is an extra card about a product. It never takes part in
+  /// the quiz, reviews or the user's statistics.
+  final FactKind kind;
   final DateTime createdAt;
 
   /// Decides which copy of a fact is newer when two sources have it.
@@ -98,6 +110,14 @@ class Fact {
   FactOffer? activeOfferOn(DateTime moment) {
     final offer = this.offer;
     return offer != null && offer.isActiveOn(moment) ? offer : null;
+  }
+
+  bool get isPartner => kind == FactKind.partner;
+
+  /// A partner fact exists only for its offer, so it is gone once the offer
+  /// ends. Other facts are always shown.
+  bool isShownOn(DateTime moment) {
+    return !isPartner || activeOfferOn(moment) != null;
   }
 
   FactState get state {
@@ -122,6 +142,7 @@ class Fact {
     DateTime? lastReadAt,
     QuizQuestion? quiz,
     FactOffer? offer,
+    FactKind? kind,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -139,6 +160,7 @@ class Fact {
       lastReadAt: lastReadAt ?? this.lastReadAt,
       quiz: quiz ?? this.quiz,
       offer: offer ?? this.offer,
+      kind: kind ?? this.kind,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -161,6 +183,7 @@ class Fact {
       lastReadAt: state.lastReadAt,
       quiz: quiz,
       offer: offer,
+      kind: kind,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -178,6 +201,7 @@ class Fact {
       'isWithdrawn': isWithdrawn,
       'quiz': quiz?.toJson(),
       'offer': offer?.toJson(),
+      'kind': kind.name,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
     };
